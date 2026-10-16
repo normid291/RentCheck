@@ -34,7 +34,7 @@
     statFlaggedVal: $("statFlaggedVal"),
     statMissing: $("statMissing"),
     statMissingVal: $("statMissingVal"),
-    statChecked: $("statCheckedVal"),
+    statCheckedVal: $("statCheckedVal"),
     flaggedList: $("flaggedList"),
     flaggedCount: $("flaggedCount"),
     missingList: $("missingList"),
