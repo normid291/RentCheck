@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RentCheck</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; background: #fafafa; color: #222; }
+    h1 { font-size: 1.6rem; }
+    textarea { width: 100%; height: 220px; padding: 12px; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 6px; }
+    input[type="file"] { display: block; margin: 8px 0 12px; }
+    button { margin-top: 12px; padding: 10px 20px; background: #1a7a3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
+    button:disabled { background: #999; cursor: default; }
+    .clause { border-left: 4px solid #ccc; padding: 10px 14px; margin: 10px 0; background: white; border-radius: 4px; }
+    .high { border-left-color: #c0392b; }
+    .medium { border-left-color: #e67e22; }
+    .low { border-left-color: #2980b9; }
+    #summary { margin-top: 20px; font-weight: 600; }
+    #loading { display: none; color: #666; margin-top: 10px; }
+    h2.section { font-size: 1.1rem; margin-top: 28px; margin-bottom: 6px; }
+    .missing { border-left: 4px solid #8e44ad; padding: 10px 14px; margin: 10px 0; background: white; border-radius: 4px; }
+    .missing .why { color: #555; font-size: 0.9rem; }
+    ul.questions { margin: 8px 0; padding-left: 22px; }
+    ul.questions li { margin: 6px 0; }
+    .divider { margin: 28px 0; border: none; border-top: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <h1>RentCheck</h1>
+  <p>Paste your tenancy agreement below, or upload a PDF, image, or text file,
+     to see flagged clauses, missing protections, and questions to ask.</p>
+
+  <textarea id="agreementText" placeholder="Paste your tenancy agreement here..."></textarea>
+  <br />
+  <button id="analyzeBtn" onclick="analyze()">Analyze Agreement</button>
+
+  <hr class="divider" />
+
+  <p>Or upload a file (PDF, image, or .txt):</p>
+  <input type="file" id="agreementFile" accept=".pdf,.png,.jpg,.jpeg,.webp,.bmp,.tiff,.txt" />
+  <button id="uploadBtn" onclick="analyzeFile()">Analyze File</button>
+
+  <div id="loading">Analyzing... this may take a moment.</div>
+  <div id="summary"></div>
+  <div id="results"></div>
+  <div id="missing"></div>
+  <div id="questions"></div>
+
+  <script>
+    const els = {
+      btn: document.getElementById('analyzeBtn'),
+      uploadBtn: document.getElementById('uploadBtn'),
+      loading: document.getElementById('loading'),
+      summary: document.getElementById('summary'),
+      results: document.getElementById('results'),
+      missing: document.getElementById('missing'),
+      questions: document.getElementById('questions'),
+    };
+
+    function setBusy(busy) {
+      els.btn.disabled = busy;
+      els.uploadBtn.disabled = busy;
+      els.loading.style.display = busy ? 'block' : 'none';
+    }
+
+    function clearOutput() {
+      els.summary.innerHTML = '';
+      els.results.innerHTML = '';
+      els.missing.innerHTML = '';
+      els.questions.innerHTML = '';
+    }
+
+    function renderResults(data) {
+      els.summary.textContent = `${data.summary} (Risk score: ${data.risk_score}/100)`;
+
+      // Flagged clauses
+      if (!data.flagged_clauses || data.flagged_clauses.length === 0) {
+        els.results.innerHTML = '<h2 class="section">Flagged clauses</h2><p>No flagged clauses found.</p>';
+      } else {
+        els.results.innerHTML = '<h2 class="section">Flagged clauses</h2>';
+        data.flagged_clauses.forEach(c => {
+          const div = document.createElement('div');
+          div.className = 'clause ' + (c.severity || 'low');
+          const label = c.clause_type.replace(/_/g, ' ');
+          const srcTag = c.source === 'rule'
+            ? ' <small style="color:#8e44ad;">[flagged by rule]</small>'
+            : ' <small style="color:#888;">[AI suggestion — worth a manual check]</small>';
+          const evidence = c.evidence ? `<br><small>Based on: <strong>"${c.evidence}"</strong></small>` : '';
+          div.innerHTML = `<strong>${label}</strong> (${c.severity})${srcTag}<br>${c.reason}${evidence}<br><em>"${c.clause}"</em>`;
+          els.results.appendChild(div);
+        });
+      }
+
+      // Missing protections
+      if (data.missing_protections && data.missing_protections.length > 0) {
+        els.missing.innerHTML = '<h2 class="section">Missing protections</h2>';
+        data.missing_protections.forEach(m => {
+          const div = document.createElement('div');
+          div.className = 'missing';
+          div.innerHTML = `<strong>${m.label}</strong><br><span class="why">${m.why}</span>`;
+          els.missing.appendChild(div);
+        });
+      }
+
+      // Questions to ask
+      if (data.questions_to_ask && data.questions_to_ask.length > 0) {
+        els.questions.innerHTML = '<h2 class="section">Questions to ask before signing</h2>';
+        const ul = document.createElement('ul');
+        ul.className = 'questions';
+        data.questions_to_ask.forEach(q => {
+          const li = document.createElement('li');
+          li.textContent = q;
+          ul.appendChild(li);
+        });
+        els.questions.appendChild(ul);
+      }
+    }
+
+    async function handleResponse(res) {
+      if (!res.ok) {
+        // FastAPI puts our ExtractionError message in `detail`.
+        let detail = 'Request failed: ' + res.status;
+        try {
+          const body = await res.json();
+          if (body && body.detail) detail = body.detail;
+        } catch (e) { /* keep the default */ }
+        throw new Error(detail);
+      }
+      return res.json();
+    }
+
+    async function analyze() {
+      const text = document.getElementById('agreementText').value.trim();
+      if (!text) { alert('Please paste an agreement first.'); return; }
+
+      setBusy(true);
+      clearOutput();
+      try {
+        const res = await fetch('/api/agreements/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+        renderResults(await handleResponse(res));
+      } catch (err) {
+        els.results.innerHTML = '<p style="color:red;">Something went wrong: ' + err.message + '</p>';
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function analyzeFile() {
+      const input = document.getElementById('agreementFile');
+      if (!input.files || input.files.length === 0) {
+        alert('Please choose a file first.');
+        return;
+      }
+
+      const form = new FormData();
+      form.append('file', input.files[0]);
+
+      setBusy(true);
+      clearOutput();
+      try {
+        const res = await fetch('/api/agreements/analyze-upload', {
+          method: 'POST',
+          body: form
+        });
+        renderResults(await handleResponse(res));
+      } catch (err) {
+        els.results.innerHTML = '<p style="color:red;">Something went wrong: ' + err.message + '</p>';
+      } finally {
+        setBusy(false);
+      }
+    }
+  </script>
+</body>
+</html>
