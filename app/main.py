@@ -101,8 +101,9 @@ async def sqlalchemy_error_handler(request: Request, exc: SQLAlchemyError):
         status_code=500,
         content={
             "detail": (
-                "Database error while saving the analysis. The service's "
-                "database may be unreachable or not initialised."
+                "Database error while saving the analysis. Check that "
+                "DATABASE_URL is set correctly for this deployment and that the "
+                "database is reachable (see /health/db)."
             ),
             "error": type(exc).__name__,
         },
