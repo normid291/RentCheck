@@ -110,6 +110,7 @@ def run():
                 updated += 1
         db.commit()
         print(f"clause_reference synced: {added} added, {updated} updated.")
+        return added, updated
     finally:
         db.close()
 

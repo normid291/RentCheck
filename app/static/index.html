@@ -117,16 +117,32 @@
     }
 
     async function handleResponse(res) {
-      if (!res.ok) {
-        // FastAPI puts our ExtractionError message in `detail`.
-        let detail = 'Request failed: ' + res.status;
-        try {
+      if (res.ok) return res.json();
+
+      // Turn the server's error response into a helpful message rather than
+      // the generic "Request failed: 500".
+      let detail = 'Request failed (HTTP ' + res.status + ')';
+      try {
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
           const body = await res.json();
-          if (body && body.detail) detail = body.detail;
-        } catch (e) { /* keep the default */ }
-        throw new Error(detail);
+          if (body) {
+            if (typeof body.detail === 'string') {
+              detail = body.detail;
+            } else if (body.detail) {
+              detail = JSON.stringify(body.detail);
+            } else if (body.error) {
+              detail = 'Server error (' + body.error + '). Please try again.';
+            }
+          }
+        } else {
+          const text = (await res.text()).trim();
+          if (text) detail = 'Request failed (HTTP ' + res.status + '): ' + text.slice(0, 300);
+        }
+      } catch (e) {
+        /* keep the default message */
       }
-      return res.json();
+      throw new Error(detail);
     }
 
     async function analyze() {

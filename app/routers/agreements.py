@@ -115,10 +115,12 @@ async def analyze_upload(
     try:
         text = extract_text(data, file.content_type or "", file.filename or "")
     except ExtractionError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
+        # ExtractionError carries its own status: 400 bad/empty file,
+        # 413 too large, 500 when the PDF/OCR engine is missing.
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
     if not text.strip():
-        raise HTTPException(status_code=422, detail="No text could be read from the file.")
+        raise HTTPException(status_code=400, detail="No text could be read from the file.")
 
     source_type = _source_type_for(file.content_type or "", file.filename or "")
     return _run_pipeline(text, source_type, db)

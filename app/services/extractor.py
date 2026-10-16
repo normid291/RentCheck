@@ -18,15 +18,24 @@ MAX_UPLOAD_BYTES = 15 * 1024 * 1024  # 15 MB
 
 class ExtractionError(Exception):
     """Raised when an upload cannot be turned into usable text. The message is
-    safe to show to the user."""
+    safe to show to the user, and `status_code` lets the router return the right
+    HTTP status (400 for a bad/empty file, 413 for too large, 502 when the OCR
+    engine itself is unavailable)."""
+
+    def __init__(self, message: str, status_code: int = 400):
+        super().__init__(message)
+        self.status_code = status_code
 
 
 def extract_text(data: bytes, content_type: str, filename: str = "") -> str:
     """Dispatch on content type / extension and return extracted plain text."""
     if not data:
-        raise ExtractionError("The uploaded file is empty.")
+        raise ExtractionError("The uploaded file is empty.", status_code=400)
     if len(data) > MAX_UPLOAD_BYTES:
-        raise ExtractionError("The uploaded file is too large (max 15 MB).")
+        raise ExtractionError(
+            f"The uploaded file is too large (max {MAX_UPLOAD_BYTES // (1024 * 1024)} MB).",
+            status_code=413,
+        )
 
     kind = _classify(content_type, filename)
 
@@ -38,7 +47,8 @@ def extract_text(data: bytes, content_type: str, filename: str = "") -> str:
         return _extract_plain(data)
 
     raise ExtractionError(
-        "Unsupported file type. Upload a PDF, an image (PNG/JPG), or a .txt file."
+        "Unsupported file type. Upload a PDF, an image (PNG/JPG), or a .txt file.",
+        status_code=400,
     )
 
 
@@ -60,20 +70,22 @@ def _extract_pdf(data: bytes) -> str:
         from pypdf import PdfReader
     except ImportError as exc:  # optional dependency not installed
         raise ExtractionError(
-            "PDF support is not installed on the server (pip install pypdf)."
+            "PDF support is not installed on the server (pip install pypdf).",
+            status_code=500,
         ) from exc
 
     try:
         reader = PdfReader(io.BytesIO(data))
         pages = [(page.extract_text() or "") for page in reader.pages]
     except Exception as exc:
-        raise ExtractionError("Could not read the uploaded PDF.") from exc
+        raise ExtractionError("Could not read the uploaded PDF.", status_code=400) from exc
 
     text = "\n\n".join(p.strip() for p in pages if p and p.strip())
     if not text.strip():
         raise ExtractionError(
             "This PDF has no selectable text (it looks like a scan). "
-            "Try uploading it as an image instead, or paste the text."
+            "Try uploading it as an image instead, or paste the text.",
+            status_code=400,
         )
     return text
 
@@ -85,7 +97,8 @@ def _extract_image(data: bytes) -> str:
     except ImportError as exc:  # optional OCR dependency not installed
         raise ExtractionError(
             "Image OCR is not installed on the server "
-            "(pip install pytesseract Pillow, and install Tesseract)."
+            "(pip install pytesseract Pillow, and install Tesseract).",
+            status_code=500,
         ) from exc
 
     _configure_tesseract(pytesseract)
@@ -93,19 +106,21 @@ def _extract_image(data: bytes) -> str:
     try:
         image = Image.open(io.BytesIO(data))
     except Exception as exc:
-        raise ExtractionError("Could not read the uploaded image.") from exc
+        raise ExtractionError("Could not read the uploaded image.", status_code=400) from exc
 
     try:
         text = pytesseract.image_to_string(image)
     except Exception as exc:
         # Most commonly: the Tesseract binary is not on PATH.
         raise ExtractionError(
-            "The OCR engine (Tesseract) is not available on the server."
+            "The OCR engine (Tesseract) is not available on the server.",
+            status_code=500,
         ) from exc
 
     if not text.strip():
         raise ExtractionError(
-            "No readable text was found in the image. Try a clearer photo of the document."
+            "No readable text was found in the image. Try a clearer photo of the document.",
+            status_code=400,
         )
     return text
 
@@ -140,4 +155,4 @@ def _extract_plain(data: bytes) -> str:
             return data.decode(encoding)
         except UnicodeDecodeError:
             continue
-    raise ExtractionError("Could not decode the uploaded text file.")
+    raise ExtractionError("Could not decode the uploaded text file.", status_code=400)

@@ -49,29 +49,46 @@ pip install -r requirements.txt
 cp .env.example .env
 # edit .env with your local Postgres URL and Rumpty AI Inference credentials
 
-# 3. Create tables
+# 3. Create the schema and seed data (also runs automatically on startup)
 python -m app.init_db
 
-# 4. Seed clause reference data
-python -m app.seed_clause_reference
-
-# 5. Run the server
+# 4. Run the server
 uvicorn app.main:app --reload
 ```
 
 Visit `http://localhost:8000` to use the app.
 
+`python -m app.init_db` creates any missing tables, adds any columns missing
+from an older schema, and seeds `clause_reference`. The same routine runs on
+app startup, so a fresh database is usable without extra steps.
+
 ## Deployment (Rumpty Cloud)
 
 1. Push this repo to GitHub.
 2. In the Rumpty console, create a new Deployment connected to this repo.
+   The `Procfile` / `Dockerfile` start command is
+   `uvicorn app.main:app --host 0.0.0.0 --port 8080`.
 3. Set environment variables in the deployment config:
-   - `DATABASE_URL` — internal connection string from your Rumpty Postgres instance
+   - `DATABASE_URL` — the connection string for the Postgres instance the app
+     should use (use the internal one when the app and DB are both on Rumpty)
    - `RUMPTY_AI_BASE_URL`, `RUMPTY_AI_KEY`, `RUMPTY_AI_MODEL` — from the AI Inference tab
-4. Build command: none needed (Python auto-detected). Start command:
-   `uvicorn app.main:app --host 0.0.0.0 --port 8080`
-5. After first deploy, run `python -m app.init_db` and
-   `python -m app.seed_clause_reference` once via the Rumpty web terminal.
+4. The schema and seed data are created automatically on startup, so a manual
+   `init_db` step is no longer required. To confirm the app can reach its
+   database, call `GET /health/db` — it returns `200 {"status":"ok"...}` when the
+   DB is reachable and initialised, or `503` with the actual error otherwise.
+
+### API error responses
+
+Failures return structured JSON (never a bare "Internal Server Error"):
+
+| Status | When |
+| ------ | ---- |
+| 400 | Empty file, unsupported type, unreadable/scan-only PDF or image |
+| 413 | Upload larger than 15 MB |
+| 500 | Database error while saving the analysis (check `DATABASE_URL` + `/health/db`) |
+| 502 | Upstream AI Inference unavailable |
+
+Full stack traces are always logged server-side.
 
 ## Project structure
 
