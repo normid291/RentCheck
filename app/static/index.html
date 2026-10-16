@@ -3,192 +3,196 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RentCheck</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; background: #fafafa; color: #222; }
-    h1 { font-size: 1.6rem; }
-    textarea { width: 100%; height: 220px; padding: 12px; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 6px; }
-    input[type="file"] { display: block; margin: 8px 0 12px; }
-    button { margin-top: 12px; padding: 10px 20px; background: #1a7a3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
-    button:disabled { background: #999; cursor: default; }
-    .clause { border-left: 4px solid #ccc; padding: 10px 14px; margin: 10px 0; background: white; border-radius: 4px; }
-    .high { border-left-color: #c0392b; }
-    .medium { border-left-color: #e67e22; }
-    .low { border-left-color: #2980b9; }
-    #summary { margin-top: 20px; font-weight: 600; }
-    #loading { display: none; color: #666; margin-top: 10px; }
-    h2.section { font-size: 1.1rem; margin-top: 28px; margin-bottom: 6px; }
-    .missing { border-left: 4px solid #8e44ad; padding: 10px 14px; margin: 10px 0; background: white; border-radius: 4px; }
-    .missing .why { color: #555; font-size: 0.9rem; }
-    ul.questions { margin: 8px 0; padding-left: 22px; }
-    ul.questions li { margin: 6px 0; }
-    .divider { margin: 28px 0; border: none; border-top: 1px solid #ddd; }
-  </style>
+  <title>RentCheck — Understand your tenancy agreement before you sign</title>
+  <meta name="description" content="RentCheck analyses Nigerian tenancy agreements and flags risky clauses, missing protections, and questions to ask before you sign." />
+  <meta name="theme-color" content="#0e7a52" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230e7a52' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z'/%3E%3Cpath d='M9 12l2 2 4-4'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <h1>RentCheck</h1>
-  <p>Paste your tenancy agreement below, or upload a PDF, image, or text file,
-     to see flagged clauses, missing protections, and questions to ask.</p>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        </span>
+        RentCheck
+      </a>
+      <span class="nav-spacer"></span>
+      <span class="nav-tag">Built for Nigerian renters</span>
+    </div>
+  </header>
 
-  <textarea id="agreementText" placeholder="Paste your tenancy agreement here..."></textarea>
-  <br />
-  <button id="analyzeBtn" onclick="analyze()">Analyze Agreement</button>
+  <main class="wrap">
+    <section class="hero">
+      <span class="eyebrow"><span class="dot"></span> Read the fine print, in seconds</span>
+      <h1>Know what you're signing before you sign it.</h1>
+      <p class="lede">
+        Paste your tenancy agreement or upload the document. RentCheck checks every
+        clause against common Nigerian rental norms and shows you the risky terms,
+        the protections that are missing, and the questions to ask your landlord.
+      </p>
+      <ul class="hero-points">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Risky clauses flagged by severity</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Missing protections called out</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> A ready list of questions to ask</li>
+      </ul>
+    </section>
 
-  <hr class="divider" />
+    <section class="panel input-panel" aria-label="Analyse a tenancy agreement">
+      <div class="tabs" role="tablist" aria-label="Input method">
+        <button class="tab" id="tab-paste" role="tab" aria-selected="true" aria-controls="panel-paste" data-mode="paste" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/><rect x="2" y="7" width="20" height="14" rx="2"/></svg>
+          Paste text
+        </button>
+        <button class="tab" id="tab-upload" role="tab" aria-selected="false" aria-controls="panel-upload" data-mode="upload" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+          Upload file
+        </button>
+      </div>
 
-  <p>Or upload a file (PDF, image, or .txt):</p>
-  <input type="file" id="agreementFile" accept=".pdf,.png,.jpg,.jpeg,.webp,.bmp,.tiff,.txt" />
-  <button id="uploadBtn" onclick="analyzeFile()">Analyze File</button>
+      <div class="tabpanel" id="panel-paste" role="tabpanel" aria-labelledby="tab-paste">
+        <textarea id="agreementText" placeholder="Paste the full tenancy agreement here..." spellcheck="false"></textarea>
+        <div class="meta-row">
+          <span id="charCount">0 characters</span>
+          <button type="button" class="link-btn" id="sampleBtn">Try a sample agreement</button>
+        </div>
+      </div>
 
-  <div id="loading">Analyzing... this may take a moment.</div>
-  <div id="summary"></div>
-  <div id="results"></div>
-  <div id="missing"></div>
-  <div id="questions"></div>
+      <div class="tabpanel" id="panel-upload" role="tabpanel" aria-labelledby="tab-upload" hidden>
+        <label class="dropzone" id="dropzone" tabindex="0">
+          <input type="file" id="agreementFile"
+                 accept=".pdf,.png,.jpg,.jpeg,.webp,.bmp,.tiff,.txt,application/pdf,image/*,text/plain" />
+          <span class="dz-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+          </span>
+          <span class="dz-title">Drop your file here, or click to browse</span>
+          <span class="dz-hint">PDF, photo of the document (PNG/JPG), or .txt — up to 15 MB</span>
+        </label>
+        <div class="file-chip" id="fileChip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+          <span id="fileName"></span>
+          <button type="button" id="clearFile" aria-label="Remove file">&times;</button>
+        </div>
+      </div>
 
-  <script>
-    const els = {
-      btn: document.getElementById('analyzeBtn'),
-      uploadBtn: document.getElementById('uploadBtn'),
-      loading: document.getElementById('loading'),
-      summary: document.getElementById('summary'),
-      results: document.getElementById('results'),
-      missing: document.getElementById('missing'),
-      questions: document.getElementById('questions'),
-    };
+      <div class="actions">
+        <button class="btn btn-primary" id="analyzeBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+          <span id="analyzeBtnLabel">Analyse agreement</span>
+        </button>
+        <span class="privacy-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Processed only to produce your analysis.
+        </span>
+      </div>
+    </section>
 
-    function setBusy(busy) {
-      els.btn.disabled = busy;
-      els.uploadBtn.disabled = busy;
-      els.loading.style.display = busy ? 'block' : 'none';
-    }
+    <section class="loading" id="loading" hidden aria-live="polite">
+      <div class="panel loading-card">
+        <div class="spinner" aria-hidden="true"></div>
+        <div class="loading-steps">
+          <strong id="loadingTitle">Analysing your agreement…</strong>
+          <span id="loadingSub">This can take a moment while each clause is checked.</span>
+          <div class="step-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+        </div>
+      </div>
+    </section>
 
-    function clearOutput() {
-      els.summary.innerHTML = '';
-      els.results.innerHTML = '';
-      els.missing.innerHTML = '';
-      els.questions.innerHTML = '';
-    }
+    <section class="error" id="error" role="alert" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+      <div><strong>We couldn't analyse that</strong><span id="errorMsg"></span></div>
+    </section>
 
-    function renderResults(data) {
-      els.summary.textContent = `${data.summary} (Risk score: ${data.risk_score}/100)`;
+    <section class="results" id="results" hidden aria-live="polite">
+      <div class="panel score-panel" id="scorePanel">
+        <div class="ring-wrap" aria-hidden="true">
+          <svg class="ring" width="148" height="148" viewBox="0 0 148 148">
+            <circle class="ring-bg" cx="74" cy="74" r="64"></circle>
+            <circle class="ring-fg" id="ringFg" cx="74" cy="74" r="64"></circle>
+          </svg>
+          <div class="ring-center">
+            <span class="score-value" id="scoreValue">0</span>
+            <small>risk score / 100</small>
+          </div>
+        </div>
+        <div>
+          <p class="risk-level" id="riskLevel"><span class="risk-dot"></span><span id="riskLabel">—</span></p>
+          <p class="score-summary" id="scoreSummary"></p>
+          <div class="stat-row">
+            <div class="stat" id="statFlagged"><b id="statFlaggedVal">0</b><span>flagged clauses</span></div>
+            <div class="stat" id="statMissing"><b id="statMissingVal">0</b><span>missing protections</span></div>
+            <div class="stat" id="statChecked"><b id="statCheckedVal">0</b><span>clauses checked</span></div>
+          </div>
+        </div>
+      </div>
 
-      // Flagged clauses
-      if (!data.flagged_clauses || data.flagged_clauses.length === 0) {
-        els.results.innerHTML = '<h2 class="section">Flagged clauses</h2><p>No flagged clauses found.</p>';
-      } else {
-        els.results.innerHTML = '<h2 class="section">Flagged clauses</h2>';
-        data.flagged_clauses.forEach(c => {
-          const div = document.createElement('div');
-          div.className = 'clause ' + (c.severity || 'low');
-          const label = c.clause_type.replace(/_/g, ' ');
-          const srcTag = c.source === 'rule'
-            ? ' <small style="color:#8e44ad;">[flagged by rule]</small>'
-            : ' <small style="color:#888;">[AI suggestion — worth a manual check]</small>';
-          const evidence = c.evidence ? `<br><small>Based on: <strong>"${c.evidence}"</strong></small>` : '';
-          div.innerHTML = `<strong>${label}</strong> (${c.severity})${srcTag}<br>${c.reason}${evidence}<br><em>"${c.clause}"</em>`;
-          els.results.appendChild(div);
-        });
-      }
+      <div class="result-section" id="flaggedSection">
+        <div class="section-head">
+          <h2>Flagged clauses</h2>
+          <span class="count" id="flaggedCount">0</span>
+          <span class="sub">Terms that may work against you</span>
+        </div>
+        <div id="flaggedList"></div>
+      </div>
 
-      // Missing protections
-      if (data.missing_protections && data.missing_protections.length > 0) {
-        els.missing.innerHTML = '<h2 class="section">Missing protections</h2>';
-        data.missing_protections.forEach(m => {
-          const div = document.createElement('div');
-          div.className = 'missing';
-          div.innerHTML = `<strong>${m.label}</strong><br><span class="why">${m.why}</span>`;
-          els.missing.appendChild(div);
-        });
-      }
+      <div class="result-section" id="missingSection">
+        <div class="section-head">
+          <h2>Missing protections</h2>
+          <span class="count" id="missingCount">0</span>
+          <span class="sub">Not clearly addressed in the agreement</span>
+        </div>
+        <div id="missingList"></div>
+      </div>
 
-      // Questions to ask
-      if (data.questions_to_ask && data.questions_to_ask.length > 0) {
-        els.questions.innerHTML = '<h2 class="section">Questions to ask before signing</h2>';
-        const ul = document.createElement('ul');
-        ul.className = 'questions';
-        data.questions_to_ask.forEach(q => {
-          const li = document.createElement('li');
-          li.textContent = q;
-          ul.appendChild(li);
-        });
-        els.questions.appendChild(ul);
-      }
-    }
+      <div class="result-section" id="questionsSection">
+        <div class="questions-head">
+          <h2>Questions to ask before signing</h2>
+          <button class="copy-btn" id="copyQuestions" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            <span id="copyLabel">Copy</span>
+          </button>
+        </div>
+        <ul class="questions-list" id="questionsList"></ul>
+      </div>
+    </section>
 
-    async function handleResponse(res) {
-      if (res.ok) return res.json();
+    <section class="how">
+      <h2>How RentCheck reads your agreement</h2>
+      <div class="how-grid">
+        <div class="how-card">
+          <div class="num">1</div>
+          <h3>Splits into clauses</h3>
+          <p>Your document is broken into individual clauses, so each one is judged on its own.</p>
+        </div>
+        <div class="how-card">
+          <div class="num">2</div>
+          <h3>Checks against the rules</h3>
+          <p>Clauses are matched to known Nigerian rental norms and known unfair patterns.</p>
+        </div>
+        <div class="how-card">
+          <div class="num">3</div>
+          <h3>Explains, with evidence</h3>
+          <p>Every flag quotes the exact words from your agreement, so you can verify it yourself.</p>
+        </div>
+      </div>
+    </section>
+  </main>
 
-      // Turn the server's error response into a helpful message rather than
-      // the generic "Request failed: 500".
-      let detail = 'Request failed (HTTP ' + res.status + ')';
-      try {
-        const contentType = res.headers.get('content-type') || '';
-        if (contentType.includes('application/json')) {
-          const body = await res.json();
-          if (body) {
-            if (typeof body.detail === 'string') {
-              detail = body.detail;
-            } else if (body.detail) {
-              detail = JSON.stringify(body.detail);
-            } else if (body.error) {
-              detail = 'Server error (' + body.error + '). Please try again.';
-            }
-          }
-        } else {
-          const text = (await res.text()).trim();
-          if (text) detail = 'Request failed (HTTP ' + res.status + '): ' + text.slice(0, 300);
-        }
-      } catch (e) {
-        /* keep the default message */
-      }
-      throw new Error(detail);
-    }
+  <footer class="footer">
+    <div class="wrap">
+      <div class="disclaimer">
+        <strong>Not legal advice.</strong> RentCheck provides general information about
+        common rental practices to help you read an agreement. It is not a substitute
+        for advice from a qualified lawyer.
+      </div>
+      <div class="footer-row">
+        <span>RentCheck — built for the Devcenter Hacktober sprint.</span>
+        <span>Flags come from fixed rules and AI suggestions. Verify anything important.</span>
+      </div>
+    </div>
+  </footer>
 
-    async function analyze() {
-      const text = document.getElementById('agreementText').value.trim();
-      if (!text) { alert('Please paste an agreement first.'); return; }
-
-      setBusy(true);
-      clearOutput();
-      try {
-        const res = await fetch('/api/agreements/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text })
-        });
-        renderResults(await handleResponse(res));
-      } catch (err) {
-        els.results.innerHTML = '<p style="color:red;">Something went wrong: ' + err.message + '</p>';
-      } finally {
-        setBusy(false);
-      }
-    }
-
-    async function analyzeFile() {
-      const input = document.getElementById('agreementFile');
-      if (!input.files || input.files.length === 0) {
-        alert('Please choose a file first.');
-        return;
-      }
-
-      const form = new FormData();
-      form.append('file', input.files[0]);
-
-      setBusy(true);
-      clearOutput();
-      try {
-        const res = await fetch('/api/agreements/analyze-upload', {
-          method: 'POST',
-          body: form
-        });
-        renderResults(await handleResponse(res));
-      } catch (err) {
-        els.results.innerHTML = '<p style="color:red;">Something went wrong: ' + err.message + '</p>';
-      } finally {
-        setBusy(false);
-      }
-    }
-  </script>
+  <script src="/app.js"></script>
 </body>
 </html>

@@ -105,7 +105,9 @@ app/
   services/red_flags.py       - Deterministic high-confidence red-flag rules
   services/extractor.py       - PDF/image/text upload -> plain text (pypdf, OCR)
   seed_clause_reference.py    - Seed data for Nigerian rental norms
-  static/index.html           - Frontend
+  static/index.html           - Frontend markup
+  static/styles.css           - Frontend styles
+  static/app.js               - Frontend logic
 ```
 
 ## Current scope
