@@ -60,25 +60,44 @@
       </div>
 
       <div class="tabpanel" id="panel-upload" role="tabpanel" aria-labelledby="tab-upload" hidden>
-        <label class="dropzone" id="dropzone" tabindex="0">
-          <input type="file" id="agreementFile"
-                 accept=".pdf,.png,.jpg,.jpeg,.webp,.bmp,.tiff,.txt,application/pdf,image/*,text/plain" />
-          <span class="dz-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
-          </span>
-          <span class="dz-title">Drop your file here, or click to browse</span>
-          <span class="dz-hint">PDF, photo of the document (PNG/JPG), or .txt — up to 15 MB</span>
-        </label>
-        <div class="file-chip" id="fileChip">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-          <span id="fileName"></span>
-          <button type="button" id="clearFile" aria-label="Remove file">&times;</button>
+        <label for="agreementFile" class="visually-hidden">Upload your tenancy agreement</label>
+        <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-describedby="dzHint">
+          <input type="file" id="agreementFile" class="dz-input"
+                 accept=".pdf,.txt,image/png,image/jpeg" />
+
+          <div class="dz-empty" id="dzEmpty">
+            <span class="dz-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+            </span>
+            <span class="dz-title">Drop your file here, or click to browse</span>
+            <span class="dz-hint" id="dzHint">PDF, photo of the document (PNG/JPG), or .txt, up to 15 MB</span>
+          </div>
+
+          <div class="dz-file" id="dzFile" hidden>
+            <span class="file-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+            </span>
+            <span class="file-meta">
+              <span class="file-name" id="fileName"></span>
+              <span class="file-size" id="fileSize"></span>
+            </span>
+            <span class="file-actions">
+              <button type="button" class="file-btn" id="replaceFile">Replace file</button>
+              <button type="button" class="file-remove" id="removeFile" aria-label="Remove file" title="Remove file">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+              </button>
+            </span>
+          </div>
         </div>
+        <p class="dz-error" id="fileError" role="alert" hidden></p>
       </div>
 
       <div class="actions">
         <button class="btn btn-primary" id="analyzeBtn" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+          <span class="btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+          </span>
+          <span class="btn-spinner" id="btnSpinner" aria-hidden="true" hidden></span>
           <span id="analyzeBtnLabel">Analyse agreement</span>
         </button>
         <span class="privacy-note">

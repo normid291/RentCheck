@@ -13,18 +13,28 @@
     text: $("agreementText"),
     charCount: $("charCount"),
     sampleBtn: $("sampleBtn"),
+
     dropzone: $("dropzone"),
     fileInput: $("agreementFile"),
-    fileChip: $("fileChip"),
+    dzEmpty: $("dzEmpty"),
+    dzFile: $("dzFile"),
     fileName: $("fileName"),
-    clearFile: $("clearFile"),
+    fileSize: $("fileSize"),
+    fileError: $("fileError"),
+    removeFile: $("removeFile"),
+    replaceFile: $("replaceFile"),
+
     analyzeBtn: $("analyzeBtn"),
     analyzeBtnLabel: $("analyzeBtnLabel"),
+    btnIcon: document.querySelector("#analyzeBtn .btn-icon"),
+    btnSpinner: $("btnSpinner"),
+
     loading: $("loading"),
     loadingSub: $("loadingSub"),
     error: $("error"),
     errorMsg: $("errorMsg"),
     results: $("results"),
+
     ringFg: $("ringFg"),
     scoreValue: $("scoreValue"),
     riskLevel: $("riskLevel"),
@@ -49,7 +59,13 @@
   els.ringFg.style.strokeDasharray = String(RING_CIRCUMFERENCE);
   els.ringFg.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
 
+  const MAX_BYTES = 15 * 1024 * 1024; // 15 MB
+  const ALLOWED_EXT = ["pdf", "txt", "png", "jpg", "jpeg"];
+  const ALLOWED_MIME = ["application/pdf", "text/plain", "image/png", "image/jpeg"];
+
   let mode = "paste";
+  let busy = false;
+  let validFile = null;
   let lastQuestions = [];
 
   /* ---------- helpers ---------- */
@@ -67,6 +83,12 @@
     return String(type || "").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   }
 
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  }
+
   function riskFor(score) {
     if (score >= 55) return { key: "high", label: "High risk", cls: "risk-high", color: "var(--high)" };
     if (score >= 25) return { key: "medium", label: "Moderate risk", cls: "risk-medium", color: "var(--medium)" };
@@ -77,22 +99,28 @@
     return sev === "high" ? 3 : sev === "medium" ? 2 : 1;
   }
 
-  /* ---------- tabs ---------- */
+  /* ---------- tabs / mode ---------- */
 
   function setMode(next) {
     mode = next;
     els.tabs.forEach((tab) => {
-      const active = tab.dataset.mode === next;
-      tab.setAttribute("aria-selected", active ? "true" : "false");
+      tab.setAttribute("aria-selected", tab.dataset.mode === next ? "true" : "false");
     });
     els.panelPaste.hidden = next !== "paste";
     els.panelUpload.hidden = next !== "upload";
-    els.analyzeBtnLabel.textContent = next === "paste" ? "Analyse agreement" : "Analyse file";
+    if (!busy) {
+      els.analyzeBtnLabel.textContent = next === "paste" ? "Analyse agreement" : "Analyse file";
+    }
+    refreshButtonState();
   }
 
   els.tabs.forEach((tab) => {
     tab.addEventListener("click", () => setMode(tab.dataset.mode));
   });
+
+  function refreshButtonState() {
+    els.analyzeBtn.disabled = busy || (mode === "upload" && !validFile);
+  }
 
   /* ---------- paste: char count + sample ---------- */
 
@@ -116,32 +144,118 @@
     els.text.focus();
   });
 
-  /* ---------- upload: drag & drop ---------- */
+  /* ---------- upload: validation + state ---------- */
 
-  function showFile(file) {
-    if (!file) {
-      els.fileChip.classList.remove("show");
-      els.fileName.textContent = "";
-      return;
+  function validateFile(file) {
+    if (!file) return "Please choose a file.";
+    if (file.size === 0) return "That file is empty. Please choose a document that has content.";
+    if (file.size > MAX_BYTES) {
+      return "That file is " + formatSize(file.size) + ". The maximum upload size is 15 MB.";
     }
-    els.fileName.textContent = file.name;
-    els.fileChip.classList.add("show");
+    const ext = (file.name.split(".").pop() || "").toLowerCase();
+    const type = (file.type || "").toLowerCase();
+    const okExt = ALLOWED_EXT.indexOf(ext) !== -1;
+    const okMime = ALLOWED_MIME.indexOf(type) !== -1;
+    if (!okExt && !okMime) {
+      return "Unsupported file type. Please upload a PDF, a PNG/JPG image, or a .txt file.";
+    }
+    return null;
   }
 
-  els.fileInput.addEventListener("change", () => showFile(els.fileInput.files[0]));
-  els.clearFile.addEventListener("click", (e) => {
-    e.preventDefault();
+  function setFileError(message) {
+    if (message) {
+      els.fileError.textContent = message;
+      els.fileError.hidden = false;
+    } else {
+      els.fileError.textContent = "";
+      els.fileError.hidden = true;
+    }
+  }
+
+  function renderEmptyState() {
+    validFile = null;
+    els.dzEmpty.hidden = false;
+    els.dzFile.hidden = true;
+    els.dropzone.classList.remove("has-file");
+    els.dropzone.setAttribute(
+      "aria-label",
+      "Drop your file here, or click to browse. Upload a tenancy agreement to analyse."
+    );
     els.fileInput.value = "";
-    showFile(null);
+    refreshButtonState();
+  }
+
+  function renderFileState(file) {
+    validFile = file;
+    els.fileName.textContent = file.name;
+    els.fileName.title = file.name;
+    els.fileSize.textContent = formatSize(file.size);
+    els.dzEmpty.hidden = true;
+    els.dzFile.hidden = false;
+    els.dropzone.classList.add("has-file");
+    els.dropzone.setAttribute(
+      "aria-label",
+      "Selected file " + file.name + ", " + formatSize(file.size) + ". Activate to replace the file."
+    );
+    refreshButtonState();
+  }
+
+  function acceptFile(file) {
+    const error = validateFile(file);
+    if (error) {
+      setFileError(error);
+      renderEmptyState();
+      return false;
+    }
+    setFileError(null);
+    renderFileState(file);
+    return true;
+  }
+
+  // Opens the native file picker.
+  function openPicker() {
+    els.fileInput.click();
+  }
+
+  els.fileInput.addEventListener("change", () => {
+    const file = els.fileInput.files && els.fileInput.files[0];
+    if (file) acceptFile(file);
   });
 
+  // Dropzone acts as a button: click opens picker (unless a child button was hit).
+  els.dropzone.addEventListener("click", (e) => {
+    if (e.target.closest(".file-btn, .file-remove")) return;
+    openPicker();
+  });
+
+  els.dropzone.addEventListener("keydown", (e) => {
+    if (e.target !== els.dropzone) return; // let inner buttons handle their own keys
+    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+      e.preventDefault();
+      openPicker();
+    }
+  });
+
+  els.replaceFile.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openPicker();
+  });
+
+  els.removeFile.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setFileError(null);
+    renderEmptyState();
+    els.dropzone.focus();
+  });
+
+  // Drag & drop
   ["dragenter", "dragover"].forEach((evt) =>
     els.dropzone.addEventListener(evt, (e) => {
       e.preventDefault();
       els.dropzone.classList.add("dragover");
     })
   );
-  ["dragleave", "drop"].forEach((evt) =>
+  ["dragleave", "dragend", "drop"].forEach((evt) =>
     els.dropzone.addEventListener(evt, (e) => {
       e.preventDefault();
       els.dropzone.classList.remove("dragover");
@@ -149,31 +263,19 @@
   );
   els.dropzone.addEventListener("drop", (e) => {
     const files = e.dataTransfer && e.dataTransfer.files;
-    if (files && files.length) {
-      els.fileInput.files = files;
-      showFile(files[0]);
-    }
+    if (files && files.length) acceptFile(files[0]);
   });
 
-  /* ---------- state ---------- */
+  /* ---------- busy / loading ---------- */
 
-  function setBusy(busy) {
-    els.analyzeBtn.disabled = busy;
-    els.loading.hidden = !busy;
-    if (busy) {
-      els.error.hidden = true;
-      els.results.hidden = true;
-      startLoadingSteps();
-    }
-  }
-
-  let loadingTimer = null;
   const LOADING_STEPS = [
     "Splitting your agreement into clauses…",
     "Matching clauses against Nigerian rental norms…",
     "Checking each clause and verifying evidence…",
     "Putting your report together…",
   ];
+  let loadingTimer = null;
+
   function startLoadingSteps() {
     let i = 0;
     els.loadingSub.textContent = LOADING_STEPS[0];
@@ -188,6 +290,25 @@
     loadingTimer = null;
   }
 
+  function setBusy(value) {
+    busy = value;
+    els.loading.hidden = !value;
+    if (value) {
+      els.error.hidden = true;
+      els.results.hidden = true;
+      els.btnIcon.hidden = true;
+      els.btnSpinner.hidden = false;
+      els.analyzeBtnLabel.textContent = "Analysing…";
+      startLoadingSteps();
+    } else {
+      els.btnIcon.hidden = false;
+      els.btnSpinner.hidden = true;
+      els.analyzeBtnLabel.textContent = mode === "paste" ? "Analyse agreement" : "Analyse file";
+      stopLoadingSteps();
+    }
+    refreshButtonState();
+  }
+
   function showError(message) {
     els.errorMsg.textContent = String(message || "Something went wrong.");
     els.error.hidden = false;
@@ -195,15 +316,16 @@
 
   async function handleResponse(res) {
     if (res.ok) return res.json();
-    let detail = "Request failed (HTTP " + res.status + ")";
+    let detail = "Request failed (HTTP " + res.status + ").";
     try {
       const ct = res.headers.get("content-type") || "";
-      if (ct.includes("application/json")) {
+      if (ct.indexOf("application/json") !== -1) {
         const body = await res.json();
         if (body) {
           if (typeof body.detail === "string") detail = body.detail;
           else if (body.detail) detail = JSON.stringify(body.detail);
-          else if (body.error) detail = "Server error (" + body.error + "). Please try again.";
+          else if (typeof body.error === "string") detail = body.error;
+          else if (typeof body.message === "string") detail = body.message;
         }
       } else {
         const text = (await res.text()).trim();
@@ -215,13 +337,12 @@
     throw new Error(detail);
   }
 
-  /* ---------- render ---------- */
+  /* ---------- render results ---------- */
 
   function render(data) {
     const score = Math.max(0, Math.min(100, Number(data.risk_score) || 0));
     const risk = riskFor(score);
 
-    // Ring
     els.ringFg.style.stroke = risk.color;
     const offset = RING_CIRCUMFERENCE * (1 - score / 100);
     requestAnimationFrame(() => {
@@ -232,41 +353,34 @@
     els.riskLabel.textContent = risk.label;
     els.scoreSummary.textContent = data.summary || "";
 
-    const flagged = (data.flagged_clauses || []).slice().sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
+    const flagged = (data.flagged_clauses || [])
+      .slice()
+      .sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
     const missing = data.missing_protections || [];
     const questions = data.questions_to_ask || [];
     lastQuestions = questions;
 
-    // Stats
     els.statFlaggedVal.textContent = String(flagged.length);
-    els.statFlagged.className = "stat " + (flagged.length === 0 ? "is-low" : risk.key === "high" ? "is-high" : "is-medium");
+    els.statFlagged.className =
+      "stat " + (flagged.length === 0 ? "is-low" : risk.key === "high" ? "is-high" : "is-medium");
     els.statMissingVal.textContent = String(missing.length);
     els.statMissing.className = "stat " + (missing.length === 0 ? "is-low" : "is-medium");
     els.statCheckedVal.textContent = String(extractChecked(data.summary));
 
-    // Flagged
     els.flaggedCount.textContent = String(flagged.length);
-    if (flagged.length === 0) {
-      els.flaggedList.innerHTML =
-        '<div class="empty">No flagged clauses found — the clauses we checked look broadly reasonable.</div>';
-    } else {
-      els.flaggedList.innerHTML = flagged.map(renderFinding).join("");
-    }
+    els.flaggedList.innerHTML = flagged.length
+      ? flagged.map(renderFinding).join("")
+      : '<div class="empty">No flagged clauses found — the clauses we checked look broadly reasonable.</div>';
 
-    // Missing protections
     els.missingCount.textContent = String(missing.length);
     els.missingList.innerHTML = missing.length
       ? missing.map(renderMissing).join("")
       : '<div class="empty">All expected protections appear to be present.</div>';
 
-    // Questions
     if (questions.length) {
       els.questionsSection.hidden = false;
       els.questionsList.innerHTML = questions
-        .map(
-          (q, i) =>
-            '<li><span class="q-check">' + (i + 1) + '</span><p>' + escapeHtml(q) + "</p></li>"
-        )
+        .map((q, i) => '<li><span class="q-check">' + (i + 1) + '</span><p>' + escapeHtml(q) + "</p></li>")
         .join("");
     } else {
       els.questionsSection.hidden = true;
@@ -284,15 +398,17 @@
 
   function renderFinding(c) {
     const sev = (c.severity || "low").toLowerCase();
-    const src = c.source === "rule"
-      ? '<span class="badge src-rule">Rule</span>'
-      : '<span class="badge src-ai">AI suggestion</span>';
+    const src =
+      c.source === "rule"
+        ? '<span class="badge src-rule">Rule</span>'
+        : '<span class="badge src-ai">AI suggestion</span>';
     const evidence = c.evidence
-      ? '<div class="evidence">Based on: <b>&ldquo;' + escapeHtml(c.evidence) + '&rdquo;</b></div>'
+      ? '<div class="evidence">Based on: <b>&ldquo;' + escapeHtml(c.evidence) + "&rdquo;</b></div>"
       : "";
     const clause = c.clause
       ? '<details><summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>View original clause</summary><blockquote>' +
-        escapeHtml(c.clause) + "</blockquote></details>"
+        escapeHtml(c.clause) +
+        "</blockquote></details>"
       : "";
 
     return (
@@ -339,28 +455,34 @@
       } catch (err) {
         showError(err.message);
       } finally {
-        stopLoadingSteps();
         setBusy(false);
       }
       return;
     }
 
     // upload mode
-    const file = els.fileInput.files && els.fileInput.files[0];
-    if (!file) {
-      showError("Please choose a file to upload first, or switch to Paste text.");
+    if (!validFile) {
+      const err = validateFile(null);
+      setFileError(err);
+      refreshButtonState();
       return;
     }
+    const revalidate = validateFile(validFile);
+    if (revalidate) {
+      setFileError(revalidate);
+      renderEmptyState();
+      return;
+    }
+
     setBusy(true);
     try {
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", validFile, validFile.name);
       const res = await fetch("/api/agreements/analyze-upload", { method: "POST", body: form });
       render(await handleResponse(res));
     } catch (err) {
       showError(err.message);
     } finally {
-      stopLoadingSteps();
       setBusy(false);
     }
   }
@@ -383,5 +505,9 @@
     setTimeout(() => (els.copyLabel.textContent = "Copy"), 1800);
   });
 
+  /* ---------- init ---------- */
+
+  renderEmptyState();
+  setMode("paste");
   updateCharCount();
 })();
