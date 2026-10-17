@@ -33,6 +33,11 @@
     loadingSub: $("loadingSub"),
     error: $("error"),
     errorMsg: $("errorMsg"),
+    notice: $("notice"),
+    noticeTitle: $("noticeTitle"),
+    noticeMessage: $("noticeMessage"),
+    noticeAction: $("noticeAction"),
+    inputPanel: $("inputPanel"),
     results: $("results"),
 
     ringFg: $("ringFg"),
@@ -306,6 +311,7 @@
     els.loading.hidden = !value;
     if (value) {
       els.error.hidden = true;
+      els.notice.hidden = true;
       els.results.hidden = true;
       els.btnIcon.hidden = true;
       els.btnSpinner.hidden = false;
@@ -349,6 +355,45 @@
   }
 
   /* ---------- render results ---------- */
+
+  function handleResult(data) {
+    if (data && data.status && data.status !== "ok") {
+      renderNotice(data);
+    } else {
+      render(data);
+    }
+  }
+
+  function renderNotice(data) {
+    const unreadable =
+      data.status === "unreadable" || data.document_type === "unreadable";
+
+    if (unreadable) {
+      els.noticeTitle.textContent = "We couldn't read this file";
+    } else {
+      els.noticeTitle.textContent = "This doesn't look like a tenancy agreement";
+    }
+
+    // Prefer the server's composed message; fall back to building it here.
+    let message = (data.message || "").trim();
+    if (!message) {
+      if (unreadable) {
+        message =
+          "We couldn't read this file clearly. Please upload a sharper photo or a PDF/text version of your tenancy agreement.";
+      } else {
+        const reason = (data.reason || "").trim().replace(/\.$/, "");
+        message = "This doesn't look like a tenancy agreement.";
+        if (reason) message += " It looks like " + reason + ".";
+        message += " Please upload your actual tenancy agreement, lease, or rental contract.";
+      }
+    }
+
+    els.noticeMessage.textContent = message;
+    els.results.hidden = true;
+    els.error.hidden = true;
+    els.notice.hidden = false;
+    els.notice.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   function render(data) {
     const score = Math.max(0, Math.min(100, Number(data.risk_score) || 0));
@@ -462,7 +507,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text: text }),
         });
-        render(await handleResponse(res));
+        handleResult(await handleResponse(res));
       } catch (err) {
         showError(err.message);
       } finally {
@@ -490,7 +535,7 @@
       const form = new FormData();
       form.append("file", validFile, validFile.name);
       const res = await fetch("/api/agreements/analyze-upload", { method: "POST", body: form });
-      render(await handleResponse(res));
+      handleResult(await handleResponse(res));
     } catch (err) {
       showError(err.message);
     } finally {
@@ -514,6 +559,20 @@
       els.copyLabel.textContent = "Copy failed";
     }
     setTimeout(() => (els.copyLabel.textContent = "Copy"), 1800);
+  });
+
+  /* ---------- notice action (upload another / paste) ---------- */
+
+  els.noticeAction.addEventListener("click", () => {
+    els.notice.hidden = true;
+    if (els.inputPanel) {
+      els.inputPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    if (mode === "upload") {
+      els.dropzone.focus();
+    } else {
+      els.text.focus();
+    }
   });
 
   /* ---------- init ---------- */

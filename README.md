@@ -83,12 +83,48 @@ Failures return structured JSON (never a bare "Internal Server Error"):
 
 | Status | When |
 | ------ | ---- |
-| 400 | Empty file, unsupported type, or unreadable/OCR-less PDF or image |
+| 400 | Empty file, unsupported type, or a PDF/image with no readable text |
 | 413 | Upload larger than 15 MB |
 | 500 | Database error while saving the analysis (check `DATABASE_URL` + `/health/db`) |
 | 502 | Upstream AI Inference unavailable |
 
 Full stack traces are always logged server-side.
+
+### Document-type gate (is this even a tenancy agreement?)
+
+Before anything is analysed, `app/services/document_classifier.py` decides what
+the input actually is, for every path (paste, PDF, image, `.txt`, `.docx`):
+
+- `tenancy_agreement` — proceed with the clause analysis.
+- `not_tenancy_agreement` — e.g. a receipt, ID card, chat, photo or another
+  contract type.
+- `unreadable` — too blurry/dark or too little text to judge.
+
+Most inputs are decided deterministically (text volume + tenancy keywords), so a
+clear lease or a clear non-lease costs **no extra AI call**; only genuinely
+ambiguous text is sent to the model (one call) to return
+`{document_type, confidence, reason}`. If that call fails, the keyword signal is
+used instead of failing the request.
+
+When the verdict is not a tenancy agreement, the API returns a **clean 200**
+(not an error) and does **not** write an `Agreement`/`Analysis` row, so rejected
+uploads never count as completed analyses:
+
+```json
+{
+  "status": "not_a_tenancy_agreement",
+  "document_type": "not_tenancy_agreement",
+  "confidence": 0.9,
+  "reason": "an unrelated document",
+  "message": "This doesn't look like a tenancy agreement. It looks like an unrelated document. Please upload your actual tenancy agreement, lease, or rental contract.",
+  "flagged_clauses": [],
+  "missing_protections": [],
+  "questions_to_ask": []
+}
+```
+
+`status` is `unreadable` for that case; successful analyses return
+`"status": "ok"` with `"document_type": "tenancy_agreement"`.
 
 ## Project structure
 
@@ -100,6 +136,7 @@ app/
   routers/agreements.py       - API endpoints
   services/clause_splitter.py - Deterministic clause splitting
   services/clause_matcher.py  - Deterministic clause-to-norm matching
+  services/document_classifier.py - Is this a tenancy agreement? (gate before analysis)
   services/ai_inference.py    - Rumpty AI Inference calls (grounded, few-shot)
   services/protections.py     - Deterministic missing-protections + questions
   services/red_flags.py       - Deterministic high-confidence red-flag rules
@@ -113,6 +150,9 @@ app/
 ## Current scope
 
 - **Paste text** or **upload a file** (PDF, Word `.docx`, image, or `.txt`) → analysis.
+- A document-type gate runs first: non-tenancy inputs (receipts, photos, other
+  contracts) and unreadable files are rejected with a friendly notice instead of
+  being analysed (see below).
 - Outputs: flagged clauses, missing protections, and questions to ask before
   signing. Missing protections and questions are derived deterministically
   (`app/services/protections.py`) from which clause types were matched and

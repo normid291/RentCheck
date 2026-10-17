@@ -39,7 +39,7 @@
       </ul>
     </section>
 
-    <section class="panel input-panel" aria-label="Analyse a tenancy agreement">
+    <section class="panel input-panel" id="inputPanel" aria-label="Analyse a tenancy agreement">
       <div class="tabs" role="tablist" aria-label="Input method">
         <button class="tab" id="tab-paste" role="tab" aria-selected="true" aria-controls="panel-paste" data-mode="paste" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/><rect x="2" y="7" width="20" height="14" rx="2"/></svg>
@@ -121,6 +121,22 @@
     <section class="error" id="error" role="alert" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
       <div><strong>We couldn't analyse that</strong><span id="errorMsg"></span></div>
+    </section>
+
+    <section class="notice" id="notice" role="status" hidden aria-live="polite">
+      <div class="panel notice-card">
+        <span class="notice-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>
+        </span>
+        <div class="notice-body">
+          <h2 id="noticeTitle">This doesn't look like a tenancy agreement</h2>
+          <p id="noticeMessage"></p>
+          <button class="btn btn-primary" id="noticeAction" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+            Try another file or paste text
+          </button>
+        </div>
+      </div>
     </section>
 
     <section class="results" id="results" hidden aria-live="polite">

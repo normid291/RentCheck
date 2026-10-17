@@ -31,11 +31,18 @@ class ExtractionError(Exception):
     """Raised when an upload cannot be turned into usable text. The message is
     safe to show to the user, and `status_code` lets the router return the right
     HTTP status (400 for a bad/empty file, 413 for too large, 502 when the OCR
-    engine itself is unavailable)."""
+    engine itself is unavailable).
 
-    def __init__(self, message: str, status_code: int = 400):
+    `unreadable=True` marks the specific case where the file is a legitimate
+    upload we simply could not read (a blank/blurry photo, a scan with no text):
+    the router turns this into a friendly "we couldn't read this" notice rather
+    than an error.
+    """
+
+    def __init__(self, message: str, status_code: int = 400, unreadable: bool = False):
         super().__init__(message)
         self.status_code = status_code
+        self.unreadable = unreadable
 
 
 def extract_text(data: bytes, content_type: str, filename: str = "") -> str:
@@ -169,6 +176,7 @@ def _ocr_pdf(data: bytes) -> str:
             "No readable text was found in this scanned PDF. Try a clearer scan or "
             "photo of the document, or paste the text.",
             status_code=400,
+            unreadable=True,
         )
     return text
 
@@ -241,6 +249,7 @@ def _extract_image(data: bytes) -> str:
         raise ExtractionError(
             "No readable text was found in the image. Try a clearer photo of the document.",
             status_code=400,
+            unreadable=True,
         )
     return text
 
