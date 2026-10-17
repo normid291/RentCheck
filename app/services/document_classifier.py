@@ -37,6 +37,13 @@ MIN_WORDS = 8
 # Character budget for the excerpt we send to the model.
 EXCERPT_CHARS = 1800
 
+# How far into the document we look for a *title* signal. Real agreements
+# announce themselves ("DEED OF LEASE", "ASSURED SHORTHOLD TENANCY AGREEMENT",
+# "LICENCE TO OCCUPY", "CONTRAT DE LOCATION"). Financial/employment contracts
+# often mention "lease"/"landlord" in their body, so requiring a title signal
+# before a deterministic accept stops those being waved through.
+TITLE_CHARS = 400
+
 # Signals that a document is about renting a home. Single words are matched on
 # word boundaries (so "lease" does not match "release"); phrases are substrings.
 STRONG_SIGNALS = [
@@ -57,6 +64,37 @@ STRONG_SIGNALS = [
     "monthly rent",
     "annual rent",
     "yearly rent",
+    # Nigerian forms (Lagos tenancy law etc.)
+    "licence to occupy",
+    "license to occupy",
+    "leave and license",
+    "leave and licence",
+    "tenancy at will",
+    "yearly tenancy",
+    "annual tenancy",
+    "periodic tenancy",
+    # Other common forms
+    "assured shorthold",
+    "shorthold tenancy",
+    "protected tenancy",
+    # French (bail / contrat de location)
+    "contrat de location",
+    "bail d habitation",
+    "bailleur",
+    "locataire",
+    # Spanish (contrato de arrendamiento / alquiler)
+    "contrato de arrendamiento",
+    "arrendamiento",
+    "arrendador",
+    "arrendatario",
+    "alquiler",
+    # German (Mietvertrag)
+    "mietvertrag",
+    "vermieter",
+    "mieter",
+    "wohnung",
+    "mietzins",
+    "untermiete",
 ]
 
 SUPPORT_SIGNALS = [
@@ -97,23 +135,33 @@ def classify_document(text: str, source_type: SourceType) -> dict:
         return _verdict(NOT_TENANCY_AGREEMENT, 0.9, "a file that contains almost no text")
 
     strong, support = _signal_counts(normalised)
+    title_strong = _count_terms(normalised[:TITLE_CHARS], STRONG_SIGNALS)
 
-    # Clear-positive: several telling tenancy words.
-    if strong >= 2:
+    # Clear-positive: several telling tenancy words AND at least one of them in
+    # the title/head (so a finance contract that merely references a lease in
+    # its body is not waved through).
+    if strong >= 2 and title_strong >= 1:
         return _verdict(TENANCY_AGREEMENT, 0.95, "a rental/tenancy agreement")
-    if strong == 1 and support >= 2:
+    if strong == 1 and support >= 2 and title_strong >= 1:
         return _verdict(TENANCY_AGREEMENT, 0.85, "a rental/tenancy agreement")
 
     # Clear-negative: no tenancy words at all and nothing that even hints at it.
-    ambiguous = strong >= 1 or support >= 3 or is_image
+    ambiguous = (
+        strong >= 1
+        or support >= 3
+        or is_image
+        or _looks_non_english(text or "")
+    )
     if not ambiguous:
         return _verdict(NOT_TENANCY_AGREEMENT, 0.9, "an unrelated document")
 
     # Ambiguous: let the model adjudicate (one call).
     llm = _llm_classify(text)
     if llm is None:
-        # AI unavailable - fall back to the keyword signal instead of failing.
-        if strong >= 1:
+        # AI unavailable - fall back to the title signal instead of failing.
+        # A real agreement names itself up front; something that only mentions
+        # lease words deep in its body is treated as not a tenancy agreement.
+        if title_strong >= 1:
             return _verdict(
                 TENANCY_AGREEMENT, 0.6, "a rental/tenancy agreement (AI unavailable)"
             )
@@ -170,9 +218,26 @@ def _patterns(terms: tuple[str, ...]) -> list[re.Pattern]:
 
 
 def _signal_counts(normalised: str) -> tuple[int, int]:
-    strong = sum(1 for p in _patterns(tuple(STRONG_SIGNALS)) if p.search(normalised))
-    support = sum(1 for p in _patterns(tuple(SUPPORT_SIGNALS)) if p.search(normalised))
+    strong = _count_terms(normalised, STRONG_SIGNALS)
+    support = _count_terms(normalised, SUPPORT_SIGNALS)
     return strong, support
+
+
+def _count_terms(normalised: str, terms: list[str]) -> int:
+    return sum(1 for p in _patterns(tuple(terms)) if p.search(normalised))
+
+
+def _looks_non_english(text: str) -> bool:
+    """Heuristic: a document with a meaningful run of accented/non-Latin letters
+    is probably not English. Its English keyword signals are meaningless, so we
+    must not use them to reject it deterministically - send it to the model
+    (which reads the actual language) instead.
+    """
+    foreign = sum(1 for ch in text if ord(ch) > 0x7F and not ch.isspace())
+    letters = sum(1 for ch in text if ch.isalpha())
+    if letters == 0:
+        return False
+    return foreign >= 10 and foreign / max(letters, 1) > 0.01
 
 
 CLASSIFY_PROMPT = """You are a document triage assistant for a service that reviews residential \

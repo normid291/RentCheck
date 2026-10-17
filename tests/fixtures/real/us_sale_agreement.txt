@@ -1,0 +1,648 @@
+EX-2.2
+ 3
+ a11-8401_1ex2d2.htm
+ EX-2.2
+ 
+
+
+ 
+ 
+
+ 
+ 
+ 
+ Exhibit 2.2 
+ 
+ Execution Version 
+ 
+ SECOND AMENDMENT TO ASSET PURCHASE AGREEMENT 
+ 
+ This SECOND AMENDMENT TO ASSET PURCHASE AGREEMENT (this “ Amendment ”), dated March 15, 2011, by and among (i) Home Loan Center, Inc., a California corporation (“ Buyer ”), (ii) First Residential Mortgage Network, Inc., a Kentucky corporation dba SurePoint Lending (“ Seller ”) and (iii) Saul Pohn (“ S. Pohn ”), Jordan Pohn (“ J. Pohn ”), The Saul L. Pohn Family Trust (“ S. Pohn Trust ”) and The Jordan S. Pohn Family Trust (“ J. Pohn Trust ” and together with S. Pohn, J. Pohn and S. Pohn Trust, “ Shareholders ”), hereby amends, effective as of March 15, 2011, that certain Asset Purchase Agreement dated as of November 15, 2010 by and among Buyer, Seller and Shareholders (as amended by the First Amendment (as defined below), the “ Asset Purchase Agreement ”). Capitalized terms used herein but not otherwise defined shall have the meanings ascribed to such terms in the Asset Purchase Agreement. 
+ 
+ RECITALS 
+ 
+ A. Pursuant to that certain First Amendment to Asset Purchase Agreement, dated as of March 14, 2011 (the “ First Amendment ”), the Parties agreed to amend the Asset Purchase Agreement. 
+ 
+ B. The Parties wish to further amend the Asset Purchase Agreement as set forth in this Amendment. 
+ 
+ C. Section 12.3 of the Asset Purchase Agreement requires that any amendments to the Asset Purchase Agreement be in writing signed by all of the Parties to the Asset Purchase Agreement. 
+ 
+ AGREEMENT 
+ 
+ NOW, THEREFORE, in consideration of the premises and the mutual promises herein made, and in consideration of the representations, warranties, and covenants contained herein, the Parties agree to amend the Asset Purchase Agreement as follows: 
+ 
+ 1. Exhibit List . The following exhibit is hereby added at the end of the Exhibit List after “Exhibit C — Form of Employment Agreement”: 
+ 
+ “Exhibit D — Escrow Agreement” 
+ 
+ 2. Definitions . 
+ 
+ Section 1.1 to the Asset Purchase Agreement is hereby amended as follows: 
+ 
+ (a) The phrase “ 2013 Earnout Floor ” and its related definition are hereby deleted in their entirety. 
+ 
+ (b) The phrase “ SurePoint Contribution Percentage ” and its related definition are hereby deleted in their entirety. 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ (c) The phrase “ Adjustment Event ” and its related definition are hereby deleted in their entirety. 
+ 
+ (d) The following definition is hereby added between the definitions of “ Business Intellectual Property ” and “ COBRA ”: 
+ 
+ ““ Closed ” means, when referring to a mortgage loan, that the final documentation evidencing such mortgage loan has been signed by the applicable borrower.” 
+ 
+ (e) The following definition is hereby added between the definitions of “ Employment Agreement ” and “ Employment Law ”: 
+ 
+ ““ Employment Condition ” means, for each Principal, that such Principal has not resigned from employment with Buyer prior to 5:00 p.m. Central time on April 29, 2011.” 
+ 
+ (f) The definition for “ Mid-Tier Cap Amount ” is hereby amended and restated in its entirety as follows: 
+ 
+ ““ Mid-Tier Cap Amount ” shall be $3,500,000.” 
+ 
+ (g) The phrase “ Pre-Tax Net Income ” and its related definition are hereby deleted in their entirety. 
+ 
+ (h) The phrase “ Security Deposits ” and its related definition are hereby deleted in their entirety. 
+ 
+ Section 1.2 to the Asset Purchase Agreement is hereby amended as follows: 
+ 
+ (a) The phrase “ 2011 Earnout Amount ” is hereby deleted in its entirety. 
+ 
+ (b) The phrase “ 2011 Earnout Amount Floor ” is hereby deleted in its entirety. 
+ 
+ (c) The phrase “ 2012 Earnout Amount ” is hereby deleted in its entirety. 
+ 
+ (d) The phrase “ 2013 Earnout Amount ” is hereby deleted in its entirety. 
+ 
+ (e) The section reference for “ 30-Day Period ” is hereby amended and restated in its entirety to read as follows: “3.4(c)”. 
+ 
+ (f) The phrase “ Accounting Arbitrator ” is hereby deleted in its entirety. 
+ 
+ (g) The phrase “ Earnout Amount ” is hereby deleted in its entirety. 
+ 
+ 2 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ (h) The phrase “ Earnout Worksheet ” is hereby deleted in its entirety. 
+ 
+ (i) The phrase “ Eligible Pipeline Floor ” is hereby deleted in its entirety. 
+ 
+ (j) The section reference for “ Eligible Pipeline Period ” is hereby amended and restated in its entirety to read as follows: “3.4(c)”. 
+ 
+ (k) The phrase “ Escrow Agent ” and “ Escrow Agreement ” and the corresponding “3.1(b)” are hereby added between the definitions of “ Eligible Pipeline Period ” and “ Estimated Excluded Pipeline Loan Commissions ”. 
+ 
+ (l) The section reference for “ Excluded Assets ” is hereby amended and restated in its entirety to read as follows: “2.2(a)”. 
+ 
+ (m) The phrase “ Neutral Accounting Firm ” is hereby deleted in its entirety. 
+ 
+ (n) The phrase “ plan assets ” is hereby deleted in its entirety. 
+ 
+ (o) The phrase “ Post-Closing Payment ” and the corresponding “3.1(b)” are hereby added between the definitions of “ Party ” and “ Property Taxes ”. 
+ 
+ (p) The phrase “ Purchase Price Ceiling ” is hereby deleted in its entirety. 
+ 
+ (q) The phrase “ RETS Cash ”, the phrase “ RETS Closing Liability ” and the corresponding “2.4” are hereby added between the definitions of “ RETS ” and “ S. Pohn ”. 
+ 
+ (r) The section reference for “ Seller ” is hereby amended and restated in its entirety to read as follows: “6.19, Preamble”. 
+ 
+ (s) The phrase “ Transition Costs ” is hereby deleted in its entirety. 
+ 
+ 3. Purchase and Sale of Assets . Section 2.1(h) of the Asset Purchase Agreement is hereby amended and restated in its entirety as follows: 
+ 
+ “(h) All prepaid expenses and deposits of Seller or any of its Affiliates except as set forth on Schedule 2.2 ;” 
+ 
+ 4. Excluded Liabilities . 
+ 
+ (a) Section 2.4 to the Asset Purchase Agreement is hereby amended to add at the end of such Section the following: 
+ 
+ “At the Closing, Seller shall leave unrestricted cash (the “ RETS Cash ”) in the bank accounts of RETS in an amount sufficient to discharge all Liabilities of RETS that arose, or were incurred, on or prior to the Closing Date, regardless of 
+ 
+ 3 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ whether such Liabilities were identified and/or accrued as of the Closing Date (the “ RETS Closing Liabilities ”). If on the first anniversary of the Closing Date there is RETS Cash remaining that has not been used to discharge RETS Closing Liabilities, then Buyer shall pay such remaining RETS Cash to Seller within 3 Business Days following such first anniversary.” 
+ 
+ 5. Purchase Price . 
+ 
+ (a) Section 3.1(b) to the Asset Purchase Agreement is hereby amended and restated in its entirety as follows: 
+ 
+ “(b) $2,000,000 (the “ Post-Closing Payment ”), which Post-Closing Payment (i) shall be delivered on March 15, 2011 into escrow with J.P. Morgan (the “ Escrow Agent ”), pursuant to an escrow agreement in substantially the form of Exhibit D attached hereto (the “ Escrow Agreement ”) and (ii) if each Principal has satisfied his Employment Condition, shall be paid to Seller on May 2, 2011; provided , that if either Principal has not (or both Principals have not) satisfied his Employment Condition, then, by 8:00 a.m. Central time on May 2, 2011, Buyer and Seller shall deliver a joint written instruction to the Escrow Agent to release the Post-Closing Payment plus all interest accrued thereon to Buyer; minus ” 
+ 
+ (b) Section 3.1(c) to the Asset Purchase Agreement is hereby amended and restated in its entirety as follows: 
+ 
+ “(c) the Actual Excluded Pipeline Loan Commissions determined in accordance with Section 3.3(a) and that have actually been paid by Buyer; plus ” 
+ 
+ (c) The following sentence in Section 3.1 to the Asset Purchase Agreement is hereby deleted in its entirety: 
+ 
+ “Notwithstanding anything to the contrary herein (including Section 3.2), the Purchase Price shall not exceed $23,000,000 (the “ Purchase Price Ceiling ”).” 
+ 
+ 6. Earnout . Section 3.2 to the Asset Purchase Agreement is hereby amended and restated in its entirety as follows: 
+ 
+ “3.2 Intentionally Omitted .” 
+ 
+ 7. Commissions . 
+ 
+ (a) Section 3.3(a)(i) to the Asset Purchase Agreement is hereby amended and restated in its entirety as follows: 
+ 
+ “(i) Within one (1) Business Day following determination of the Excluded Pipeline Loans and prior to Closing, Seller shall deliver to Buyer a good faith estimate of the loan officer commissions (the “ Estimated Excluded Pipeline Loan Commissions ”) on Excluded Pipeline Loans that were originated by Business Employees that are expected to be Hired Employees.” 
+ 
+ 4 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ (b) Section 3.3(b)(i) to the Asset Purchase Agreement is hereby amended and restated in its entirety as follows: 
+ 
+ “(i) Within one (1) Business Day following determination of the Excluded Pipeline Loans and prior to Closing, Seller shall deliver to Buyer a good faith estimate of the loan officer commissions (the “ Estimated Seller-Owed Commissions ”) on Seller Pipeline Loans that were originated by Business Employees that are not expected to be Hired Employees.” 
+ 
+ 8. Eligible Pipeline Loans . 
+ 
+ (a) Section 3.4(a) to the Asset Purchase Agreement is hereby amended to add at the end of such Section the following: 
+ 
+ “In addition, Seller shall deliver to Buyer, prior to the Closing, another preliminary Schedule 2.1(a) setting forth a list of all of the existing Seller Pipeline Loans, which preliminary Schedule 2.1(a) shall include all Seller Locked Pipeline Loans, unlocked Seller Pipeline Loans and each Mortgage Loan submission that was not Closed prior to the Closing.” 
+ 
+ (b) Section 3.4(b) to the Asset Purchase Agreement is hereby amended to add at the end of such Section the following: 
+ 
+ “Notwithstanding anything to the contrary herein, any Mortgage Loan submission that has Closed prior to the Closing shall be an Excluded Pipeline Loan (and shall not be a Seller Pipeline Loan or Eligible Pipeline Loan), irrespective of whether such Mortgage Loan submission is included on Schedules 2.1(a) , 2.2 or 3.4 .” 
+ 
+ (c) Section 3.4(d) to the Asset Purchase Agreement is hereby amended and restated in its entirety as follows: 
+ 
+ “The maximum amount that may become payable under this Section 3.4 shall be $1,000,000.” 
+ 
+ (d) New Section 3.4(e) is hereby added to the Asset Purchase Agreement and reads in its entirety as follows: 
+ 
+ “(e) Seller shall cease accepting and closing (it being understood that closing means having the applicable borrower sign final Mortgage Loan documents) Seller Pipeline Loans prior to the Closing.” 
+ 
+ 9. Security Deposits . 
+ 
+ (a) Section 3.6 to the Asset Purchase Agreement is hereby amended and restated in its entirety as follows: 
+ 
+ “ Allocation of Expenses . All utility charges, gas charges, electric charges, water charges, water rents and sewer rents, if any, shall be apportioned between Buyer 
+ 
+ 5 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ and Seller as of 11:59 P.M. on the Closing Date, computed on the basis of the most recent meter charges or, in the case of annual charges, on the basis of the established fiscal year. All prorations shall be made and the Purchase Price shall be adjusted insofar as feasible on the Closing Date. During the six-month period subsequent to the Closing Date, Seller shall advise Buyer and Buyer shall advise Seller of any actual changes to such prorations, and the Purchase Price shall be increased or decreased, as applicable, at the end of such six-month period. In the event Buyer or Seller receive bills after the Closing Date for expenses incurred prior to the Closing Date that were not prorated in accordance with this Section, then Buyer or Seller, as the case may be, shall promptly notify the other Party as to the amount of the expense subject to proration and the responsible Party shall pay its portion of such expense (or, in the event such expense has been paid on behalf of the responsible Party, reimburse the other Party for its portion of such expenses). Notwithstanding anything to the contrary set forth in this Section, this Section shall not apply to prepaid expenses, which are discussed in Sections 2.1 and 2.2 .” 
+ 
+ (b) The following sentence is hereby deleted in its entirety from Section 6.12 to the Asset Purchase Agreement: 
+ 
+ “The Security Deposits represent the aggregate amount of the security deposits that are being assigned to Buyer under the Office Leases.” 
+ 
+ 10. Closing . Section 4.1 to the Asset Purchase Agreement is hereby amended and restated in its entirety as follows: 
+ 
+ “4.1 The Closing . The closing of the sale, assignment, transfer and conveyance to Buyer of the Acquired Assets and the assumption by Buyer of the Assumed Liabilities (the “ Closing ”) shall take place at the offices of Sheppard, Mullin, Richter & Hampton LLP, 333 South Hope Street, 48 th Floor, Los Angeles, CA 90071, at such time as the conditions set forth in ARTICLE 9 have been satisfied or waived or at such other place and time as shall be agreed upon by Buyer and Seller. The date on which the Closing is actually held is referred to herein as the “ Closing Date .” The Closing shall be deemed effective as of 11:59 p.m. Los Angeles time on the Closing Date.” 
+ 
+ 11. Further Assurances . Section 8.1 to the Asset Purchase Agreement is hereby amended to add at the end of such Section the following: 
+ 
+ “Without limiting the generality of this Section, Seller shall reasonably cooperate with Buyer to promptly obtain branch licensing and mortgage banker licenses following the Closing including, without limitation, using Reasonable Efforts (i) to obtain branch licenses in the manner set forth on Schedule 8.1 and submitting any initial (in the case of states for which no paperwork has yet been submitted) or additional (as may be required by the applicable state licensing authority) paperwork as reasonably required for the transfer of the branch licenses, (ii) to ensure that each of the mortgage bankers offered employment by Buyer as of the 
+ 
+ 6 
+ 
+ 
+ 
+
+
+ 
+ 
+ 
+ Closing Date, including, without limitation, the branch managers (i.e., Tim Apenbrinck, Matthew Jarboe, Brett Berg and David Couch) (A) surrender the sponsorship of Seller as related to each such mortgage banker’s license, (B) attest to Buyer’s sponsorship of each such mortgage banker’s license and (C) file or assist Buyer in filing any required paperwork to the applicable state licensing authority to transfer said sponsorship.” 
+ 
+ 12. Employees . 
+ 
+ (a) Section 8.5(e) to the Asset Purchase Agreement is hereby amended and restated in its entirety as follows: 
+ 
+ “(e) Except as provided in Section 3.3 , Seller shall pay to each Hired Employee (it being agreed that Buyer shall have no responsibility therefor), any payments due to such employees, including, without limitation, (i) to the extent required by Applicable Requirements, all paid time off, sick time or vacation time that has accrued through the earlier of the applicable termination date or Closing Date; (ii) all wages, commissions and other remuneration due to Hired Employees (including pursuant to any Applicable Requirement, and in connection with or due with respect to any Mortgage Loan) with respect to their services as employees of Seller through the earlier of the applicable termination date or the Closing Date, including pro rata bonus payments and payments from Seller’s Benefits Plans as if all benefits were fully vested and due; (iii) all severance payments due to the Hired Employee or other Liability which arises from the termination of the Hired Employees; and (iv) any and all payments due to a Hired Employee as required under any other Law. Seller shall be required to make the payments described in this Section 8.5(e) in accordance with Applicable Requirements. Seller acknowledges and agrees that Seller will be Liable for any claims made, incurred or accrued by Hired Employees and their beneficiaries prior to the termination of employment with Seller under any Benefit Plan covering Business Employees. For purposes of the immediately preceding sentence, a charge will be deemed incurred, in the case of hospital, medical or dental benefits when the services that are the subject of the charge are performed and, in the case of other benefits (such as disability or life insurance), when an event has occurred or when a condition has been diagnosed that entitles the employee to the benefit.” 
+ 
+ (b) Section 8.5(g) to the Asset Purchase Agreement is hereby amended to add the word “that” after “ provided , however ,”. 
+ 
+ 13. Seller’s Operations After Closing . Section 8.7(b) to the Asset Purchase Agreement is hereby amended and restated in its entirety as follows: 
+ 
+ “(b) Seller shall not conduct business after the Closing Date except to (i) liquidate Seller’s loans held for resale, (ii) repay its warehouse lines of credit, (iii) exercise any creditors’ rights, (iv) subject to Section 8.3 , operate, use or perform any Excluded Assets or Excluded Liabilities, (v) fund any of Seller’s loans that have Closed, but not funded as of the Closing Date and (vi) otherwise wind down 
+ 
+ 7 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ the mortgage banking operations of Seller (the “ Wind Down ”); provided, however, that the Wind Down shall be completed no later than 12 months following the Closing Date or such longer time as is necessary for Seller to complete any actions permitted under subclause (iii) in this Section 8.7(b) .” 
+ 
+ 14. Closing Conditions . 
+ 
+ (a) Section 9.1(f) to the Asset Purchase Agreement is hereby amended and restated in its entirety as follows: 
+ 
+ “Each License identified in Schedule 9.1(f) shall have been obtained in a form reasonably acceptable to Buyer and shall be in full force and effect. For purposes of this Section 9.1(f) , a License shall be considered to have been “obtained” and “be in full force and effect” if a Governmental Authority has advised Buckley Sandler LLP, joint counsel for Buyer and Seller, that a License has been or will be approved and will be issued subsequent to Seller’s surrender of a corresponding license, which surrender shall occur as of the Closing. Schedule 9.1(f) reflects the necessary branch office licenses to be obtained (as defined herein) by Closing, and which represent not less than 85% of Seller’s Mortgage Loan volume for the 9 months ended September 30, 2010. Schedule 9.1(f) also reflects each of the loan originators who shall undergo a change of sponsorship upon hiring by Buyer.” 
+ 
+ (b) Section 9.1(m) is hereby added to the Asset Purchase Agreement and reads in its entirety as follows: 
+ 
+ “(m) Escrow Agreement . Seller and the Escrow Agent shall have duly executed the Escrow Agreement.” 
+ 
+ (c) Section 9.2(c) is hereby amended and restated in its entirety as follows: 
+ 
+ “(c) Certificate of Buyer . Buyer shall have delivered to Seller a certificate, which shall be signed by an officer of Buyer, certifying that the conditions set forth in Sections 9.2(a) and (b) have been satisfied.” 
+ 
+ (d) Section 9.2(e) is hereby added to the Asset Purchase Agreement and reads in its entirety as follows: 
+ 
+ “(e) Escrow Agreement . Buyer and the Escrow Agent shall have duly executed the Escrow Agreement.” 
+ 
+ 15. Withholding Rights . Section 11.7 to the Asset Purchase Agreement is hereby amended and restated in its entirety as follows: 
+ 
+ “11.7 Withholding Rights . Notwithstanding any other provision in this Agreement, Buyer or any Affiliate thereof may in good faith withhold payment to Seller of any amount due to Seller or any Affiliate thereof under the Transaction Documents (up to the amount of Buyer’s claim) if Buyer believes in good faith 
+ 
+ 8 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ that it has a claim against Seller or Shareholders and files for arbitration (or files a claim in court, if applicable); provided , however , that such amount shall be withheld only until the resolution of such claim and any amount that Buyer withholds shall be deposited with a neutral third party escrow company in accordance with an escrow agreement mutually agreeable to Seller and Buyer (using their Reasonable Efforts to enter into such escrow agreement) or the arbitrator until the final determination of such claim. Buyer’s exercise of any withholding right under this Section, whether or not ultimately determined to be justified, will not constitute a breach of this Agreement. Neither the exercise of nor the failure to exercise such right of withholding will constitute an election of remedies or limit Buyer in any manner in the enforcement of any other remedies that may be available to it.” 
+ 
+ 16. Acquired Assets; Seller Pipeline Loans . Schedule 2.1(a) and Schedule 2.1(b) to the Asset Purchase Agreement are hereby amended and restated in their entirety in the form attached hereto as Schedule 2.1(a) and (b) . 
+ 
+ 17. Excluded Assets; Excluded Pipeline Loans . Schedule 2.2 to the Asset Purchase Agreement is hereby amended and restated in its entirety in the form attached hereto as Schedule 2.2 . 
+ 
+ 18. Eligible Pipeline Loans . Schedule 3.4 to the Asset Purchase Agreement is hereby added in the form attached hereto as Schedule 3.4 . 
+ 
+ 19. Consents . 
+ 
+ (a) Schedule 6.3 to the Asset Purchase Agreement is hereby amended and restated in its entirety in the form attached hereto as Schedule 6.3 . 
+ 
+ (b) Schedule 9.1(e) to the Asset Purchase Agreement is hereby amended and restated in its entirety in the form attached hereto as Schedule 9.1(e) . 
+ 
+ 20. Branch Licenses . Schedule 8.1 is hereby added to the Asset Purchase Agreement in the form attached hereto as Schedule 8.1 . 
+ 
+ 21. Leased Employees . Schedule 8.6(e) to the Asset Purchase Agreement is hereby amended and restated in its entirety in the form attached hereto as Schedule 8.6(e) . 
+ 
+ 22. Licenses . Schedule 9.1(f) to the Asset Purchase Agreement is hereby amended and restated in its entirety in the form attached hereto as Schedule 9.1(f) . 
+ 
+ 23. Escrow Agreement . Exhibit D is hereby added to the Asset Purchase Agreement in the form attached hereto as Exhibit D . 
+ 
+ 24. Signatures . The Parties hereby acknowledge that the signatories to the Asset Purchase Agreement for the S. Pohn Trust and the J. Pohn Trust were incorrect. By execution hereof, the Parties hereby agree that the signatures to this Amendment shall serve as signatures of the Parties to both the Asset Purchase Agreement and this Amendment and such signatures 
+ 
+ 9 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ shall be conclusive evidence for all purposes of the execution of the Asset Purchase Agreement and this Amendment. 
+ 
+ 25. Acknowledgment and Agreement . Seller hereby acknowledges and agrees that this Amendment shall not be construed as a waiver of any provision of the Asset Purchase Agreement by Buyer, nor shall it in any way affect the validity of, or the right of Buyer to enforce the provisions of the Asset Purchase Agreement, including, without limitation, any indemnification claims under ARTICLE 11 thereof. 
+ 
+ 26. Full Force and Effect . This Amendment is expressly made subject to the terms and conditions of the Asset Purchase Agreement as modified herein, and, except as expressly modified herein, the Asset Purchase Agreement shall continue in full force and effect without change. 
+ 
+ 27. Entire Agreement . This Amendment, together with the Asset Purchase Agreement (including the exhibits and schedules thereto and the documents delivered pursuant thereto), constitutes the entire understanding and agreement of the Parties with respect to the subject matter hereof and supersedes any prior understandings and agreements with respect to such subject matter. 
+ 
+ 28. Counterparts . This Amendment may be executed in two or more counterparts, each of which shall be deemed an original and all of which together shall constitute one and the same agreement. 
+ 
+ 29. Governing Law . This Amendment shall be governed by and construed in accordance with the laws of the State of California, without regard to the conflicts of law rules of such state. 
+ 
+ 30. Dispute Resolution . Resolution of any and all disputes between the Parties hereto relating to, arising out of, or in connection with any provision of this Amendment shall be exclusively governed by and settled in accordance with the provisions of Section 12.8 of the Asset Purchase Agreement. 
+ 
+ [Signatures on the Following Page(s)] 
+ 
+ 10 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ IN WITNESS WHEREOF, the Parties have caused this Amendment to be entered into as of the date first above written. 
+ 
+ 
+ 
+ 
+ 
+ 
+ BUYER 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ Home Loan Center, Inc. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ By: 
+ 
+ 
+ 
+ 
+ 
+ 
+ Name: David Norris 
+ 
+ 
+ 
+ 
+ Title: President 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ SELLER 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ First Residential Mortgage Network, Inc. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ By: 
+ 
+ 
+ 
+ 
+ 
+ 
+ Name: Saul Pohn 
+ 
+ 
+ 
+ 
+ Title: President 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ SHAREHOLDERS 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ By: 
+ 
+ 
+ 
+ 
+ 
+ 
+ Name: Saul Pohn 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ By: 
+ 
+ 
+ 
+ 
+ 
+ 
+ Name: Jordan Pohn 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ The Saul L. Pohn Family Trust 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ By: 
+ 
+ 
+ 
+ 
+ 
+ 
+ Name: Jordan S. Pohn, as Trustee 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ The Jordan S. Pohn Family Trust 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ By: 
+ 
+ 
+ 
+ 
+ 
+ 
+ Name: Saul L. Pohn, as Trustee 
+ 
+ Signature Page to Second Amendment to Asset Purchase Agreement 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ List of Schedules 
+ 
+ 
+ 
+ 
+ Schedule 2.1 
+ 
+ 
+ 
+ Acquired Assets 
+ 
+ 
+ Schedule 2.2 
+ 
+ 
+ 
+ Excluded Assets 
+ 
+ 
+ Schedule 3.4 
+ 
+ 
+ 
+ Eligible Pipeline Loans 
+ 
+ 
+ Schedule 6.3 
+ 
+ 
+ 
+ No Violation or Consent 
+ 
+ 
+ Schedule 8.1 
+ 
+ 
+ 
+ Branch Licenses 
+ 
+ 
+ Schedule 8.6(e) 
+ 
+ 
+ 
+ Leased Employees 
+ 
+ 
+ Schedule 9.1(e) 
+ 
+ 
+ 
+ Consents Required for Closing 
+ 
+ 
+ Schedule 9.1(f) 
+ 
+ 
+ 
+ Licenses Required for Closing 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ List of Exhibits 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ Exhibit D 
+ 
+ 
+ 
+ Escrow Agreement

@@ -1,0 +1,8 @@
+CONTRAT DE TRAVAIL A DUREE INDETERMINEE
+
+Entre la societe ABC SARL, sise a Paris, representee par son dirigeant, et Monsieur
+Jean Dupont, demeurant a Lyon, il est conclu un contrat de travail a duree indeterminee.
+Le salarie exercera les fonctions d'ingenieur logiciel. La remuneration mensuelle brute
+est fixee a 4.000 euros. La periode d'essai est de trois mois. Le salarie beneficiera
+des conges payes prevus par la loi. Le present contrat est soumis a la convention
+collective applicable a l'entreprise.

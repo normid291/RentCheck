@@ -101,10 +101,23 @@ the input actually is, for every path (paste, PDF, image, `.txt`, `.docx`):
 - `unreadable` — too blurry/dark or too little text to judge.
 
 Most inputs are decided deterministically (text volume + tenancy keywords), so a
-clear lease or a clear non-lease costs **no extra AI call**; only genuinely
-ambiguous text is sent to the model (one call) to return
-`{document_type, confidence, reason}`. If that call fails, the keyword signal is
-used instead of failing the request.
+clear lease or a clear non-lease costs **no extra AI call**. Two rules keep that
+fast path honest:
+
+- **Title signal.** A deterministic *accept* requires at least one tenancy
+  keyword in the document's head (~first 400 chars), because real agreements
+  name themselves ("DEED OF LEASE", "ASSURED SHORTHOLD TENANCY AGREEMENT",
+  "LICENCE TO OCCUPY", "CONTRAT DE LOCATION"). A finance/employment contract
+  that only mentions "lease"/"landlord" deep in its body is not waved through.
+- **Language awareness.** Keywords cover English, French (`bail`, `locataire`),
+  Spanish (`arrendamiento`) and German (`Mietvertrag`) tenancy forms, and any
+  text with a meaningful run of accented/non-Latin letters is sent to the model
+  rather than being rejected on English keywords it never had.
+
+Only genuinely ambiguous text reaches the model (one call) to return
+`{document_type, confidence, reason}`. If that call fails, the title signal is
+used as the fallback (a document that never names itself as a tenancy is
+rejected) instead of failing the request.
 
 When the verdict is not a tenancy agreement, the API returns a **clean 200**
 (not an error) and does **not** write an `Agreement`/`Analysis` row, so rejected
@@ -126,6 +139,29 @@ uploads never count as completed analyses:
 `status` is `unreadable` for that case; successful analyses return
 `"status": "ok"` with `"document_type": "tenancy_agreement"`.
 
+## Testing the document gate
+
+`tests/` holds an end-to-end harness that runs the real HTTP endpoints against
+**real, publicly available sample documents** (Nigerian deeds of lease, UK
+assured shorthold tenancies, a US lease, a French bail, plus employment / loan /
+NDA / sale contracts, a news article and generated invoices/photos). Every
+fixture and its expected outcome is recorded with its source URL in
+`tests/fixtures/manifest.json`.
+
+```bash
+python tests/make_generated_fixtures.py   # (re)build derived scans + generated fixtures
+python tests/test_document_type.py        # run everything; exits non-zero on any failure
+```
+
+The runner starts the app with uvicorn, sends each fixture through
+`/api/agreements/analyze` (paste) or `/api/agreements/analyze-upload`
+(PDF / `.docx` / image / `.txt`), prints a pass/fail table, checks that rejected
+inputs are **not** persisted, and verifies the failure paths (corrupt PDF, AI
+timeout, missing API key) return clean JSON instead of a bare 500.
+
+Regenerate the real downloads with `tests/fetch_real_fixtures.py` (network
+required); the fixtures themselves are committed.
+
 ## Project structure
 
 ```
@@ -145,6 +181,11 @@ app/
   static/index.html           - Frontend markup
   static/styles.css           - Frontend styles
   static/app.js               - Frontend logic
+tests/
+  test_document_type.py        - End-to-end gate tests over real + generated fixtures
+  make_generated_fixtures.py   - Build derived scans / generated fixtures
+  fetch_real_fixtures.py       - Re-download the real fixtures (network)
+  fixtures/manifest.json       - Every fixture with its source URL + expected result
 ```
 
 ## Current scope
