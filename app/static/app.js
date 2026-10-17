@@ -60,8 +60,19 @@
   els.ringFg.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
 
   const MAX_BYTES = 15 * 1024 * 1024; // 15 MB
-  const ALLOWED_EXT = ["pdf", "txt", "png", "jpg", "jpeg"];
-  const ALLOWED_MIME = ["application/pdf", "text/plain", "image/png", "image/jpeg"];
+  const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  const ALLOWED_EXT = ["pdf", "docx", "txt", "md", "markdown", "png", "jpg", "jpeg", "webp", "bmp", "tiff"];
+  const ALLOWED_MIME = [
+    "application/pdf",
+    DOCX_MIME,
+    "text/plain",
+    "text/markdown",
+    "image/png",
+    "image/jpeg",
+    "image/webp",
+    "image/bmp",
+    "image/tiff",
+  ];
 
   let mode = "paste";
   let busy = false;
@@ -157,7 +168,7 @@
     const okExt = ALLOWED_EXT.indexOf(ext) !== -1;
     const okMime = ALLOWED_MIME.indexOf(type) !== -1;
     if (!okExt && !okMime) {
-      return "Unsupported file type. Please upload a PDF, a PNG/JPG image, or a .txt file.";
+      return "Unsupported file type. Please upload a PDF, a Word document (.docx), an image (PNG/JPG/WEBP), or a .txt file.";
     }
     return null;
   }

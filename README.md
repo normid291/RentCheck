@@ -103,7 +103,7 @@ app/
   services/ai_inference.py    - Rumpty AI Inference calls (grounded, few-shot)
   services/protections.py     - Deterministic missing-protections + questions
   services/red_flags.py       - Deterministic high-confidence red-flag rules
-  services/extractor.py       - PDF/image/text upload -> plain text (pypdf, OCR)
+  services/extractor.py       - PDF/Word/image/text upload -> plain text (pypdf, python-docx, OCR)
   seed_clause_reference.py    - Seed data for Nigerian rental norms
   static/index.html           - Frontend markup
   static/styles.css           - Frontend styles
@@ -112,7 +112,7 @@ app/
 
 ## Current scope
 
-- **Paste text** or **upload a file** (PDF, image, or `.txt`) → analysis.
+- **Paste text** or **upload a file** (PDF, Word `.docx`, image, or `.txt`) → analysis.
 - Outputs: flagged clauses, missing protections, and questions to ask before
   signing. Missing protections and questions are derived deterministically
   (`app/services/protections.py`) from which clause types were matched and
@@ -122,9 +122,19 @@ app/
   (shown as "[AI suggestion — worth a manual check]"). A rule match skips the
   AI call for that clause.
 - Uploads are turned into text by `app/services/extractor.py`: `pypdf` for the
-  PDF text layer, and Tesseract OCR for images. Photos of agreements work via
-  OCR; scanned PDFs (no text layer) are rejected with a message asking for an
-  image instead.
+  PDF text layer, `python-docx` for Word documents, and Tesseract OCR for
+  images. Photos of agreements work via OCR; scanned PDFs (no text layer) are
+  rejected with a message asking for an image instead. Legacy `.doc` files are
+  not supported — save them as `.docx` or PDF first.
+
+### Supported upload formats
+
+| Format | Extensions | Read by |
+|--------|------------|---------|
+| PDF | `.pdf` | `pypdf` (text layer; scanned PDFs need OCR) |
+| Word | `.docx` | `python-docx` |
+| Image | `.png`, `.jpg`, `.jpeg`, `.webp`, `.bmp`, `.tiff` | Tesseract OCR |
+| Plain text | `.txt`, `.md` | direct decode (UTF-8/UTF-16/Latin-1) |
 
 ### Optional: image OCR
 

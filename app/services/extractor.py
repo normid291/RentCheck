@@ -1,19 +1,27 @@
 """
-Week 3: turn uploaded PDFs / images into plain text for the analysis pipeline.
+Week 3: turn uploaded PDFs / Word docs / images / text into plain text for the
+analysis pipeline.
 
 Design notes:
 - PDF: pypdf pulls the text layer. Typed/digital PDFs work directly; a scanned
   PDF has no text layer and is rejected with a helpful message (we cannot render
   PDF pages to images without a heavier dependency like pdf2image + poppler).
+- DOCX: python-docx reads the paragraph/table text out of the Word XML.
 - Image: pytesseract + Pillow, which need the Tesseract binary installed.
-- Both are imported LAZILY, inside the functions. That keeps the app importable
-  and deployable even when the optional OCR stack is not present; the caller
-  just gets a clear ExtractionError instead of an ImportError at startup.
+- All optional libraries are imported LAZILY, inside the functions. That keeps
+  the app importable and deployable even when a format's stack is not present;
+  the caller just gets a clear ExtractionError instead of an ImportError at
+  startup.
 """
 import io
 
 # Guard against absurd uploads before we spend CPU on them.
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024  # 15 MB
+
+DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+DOCX_EXTS = {"docx"}
+IMAGE_EXTS = {"png", "jpg", "jpeg", "webp", "bmp", "tiff", "tif"}
+TEXT_EXTS = {"txt", "md", "markdown"}
 
 
 class ExtractionError(Exception):
@@ -41,13 +49,23 @@ def extract_text(data: bytes, content_type: str, filename: str = "") -> str:
 
     if kind == "pdf":
         return _extract_pdf(data)
+    if kind == "docx":
+        return _extract_docx(data)
     if kind == "image":
         return _extract_image(data)
     if kind == "text":
         return _extract_plain(data)
 
+    if kind == "doc":
+        raise ExtractionError(
+            "Legacy .doc files are not supported. Save the document as .docx or "
+            "PDF and try again.",
+            status_code=400,
+        )
+
     raise ExtractionError(
-        "Unsupported file type. Upload a PDF, an image (PNG/JPG), or a .txt file.",
+        "Unsupported file type. Upload a PDF, a Word document (.docx), an image "
+        "(PNG/JPG/WEBP), or a .txt file.",
         status_code=400,
     )
 
@@ -58,9 +76,13 @@ def _classify(content_type: str, filename: str) -> str:
 
     if content_type == "application/pdf" or ext == "pdf":
         return "pdf"
-    if content_type.startswith("image/") or ext in {"png", "jpg", "jpeg", "webp", "bmp", "tiff"}:
+    if content_type == DOCX_MIME or ext in DOCX_EXTS:
+        return "docx"
+    if ext == "doc":  # legacy binary Word — give a specific, helpful error
+        return "doc"
+    if content_type.startswith("image/") or ext in IMAGE_EXTS:
         return "image"
-    if content_type.startswith("text/") or ext in {"txt", "md"}:
+    if content_type.startswith("text/") or ext in TEXT_EXTS:
         return "text"
     return "unknown"
 
@@ -85,6 +107,43 @@ def _extract_pdf(data: bytes) -> str:
         raise ExtractionError(
             "This PDF has no selectable text (it looks like a scan). "
             "Try uploading it as an image instead, or paste the text.",
+            status_code=400,
+        )
+    return text
+
+
+def _extract_docx(data: bytes) -> str:
+    """Pull paragraph and table text out of a .docx (Office Open XML) file."""
+    try:
+        import docx  # provided by the python-docx package
+    except ImportError as exc:  # optional dependency not installed
+        raise ExtractionError(
+            "Word (.docx) support is not installed on the server "
+            "(pip install python-docx).",
+            status_code=500,
+        ) from exc
+
+    try:
+        document = docx.Document(io.BytesIO(data))
+    except Exception as exc:
+        raise ExtractionError(
+            "Could not read the uploaded Word document. If it is an old .doc file, "
+            "save it as .docx or PDF first.",
+            status_code=400,
+        ) from exc
+
+    parts = [p.text.strip() for p in document.paragraphs if p.text and p.text.strip()]
+    for table in document.tables:
+        for row in table.rows:
+            cells = [c.text.strip() for c in row.cells if c.text and c.text.strip()]
+            if cells:
+                parts.append(" | ".join(cells))
+
+    text = "\n".join(parts)
+    if not text.strip():
+        raise ExtractionError(
+            "No text was found in the Word document. If the agreement is an image "
+            "inside the file, try uploading it as a PDF or image instead.",
             status_code=400,
         )
     return text

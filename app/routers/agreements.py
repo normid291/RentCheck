@@ -105,10 +105,11 @@ async def analyze_upload(
     file: UploadFile = File(...), db: Session = Depends(get_db)
 ):
     """
-    PDF / image / text file in, same structured analysis out.
+    PDF / Word (.docx) / image / text file in, same structured analysis out.
 
     The file is turned into text by app/services/extractor.py (pypdf for PDFs,
-    Tesseract for images), then run through the exact same pipeline as paste.
+    python-docx for Word documents, Tesseract for images), then run through the
+    exact same pipeline as paste.
     """
     data = await file.read()
 
