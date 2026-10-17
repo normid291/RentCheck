@@ -132,6 +132,12 @@ def _source_type_for(content_type: str, filename: str) -> SourceType:
     ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
     if content_type == "application/pdf" or ext == "pdf":
         return SourceType.pdf
+    if (
+        content_type
+        == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        or ext == "docx"
+    ):
+        return SourceType.docx
     if content_type.startswith("image/") or ext in {"png", "jpg", "jpeg", "webp", "bmp", "tiff"}:
         return SourceType.image
     return SourceType.text

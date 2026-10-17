@@ -9,6 +9,10 @@ python-multipart>=0.0.9
 pypdf>=4.0
 python-docx>=1.1
 
+# PDF OCR: rasterise scanned PDF pages (pypdfium2, pip-only — no Poppler needed)
+# before handing them to pytesseract below.
+pypdfium2>=4.30
+
 # Optional: image OCR. pytesseract + Pillow install fine here, but OCR also
 # needs the Tesseract binary on the host (see README). If it is missing, image
 # uploads return a clear error instead of crashing the app.

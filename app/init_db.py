@@ -10,7 +10,7 @@ without the operator having to remember a separate step.
 alters existing ones, so we also add any columns that exist in the models but
 are missing from an older database.
 """
-from sqlalchemy import inspect, text
+from sqlalchemy import Enum, inspect, text
 from sqlalchemy.schema import CreateColumn
 
 from app.database import engine
@@ -61,6 +61,64 @@ def add_missing_columns() -> list[str]:
     return added
 
 
+def add_missing_enum_values() -> list[str]:
+    """Best-effort: add enum labels present in the models but not the database.
+
+    PostgreSQL stores enums as named types, so adding a member to a Python Enum
+    does NOT add it to an existing database type. We run
+    ``ALTER TYPE ... ADD VALUE IF NOT EXISTS`` on an AUTOCOMMIT connection,
+    because older PostgreSQL versions forbid this inside a transaction block.
+    Returns the list of "type.value" labels added.
+    """
+    added: list[str] = []
+    seen: set[str] = set()
+
+    for table in Base.metadata.sorted_tables:
+        if not inspector_has_table(table.name):
+            continue
+        for column in table.columns:
+            col_type = column.type
+            if not isinstance(col_type, Enum):
+                continue
+            type_name = col_type.name or (col_type.enum_class or type("", (), {})).__name__
+            if not type_name or type_name in seen:
+                continue
+            seen.add(type_name)
+            try:
+                with engine.connect().execution_options(
+                    isolation_level="AUTOCOMMIT"
+                ) as conn:
+                    existing = {
+                        row[0]
+                        for row in conn.execute(
+                            text(
+                                "SELECT e.enumlabel FROM pg_enum e "
+                                "JOIN pg_type t ON t.oid = e.enumtypid "
+                                "WHERE t.typname = :n"
+                            ),
+                            {"n": type_name},
+                        )
+                    }
+                    for value in col_type.enums:
+                        if value in existing:
+                            continue
+                        safe = str(value).replace("'", "''")
+                        conn.execute(
+                            text(
+                                f'ALTER TYPE "{type_name}" ADD VALUE IF NOT EXISTS \'{safe}\''
+                            )
+                        )
+                        added.append(f"{type_name}.{value}")
+                        print(f"[schema] added enum value {type_name}.{value}")
+            except Exception as exc:  # never let a migration attempt crash startup
+                print(f"[schema] could not add enum values for {type_name}: {exc}")
+    return added
+
+
+def inspector_has_table(name: str) -> bool:
+    return inspect(engine).has_table(name)
+
+
 def seed_clause_reference() -> tuple[int, int]:
     """Sync the curated clause_reference rows (upsert by clause_type)."""
     from app.seed_clause_reference import run as seed_run
@@ -71,6 +129,7 @@ def seed_clause_reference() -> tuple[int, int]:
 def ensure_schema() -> None:
     """Make the database ready to serve requests."""
     create_tables()
+    add_missing_enum_values()
     add_missing_columns()
     added, updated = seed_clause_reference()
     print(f"[schema] clause_reference synced ({added} added, {updated} updated).")

@@ -83,7 +83,7 @@ Failures return structured JSON (never a bare "Internal Server Error"):
 
 | Status | When |
 | ------ | ---- |
-| 400 | Empty file, unsupported type, unreadable/scan-only PDF or image |
+| 400 | Empty file, unsupported type, or unreadable/OCR-less PDF or image |
 | 413 | Upload larger than 15 MB |
 | 500 | Database error while saving the analysis (check `DATABASE_URL` + `/health/db`) |
 | 502 | Upstream AI Inference unavailable |
@@ -123,30 +123,31 @@ app/
   AI call for that clause.
 - Uploads are turned into text by `app/services/extractor.py`: `pypdf` for the
   PDF text layer, `python-docx` for Word documents, and Tesseract OCR for
-  images. Photos of agreements work via OCR; scanned PDFs (no text layer) are
-  rejected with a message asking for an image instead. Legacy `.doc` files are
-  not supported — save them as `.docx` or PDF first.
+  images. Scanned PDFs with no text layer are rasterised with `pypdfium2` and
+  OCR'd too (capped at the first 25 pages). Photos of agreements work via OCR.
+  Legacy `.doc` files are not supported — save them as `.docx` or PDF first.
 
 ### Supported upload formats
 
 | Format | Extensions | Read by |
 |--------|------------|---------|
-| PDF | `.pdf` | `pypdf` (text layer; scanned PDFs need OCR) |
+| PDF | `.pdf` | `pypdf` text layer; scanned PDFs fall back to `pypdfium2` + OCR |
 | Word | `.docx` | `python-docx` |
 | Image | `.png`, `.jpg`, `.jpeg`, `.webp`, `.bmp`, `.tiff` | Tesseract OCR |
 | Plain text | `.txt`, `.md` | direct decode (UTF-8/UTF-16/Latin-1) |
 
-### Optional: image OCR
+### Optional: OCR (images and scanned PDFs)
 
-Image uploads need the Tesseract binary in addition to the Python packages:
+OCR needs the Tesseract binary in addition to the Python packages:
 
 - Windows: install from the [UB Mannheim build](https://github.com/UB-Mannheim/tesseract/wiki)
 - macOS: `brew install tesseract`
 - Debian/Ubuntu: `apt-get install tesseract-ocr`
 
-If Tesseract is missing, PDF and text uploads still work, and image uploads
-return a clear error rather than crashing. On Windows the default install
-location is auto-detected; set `TESSERACT_CMD` in `.env` to override it.
+If Tesseract is missing, PDF (text layer), Word and text uploads still work;
+image uploads and scanned PDFs return a clear error rather than crashing. On
+Windows the default install location is auto-detected; set `TESSERACT_CMD` in
+`.env` to override it.
 
 ## Status
 

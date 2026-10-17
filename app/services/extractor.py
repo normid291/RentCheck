@@ -3,9 +3,8 @@ Week 3: turn uploaded PDFs / Word docs / images / text into plain text for the
 analysis pipeline.
 
 Design notes:
-- PDF: pypdf pulls the text layer. Typed/digital PDFs work directly; a scanned
-  PDF has no text layer and is rejected with a helpful message (we cannot render
-  PDF pages to images without a heavier dependency like pdf2image + poppler).
+- PDF: pypdf pulls the text layer. Typed/digital PDFs work directly. A scanned
+  PDF (no text layer) is rasterised with pypdfium2 and run through Tesseract OCR.
 - DOCX: python-docx reads the paragraph/table text out of the Word XML.
 - Image: pytesseract + Pillow, which need the Tesseract binary installed.
 - All optional libraries are imported LAZILY, inside the functions. That keeps
@@ -17,6 +16,10 @@ import io
 
 # Guard against absurd uploads before we spend CPU on them.
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024  # 15 MB
+
+# OCR is CPU-heavy; cap how much of a scanned PDF we rasterise per request.
+OCR_DPI = 200
+MAX_OCR_PAGES = 25
 
 DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 DOCX_EXTS = {"docx"}
@@ -103,10 +106,68 @@ def _extract_pdf(data: bytes) -> str:
         raise ExtractionError("Could not read the uploaded PDF.", status_code=400) from exc
 
     text = "\n\n".join(p.strip() for p in pages if p and p.strip())
+    if text.strip():
+        return text
+
+    # No text layer -> likely a scan. Fall back to OCR.
+    return _ocr_pdf(data)
+
+
+def _ocr_pdf(data: bytes) -> str:
+    """Rasterise a (scanned) PDF and OCR each page with Tesseract.
+
+    Uses pypdfium2 (pip-only, no Poppler/ghostscript needed) to render pages.
+    """
+    try:
+        import pypdfium2 as pdfium
+        import pytesseract
+        from PIL import Image
+    except ImportError as exc:  # optional OCR stack not installed
+        raise ExtractionError(
+            "This PDF has no selectable text (it looks like a scan) and server-side "
+            "PDF OCR is not installed. Try uploading the scan as an image, or paste "
+            "the text.",
+            status_code=400,
+        ) from exc
+
+    _configure_tesseract(pytesseract)
+
+    try:
+        pdf = pdfium.PdfDocument(data)
+    except Exception as exc:
+        raise ExtractionError("Could not read the uploaded PDF.", status_code=400) from exc
+
+    scale = OCR_DPI / 72.0
+    pages_text: list[str] = []
+    try:
+        for index in range(min(len(pdf), MAX_OCR_PAGES)):
+            page = pdf[index]
+            bitmap = page.render(scale=scale)
+            image = bitmap.to_pil()
+            page_text = pytesseract.image_to_string(image)
+            if page_text and page_text.strip():
+                pages_text.append(page_text.strip())
+    except Exception as exc:
+        message = str(exc).lower()
+        if "tesseract" in message or "not found" in message:
+            raise ExtractionError(
+                "The OCR engine (Tesseract) is not available on the server.",
+                status_code=500,
+            ) from exc
+        raise ExtractionError(
+            "Could not OCR the scanned PDF on the server.", status_code=400
+        ) from exc
+    finally:
+        try:
+            pdf.close()
+        except Exception:
+            pass
+
+    text = "\n\n".join(pages_text)
     if not text.strip():
         raise ExtractionError(
-            "This PDF has no selectable text (it looks like a scan). "
-            "Try uploading it as an image instead, or paste the text.",
+            "No readable text was found in this scanned PDF. Try a clearer scan or "
+            "photo of the document, or paste the text.",
             status_code=400,
         )
     return text

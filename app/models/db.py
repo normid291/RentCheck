@@ -17,6 +17,7 @@ Base = declarative_base()
 
 class SourceType(str, enum.Enum):
     pdf = "pdf"
+    docx = "docx"
     text = "text"
     image = "image"
 
