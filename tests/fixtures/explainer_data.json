@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-10-19T12:13:17.192018+00:00",
+  "source_note": "Real tenancy agreement analysed by the RentCheck pipeline",
+  "provenance": "stored analysis (database)",
+  "risk_score": 100,
+  "risk_level": "High risk",
+  "risk_key": "high",
+  "summary": "4 of 7 checked clause(s) flagged, 4 expected protection(s) missing (10 clauses found in total).",
+  "counts": {
+    "flagged": 4,
+    "missing": 4,
+    "questions": 8,
+    "checked": 7,
+    "clauses": 10
+  },
+  "flagged": [
+    {
+      "label": "Taxes & outgoings",
+      "severity": "medium",
+      "source": "rule",
+      "evidence": "all taxes, rates, duties, assessments, i mpositions and outgoings whatsoever"
+    },
+    {
+      "label": "Entry without notice",
+      "severity": "low",
+      "source": "ai",
+      "evidence": "at all reasonable times during the term hereby granted"
+    },
+    {
+      "label": "Subletting",
+      "severity": "high",
+      "source": "ai",
+      "evidence": "such consent not to be unreasonably withheld"
+    },
+    {
+      "label": "Re-entry & forfeiture",
+      "severity": "high",
+      "source": "rule",
+      "evidence": "Whether or not lawfully demanded"
+    }
+  ],
+  "quote": "Whether or not lawfully demanded",
+  "missing": [
+    {
+      "label": "Clear exit / termination terms",
+      "why": "No notice period is stated, so either side could end the tenancy without a clear process."
+    },
+    {
+      "label": "Caution fee / deposit terms",
+      "why": "The agreement does not say what deposit is required or whether it is refundable."
+    },
+    {
+      "label": "Utilities / service charges",
+      "why": "The agreement does not say who pays for electricity, water, waste, or any shared service charge."
+    },
+    {
+      "label": "Rent review / increase terms",
+      "why": "The agreement does not state how or when rent can be increased, leaving the tenant exposed to arbitrary review."
+    }
+  ]
+}

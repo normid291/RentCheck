@@ -176,14 +176,24 @@ python tests/make_demo_video.py            # records production
 python tests/make_demo_video.py --url http://127.0.0.1:8000   # records locally
 ```
 
-`tests/make_explainer_video.py` turns that footage into a narrated explainer:
-motion-graphic intro/outro cards (Pillow), a voiceover (Edge neural TTS,
-Nigerian English), burned-in lower-third captions, and progress markers. Output:
+`tests/make_explainer_video.py` builds a stand-alone **motion-graphics explainer**
+(no screen recording). It is driven by real data: `tests/export_explainer_data.py`
+pulls an actual tenancy agreement from the database, runs it through the real
+analysis pipeline, anonymises personal details and writes
+`tests/fixtures/explainer_data.json`. The video then explains the flow
+(problem -> add it -> analyse -> flagged -> report -> call to action) with clean
+icons, short on-screen text, the brand palette/fonts, calm vertical/fade/scale
+motion (nothing slides sideways), a professional voiceover (Edge neural TTS,
+`en-US-AndrewNeural`) synced to the scenes, burned-in narration captions, and a
+quiet ambient music bed that sidechain-ducks under the voice. Output:
 `artifacts/rentcheck-explainer.mp4`.
 
 ```bash
+python tests/export_explainer_data.py            # refresh real data (runs the pipeline)
+python tests/export_explainer_data.py --no-run   # rebuild JSON from the stored analysis
 python tests/make_explainer_video.py
-python tests/make_explainer_video.py --source artifacts/rentcheck-demo.mp4
+python tests/make_explainer_video.py --voice en-GB-SoniaNeural --rate -2%  # alternate voice
+python tests/make_explainer_video.py --no-music  # narration only
 ```
 
 ## Project structure
