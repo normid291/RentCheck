@@ -176,6 +176,16 @@ python tests/make_demo_video.py            # records production
 python tests/make_demo_video.py --url http://127.0.0.1:8000   # records locally
 ```
 
+`tests/make_explainer_video.py` turns that footage into a narrated explainer:
+motion-graphic intro/outro cards (Pillow), a voiceover (Edge neural TTS,
+Nigerian English), burned-in lower-third captions, and progress markers. Output:
+`artifacts/rentcheck-explainer.mp4`.
+
+```bash
+python tests/make_explainer_video.py
+python tests/make_explainer_video.py --source artifacts/rentcheck-demo.mp4
+```
+
 ## Project structure
 
 ```

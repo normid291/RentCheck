@@ -3,3 +3,4 @@
 #   python -m playwright install chromium ffmpeg
 playwright
 imageio-ffmpeg
+edge-tts
