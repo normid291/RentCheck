@@ -162,6 +162,20 @@ timeout, missing API key) return clean JSON instead of a bare 500.
 Regenerate the real downloads with `tests/fetch_real_fixtures.py` (network
 required); the fixtures themselves are committed.
 
+### Demo video
+
+`tests/make_demo_video.py` records a short walkthrough of the live app with a
+real browser (Playwright): it loads the page, analyses the sample agreement,
+tours the results, then shows the "this doesn't look like a tenancy agreement"
+notice. Output: `artifacts/rentcheck-demo.mp4`.
+
+```bash
+pip install -r requirements-dev.txt
+python -m playwright install chromium ffmpeg
+python tests/make_demo_video.py            # records production
+python tests/make_demo_video.py --url http://127.0.0.1:8000   # records locally
+```
+
 ## Project structure
 
 ```
