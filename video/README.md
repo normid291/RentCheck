@@ -69,6 +69,35 @@ remap would otherwise compound.
   registered before the root `AbsoluteFill`, which pins `Inter, sans-serif`.
 - The output is tagged `yuvj420p(pc, bt470bg)` — full-range, and correct here.
 
+## If a render hangs
+
+Remotion drives a headless Chrome. If one of its renderer tabs dies — usually
+from memory pressure, or because orphaned `chrome-headless-shell` processes are
+already piling up — the frame loop keeps retrying `Page.bringToFront` against a
+closed target forever. It looks like a slow render. It is a deadlock, and it
+will never finish.
+
+The tell is in the CPU time, not the clock: sample the process and it burns a
+little kernel CPU, then flatlines.
+
+```bash
+tasklist | grep -i chrome-headless          # orphans? (Git Bash needs //F below)
+taskkill /F /IM chrome-headless-shell.exe   # in cmd.exe
+taskkill /F /T /PID <node-pid>              # kill the hung tree
+```
+
+Two habits that avoid the whole class of problem:
+
+- **Don't `rm` the previous output before rendering.** Render to a temp name and
+  move it into place only on success, or a failed render leaves you with
+  nothing.
+- **Drop the concurrency when it matters.** 60 frames at `--concurrency=2`
+  finishes in ~40 s. Lower concurrency trades a little speed for less memory
+  pressure and far fewer dead tabs.
+
+A successful render cleans up after itself — if `tasklist` still shows a
+`chrome-headless-shell` afterwards, something did not exit cleanly.
+
 ## Swapping audio without re-rendering
 
 The picture and sound are independent. To audition a change to the mix on the
