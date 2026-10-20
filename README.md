@@ -177,25 +177,28 @@ python tests/make_demo_video.py --url http://127.0.0.1:8000   # records locally
 ```
 
 `tests/make_explainer_video.py` builds a stand-alone **premium SaaS-style
-explainer** (no screen recording): a dark brand-gradient stage, a flat-
-illustration character at a laptop, floating glass UI cards, stage labels
-("01 - UPLOAD"), animated stat numbers and subtitle-style captions. Motion is
-calm and vertical (fades, gentle scale, bobbing - nothing slides sideways).
+explainer** (no screen recording): a dark brand-gradient stage, flat-
+illustration characters (a tenant and an agent), floating glass UI cards, stage
+labels ("01 - UPLOAD"), an app-window results screen, animated stat numbers and
+subtitle-style captions. Motion is calm and vertical (fades, gentle scale,
+bobbing - nothing slides sideways).
 
 It is driven by real data: `tests/export_explainer_data.py` pulls an actual
 tenancy agreement from the database, runs it through the real analysis
 pipeline, anonymises personal details and writes
 `tests/fixtures/explainer_data.json` (flagged clauses, severities, the evidence
 quote, counts and the questions to ask). The "Flagged", "Report" and "What to
-ask" scenes all render that real output. A professional voiceover (Edge neural
-TTS, `en-US-AndrewNeural`) is synced to the scenes, with burned-in narration
-captions and a quiet ambient music bed that sidechain-ducks under the voice.
-Output: `artifacts/rentcheck-explainer.mp4`.
+ask" scenes all render that real output; the report scene is shown as an actual
+app window containing the real result cards. A professional voiceover (Edge
+neural TTS, `en-US-AndrewNeural`) is synced to the scenes, with burned-in
+narration captions and a quiet ambient music bed that sidechain-ducks under the
+voice. Output: `artifacts/rentcheck-explainer.mp4`.
 
 ```bash
 python tests/export_explainer_data.py            # refresh real data (runs the pipeline)
 python tests/export_explainer_data.py --no-run   # rebuild JSON from the stored analysis
 python tests/make_explainer_video.py
+python tests/make_explainer_video.py --vertical  # also write a 9:16 social cut
 python tests/make_explainer_video.py --voice en-GB-SoniaNeural --rate -2%  # alternate voice
 python tests/make_explainer_video.py --no-music  # narration only
 ```

@@ -407,9 +407,19 @@ def draw_particles(d, el):
 
 
 # --------------------------------------------------------------------------- #
-# the character (flat illustration)
+# the characters (flat illustration)
 # --------------------------------------------------------------------------- #
-def draw_character(d, cx, base_y, s, el, mood="idle", alpha=1.0, laptop=False):
+CHAR_VARIANTS = {
+    "tenant": dict(skin=(233, 189, 158), hair=(34, 30, 36), shirt=(46, 148, 120),
+                   shirt_dark=(30, 104, 84), bun=True, glasses=False),
+    "agent": dict(skin=(208, 160, 122), hair=(30, 26, 28), shirt=(46, 68, 94),
+                  shirt_dark=(30, 48, 70), bun=False, glasses=True),
+}
+
+
+def draw_character(d, cx, base_y, s, el, mood="idle", alpha=1.0, laptop=False, variant="tenant"):
+    v = CHAR_VARIANTS.get(variant, CHAR_VARIANTS["tenant"])
+    skin_c, hair_c, shirt_c, shirt_d = v["skin"], v["hair"], v["shirt"], v["shirt_dark"]
     by = base_y + bob(el, s * 0.012, 1.5)
     hr = s * 0.105
     head_y = by - s * 0.72
@@ -418,8 +428,8 @@ def draw_character(d, cx, base_y, s, el, mood="idle", alpha=1.0, laptop=False):
     sh_y = by - s * 0.56
     lsh = (cx - tw * 0.48, sh_y + s * 0.03)
     rsh = (cx + tw * 0.48, sh_y + s * 0.03)
-    arm = mix(SHIRT_DARK, alpha)
-    skin = mix(SKIN, alpha)
+    arm = mix(shirt_d, alpha)
+    skin = mix(skin_c, alpha)
     # arms (behind the torso)
     if mood == "wave":
         line_round(d, [lsh, (lsh[0] - s * 0.06, by - s * 0.22)], arm, lw)
@@ -431,34 +441,59 @@ def draw_character(d, cx, base_y, s, el, mood="idle", alpha=1.0, laptop=False):
         tip = (cx - tw * 1.05, by - s * 0.44)
         line_round(d, [rsh, (rsh[0] + s * 0.10, by - s * 0.06), tip], arm, lw)
         d.ellipse((tip[0] - s * 0.04, tip[1] - s * 0.04, tip[0] + s * 0.04, tip[1] + s * 0.04), fill=skin)
+    elif mood == "point_right":
+        line_round(d, [lsh, (lsh[0] - s * 0.05, by - s * 0.20)], arm, lw)
+        tip = (cx + tw * 1.50, by - s * 0.70)
+        line_round(d, [rsh, (rsh[0] + s * 0.18, by - s * 0.58), tip], arm, lw)
+        d.ellipse((tip[0] - s * 0.04, tip[1] - s * 0.04, tip[0] + s * 0.04, tip[1] + s * 0.04), fill=skin)
     else:
         line_round(d, [lsh, (lsh[0] - s * 0.03, by - s * 0.16)], arm, lw)
         line_round(d, [rsh, (rsh[0] + s * 0.03, by - s * 0.16)], arm, lw)
     # torso
     d.rounded_rectangle((cx - tw / 2, sh_y, cx + tw / 2, by + s * 0.50),
-                        radius=int(tw * 0.42), fill=mix(SHIRT, alpha))
-    d.polygon([(cx - tw * 0.22, sh_y), (cx, sh_y + s * 0.10), (cx + tw * 0.22, sh_y)],
-              fill=mix(SHIRT_DARK, alpha))
+                        radius=int(tw * 0.42), fill=mix(shirt_c, alpha))
+    # collar / shirt front
+    if variant == "agent":
+        d.polygon([(cx - tw * 0.26, sh_y), (cx, sh_y + s * 0.22), (cx + tw * 0.26, sh_y)],
+                  fill=mix((232, 236, 236), alpha))
+        d.polygon([(cx - tw * 0.36, sh_y), (cx - tw * 0.10, sh_y + s * 0.03), (cx, sh_y + s * 0.22)],
+                  fill=mix(shirt_d, alpha))
+        d.polygon([(cx + tw * 0.36, sh_y), (cx + tw * 0.10, sh_y + s * 0.03), (cx, sh_y + s * 0.22)],
+                  fill=mix(shirt_d, alpha))
+    else:
+        d.polygon([(cx - tw * 0.22, sh_y), (cx, sh_y + s * 0.10), (cx + tw * 0.22, sh_y)],
+                  fill=mix(shirt_d, alpha))
     # neck
     d.rounded_rectangle((cx - hr * 0.28, head_y + hr * 0.50, cx + hr * 0.28, sh_y + s * 0.03),
                         radius=int(hr * 0.3), fill=skin)
-    # hair back + bun
-    d.ellipse((cx - hr * 1.06, head_y - hr * 1.16, cx + hr * 1.06, head_y + hr * 1.02), fill=mix(HAIR, alpha))
-    d.ellipse((cx - hr * 0.40, head_y - hr * 1.62, cx + hr * 0.46, head_y - hr * 1.00), fill=mix(HAIR, alpha))
+    # hair
+    if v["bun"]:
+        d.ellipse((cx - hr * 1.06, head_y - hr * 1.16, cx + hr * 1.06, head_y + hr * 1.02), fill=mix(hair_c, alpha))
+        d.ellipse((cx - hr * 0.40, head_y - hr * 1.62, cx + hr * 0.46, head_y - hr * 1.00), fill=mix(hair_c, alpha))
+    else:
+        d.ellipse((cx - hr * 1.02, head_y - hr * 1.10, cx + hr * 1.02, head_y + hr * 0.52), fill=mix(hair_c, alpha))
     # face
     d.ellipse((cx - hr * 0.86, head_y - hr * 0.94, cx + hr * 0.86, head_y + hr * 1.00), fill=skin)
     # fringe
     d.pieslice((cx - hr * 0.92, head_y - hr * 1.06, cx + hr * 0.92, head_y + hr * 0.62),
-               start=184, end=356, fill=mix(HAIR, alpha))
+               start=184, end=356, fill=mix(hair_c, alpha))
     # eyes (blink occasionally)
     eye_y = head_y - hr * 0.02
     blink = (el % 3.6) > 0.14
     for sx in (-1, 1):
         ex = cx + sx * hr * 0.33
         if blink:
-            d.ellipse((ex - hr * 0.07, eye_y - hr * 0.07, ex + hr * 0.07, eye_y + hr * 0.07), fill=mix(HAIR, alpha))
+            d.ellipse((ex - hr * 0.07, eye_y - hr * 0.07, ex + hr * 0.07, eye_y + hr * 0.07), fill=mix(hair_c, alpha))
         else:
-            d.line((ex - hr * 0.08, eye_y, ex + hr * 0.08, eye_y), fill=mix(HAIR, alpha), width=max(2, int(hr * 0.09)))
+            d.line((ex - hr * 0.08, eye_y, ex + hr * 0.08, eye_y), fill=mix(hair_c, alpha), width=max(2, int(hr * 0.09)))
+    # glasses
+    if v.get("glasses"):
+        g = mix((30, 33, 40), alpha)
+        for sx in (-1, 1):
+            ex = cx + sx * hr * 0.33
+            d.ellipse((ex - hr * 0.27, eye_y - hr * 0.23, ex + hr * 0.27, eye_y + hr * 0.25),
+                      outline=g, width=max(2, int(hr * 0.07)))
+        d.line((cx - hr * 0.06, eye_y, cx + hr * 0.06, eye_y), fill=g, width=max(2, int(hr * 0.07)))
     d.arc((cx - hr * 0.28, head_y + hr * 0.22, cx + hr * 0.28, head_y + hr * 0.70),
           start=15, end=165, fill=mix((150, 84, 74), alpha), width=max(2, int(hr * 0.09)))
     for sx in (-1, 1):
@@ -666,72 +701,121 @@ def scene_flag(d, el, dur, data):
 
 
 def scene_understand(d, el, dur, data):
-    headline(d, el, "A clear risk score.", "What is risky, what is missing, and what to ask.")
+    headline(d, el, "Your report, in one place.", "The real results screen - risk, flags and gaps.")
     score = int(data["risk_score"])
     key = data["risk_key"]
     col = RISK_COLOR.get(key, BRAND)
-    a = a_in(el, 0.5, 0.7)
+    a = a_in(el, 0.45, 0.7)
     if a <= 0:
         return
-    x0, x1 = 300, 1180
-    y0, y1 = 400, 900
-    rise = (1 - a) * 24
-    glass(d, (x0, y0 + rise, x1, y1 + rise), 26, a)
-    # gauge on the left of the card
-    gx, gy, gr = x0 + 240, (y0 + y1) / 2 + rise, 150
-    p = ease_out((el - 0.8) / 1.6)
-    d.arc((gx - gr, gy - gr, gx + gr, gy + gr), start=135, end=405, fill=(255, 255, 255, al(0.10 * a)), width=26)
-    d.arc((gx - gr, gy - gr, gx + gr, gy + gr), start=135, end=135 + 270 * max(0.0, p), fill=mix(col, a), width=26)
-    d.text((gx, gy - 6), str(int(round(score * max(0.0, min(1.0, p))))), font=load_font(84, "bold"), fill=mix(TEXT, a), anchor="mm")
-    d.text((gx, gy + 66), "RISK SCORE", font=load_font(22, "bold"), fill=mix(MUTED, a), anchor="mm")
-    # stat rows on the right of the card
+    # ---- app window ----
+    wx0, wx1 = 250, 1670
+    wy0, wy1 = 350, 884
+    rise = (1 - a) * 22
+    wy0 += rise
+    wy1 += rise
+    bar_h = 58
+    glass(d, (wx0, wy0, wx1, wy1), 22, a, fill=(255, 255, 255, 16), shadow_a=0.6)
+    # title bar
+    d.rounded_rectangle((wx0, wy0, wx1, wy0 + bar_h), radius=22, fill=(255, 255, 255, al(0.05 * a)))
+    d.rectangle((wx0, wy0 + bar_h - 22, wx1, wy0 + bar_h), fill=(255, 255, 255, al(0.05 * a)))
+    d.line((wx0, wy0 + bar_h, wx1, wy0 + bar_h), fill=(255, 255, 255, al(0.10 * a)), width=2)
+    for i, cd in enumerate(((238, 96, 84), (240, 180, 74), (120, 200, 150))):
+        d.ellipse((wx0 + 28 + i * 30, wy0 + bar_h / 2 - 8, wx0 + 44 + i * 30, wy0 + bar_h / 2 + 8), fill=mix(cd, a))
+    d.text(((wx0 + wx1) / 2, wy0 + bar_h / 2), "rentcheck.rumptycloud.app", font=load_font(24, "regular"),
+           fill=mix(MUTED, a), anchor="mm")
+
+    body_y = wy0 + bar_h + 22
+    # ---- left: risk badge + counts ----
+    bx0, bx1 = wx0 + 34, wx0 + 470
+    d.text((bx0, body_y + 6), "RISK SCORE", font=load_font(22, "bold"), fill=mix(MUTED, a), anchor="lm")
+    p = ease_out((el - 0.7) / 1.6)
+    pill(d, (bx0, body_y + 26, bx1, body_y + 172), 22, (col[0], col[1], col[2], 60), a=a)
+    d.rounded_rectangle((bx0, body_y + 26, bx1, body_y + 172), radius=22, outline=mix(col, a), width=2)
+    d.text((bx0 + 40, body_y + 96), str(int(round(score * max(0.0, min(1.0, p))))),
+           font=load_font(96, "bold"), fill=mix(TEXT, a), anchor="lm")
+    lf = load_font(28, "bold")
+    lw_ = lf.getlength(data["risk_level"].upper()) + 44
+    pill(d, (bx1 - lw_ - 30, body_y + 70, bx1 - 30, body_y + 122), 26,
+         (col[0], col[1], col[2], 70), a=a)
+    d.text((bx1 - 30 - lw_ / 2, body_y + 96), data["risk_level"].upper(), font=lf, fill=mix(col, a), anchor="mm")
     c = data["counts"]
     rows = [("flag", c["flagged"], "flagged clauses"), ("lock", c["missing"], "missing protections"),
             ("search", c["questions"], "questions to ask")]
-    rx = x0 + 470
     for i, (ic, num, label) in enumerate(rows):
-        ra = a_in(el, 0.75 + i * 0.2, 0.55)
+        ra = a_in(el, 0.85 + i * 0.18, 0.5)
         if ra <= 0:
             continue
-        yy = y0 + 80 + i * 130 + rise
-        d.rounded_rectangle((rx, yy, rx + 70, yy + 70), radius=16, fill=(BRAND[0], BRAND[1], BRAND[2], al(0.30 * ra)))
-        ICONS[ic](d, rx + 35, yy + 35, 44, mix(MINT, ra))
-        pp = max(0.0, ease_out((el - (0.95 + i * 0.2)) / 1.1))
-        d.text((rx + 96, yy + 20), str(int(round(num * pp))), font=load_font(56, "bold"), fill=mix(TEXT, ra), anchor="lm")
-        d.text((rx + 96, yy + 62), label, font=load_font(28, "regular"), fill=mix(MUTED, ra), anchor="lm")
-    draw_character(d, 1780, H + 30, 520, el, mood="idle", laptop=True)
+        yy = body_y + 206 + i * 90
+        d.rounded_rectangle((bx0, yy, bx0 + 58, yy + 58), radius=14, fill=(BRAND[0], BRAND[1], BRAND[2], al(0.30 * ra)))
+        ICONS[ic](d, bx0 + 29, yy + 29, 36, mix(MINT, ra))
+        pp = max(0.0, ease_out((el - (1.0 + i * 0.18)) / 1.0))
+        d.text((bx0 + 78, yy + 12), str(int(round(num * pp))), font=load_font(44, "bold"), fill=mix(TEXT, ra), anchor="lm")
+        d.text((bx0 + 78, yy + 48), label, font=load_font(24, "regular"), fill=mix(MUTED, ra), anchor="lm")
+
+    # ---- right: the real flagged clause cards ----
+    rx0, rx1 = wx0 + 520, wx1 - 34
+    d.text((rx0, body_y + 6), "FLAGGED CLAUSES", font=load_font(22, "bold"), fill=mix(MUTED, a), anchor="lm")
+    flags = data["flagged"][:4]
+    rh, gap = 88, 12
+    for i, f in enumerate(flags):
+        ra = a_in(el, 0.9 + i * 0.2, 0.5)
+        if ra <= 0:
+            continue
+        yy = body_y + 26 + i * (rh + gap)
+        sev = f["severity"]
+        sc = SEV_COLOR.get(sev, BLUE)
+        d.rounded_rectangle((rx0, yy, rx1, yy + rh), radius=16, fill=(255, 255, 255, al(0.05 * ra)),
+                            outline=(255, 255, 255, al(0.10 * ra)), width=1)
+        d.rounded_rectangle((rx0 + 18, yy + 18, rx0 + 26, yy + rh - 18), radius=4, fill=mix(sc, ra))
+        icon_flag(d, rx0 + 66, yy + rh / 2, 40, mix(sc, ra))
+        d.text((rx0 + 110, yy + rh / 2), f["label"], font=load_font(34, "semi"), fill=mix(TEXT, ra), anchor="lm")
+        pf = load_font(20, "bold")
+        label = SEV_LABEL.get(sev, sev.upper())
+        pw = pf.getlength(label) + 40
+        px1 = rx1 - 18
+        pill(d, (px1 - pw, yy + rh / 2 - 18, px1, yy + rh / 2 + 18), 18, (sc[0], sc[1], sc[2], 60), a=ra)
+        d.rounded_rectangle((px1 - pw, yy + rh / 2 - 18, px1, yy + rh / 2 + 18), radius=18, outline=mix(sc, ra), width=2)
+        d.text((px1 - pw / 2, yy + rh / 2), label, font=pf, fill=mix(sc, ra), anchor="mm")
 
 
 def scene_act(d, el, dur, data):
-    headline(d, el, "Know what to ask.", "Plain questions to raise before you sign.")
+    headline(d, el, "Know what to ask.", "Tenant and landlord, on the same page.")
     qs = data.get("questions") or []
     items = qs[:3] if qs else ["Ask about notice periods.", "Ask who pays for repairs.", "Ask about the deposit."]
-    a = a_in(el, 0.5, 0.7)
+    # the two characters: agent on the left, tenant on the right
+    ag = a_in(el, 0.35, 0.6)
+    if ag > 0:
+        draw_character(d, 300, H + 40, 540, el, mood="point_right", variant="agent")
+    tn = a_in(el, 0.5, 0.6)
+    if tn > 0:
+        draw_character(d, 1690, H + 40, 540, el, mood="idle")
+    # the questions card between them
+    a = a_in(el, 0.6, 0.7)
     if a <= 0:
         return
-    x0, x1 = 300, 1180
-    y0, y1 = 400, 900
+    x0, x1 = 620, 1380
+    y0, y1 = 392, 884
     rise = (1 - a) * 24
-    glass(d, (x0, y0 + rise, x1, y1 + rise), 26, a)
+    glass(d, (x0, y0 + rise, x1, y1 + rise), 26, a, shadow_a=0.5)
+    d.text((x0 + 40, y0 + 44 + rise), "QUESTIONS TO ASK", font=load_font(22, "bold"), fill=mix(MINT, a), anchor="lm")
     n = len(items)
-    row_h = (y1 - y0 - 70) / n
+    row_h = (y1 - y0 - 96) / n
     for i, q in enumerate(items):
-        ra = a_in(el, 0.7 + i * 0.25, 0.55)
+        ra = a_in(el, 0.8 + i * 0.25, 0.55)
         if ra <= 0:
             continue
-        yy = y0 + 40 + i * row_h + rise
-        d.ellipse((x0 + 34, yy + 8, x0 + 70, yy + 44), outline=mix(MINT_DIM, ra * 0.7), width=2)
-        # tick once the row has settled
-        tb = a_in(el, 1.2 + i * 0.25, 0.4)
+        yy = y0 + 78 + i * row_h + rise
+        d.ellipse((x0 + 36, yy + 6, x0 + 72, yy + 42), outline=mix(MINT_DIM, ra * 0.7), width=2)
+        tb = a_in(el, 1.3 + i * 0.25, 0.4)
         if tb > 0:
-            icon_check(d, x0 + 52, yy + 26, 34, mix(BRAND, tb))
-        f = load_font(28, "regular")
+            icon_check(d, x0 + 54, yy + 24, 34, mix(BRAND, tb))
+        f = load_font(27, "regular")
         lines = wrap_clamp(d, q, f, x1 - x0 - 130, 3)
         ly = yy + 6
         for ln in lines:
             d.text((x0 + 96, ly), ln, font=f, fill=mix(TEXT, ra), anchor="lm")
-            ly += 36
-    draw_character(d, 1740, H + 50, 540, el, mood="idle")
+            ly += 35
 
 
 def scene_outro(d, el, dur, data):
@@ -909,6 +993,8 @@ def main() -> int:
     ap.add_argument("--data", default=DATA)
     ap.add_argument("--out", default=os.path.join(ARTIFACTS, "rentcheck-explainer.mp4"))
     ap.add_argument("--no-music", action="store_true")
+    ap.add_argument("--vertical", action="store_true",
+                    help="also produce a 9:16 social cut with a blurred fill background")
     args = ap.parse_args()
 
     if not os.path.exists(args.data):
@@ -974,6 +1060,23 @@ def main() -> int:
 
     dur = probe_duration(args.out)
     print(f"\n[done] {args.out}  ({dur:.1f}s, {os.path.getsize(args.out)} bytes)")
+
+    if args.vertical:
+        vert = args.out[:-4] + "-vertical.mp4" if args.out.endswith(".mp4") else args.out + "-vertical.mp4"
+        print("[vertical] building 9:16 social cut ...")
+        ff([
+            "-i", args.out,
+            "-filter_complex",
+            "[0:v]split=2[a][b];"
+            "[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,"
+            "gblur=sigma=42,eq=brightness=-0.08:saturation=1.15[bg];"
+            "[b]scale=1080:-2[fg];"
+            "[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1,format=yuv420p[v]",
+            "-map", "[v]", "-map", "0:a", "-c:v", "libx264", "-crf", "20", "-preset", "medium",
+            "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-shortest", vert,
+        ])
+        print(f"[done] {vert}  ({probe_duration(vert):.1f}s, {os.path.getsize(vert)} bytes)")
+
     shutil.rmtree(WORK, ignore_errors=True)
     return 0
 
