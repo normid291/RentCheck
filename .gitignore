@@ -3,6 +3,13 @@
 .env.local
 *.env
 
+# Reference-video study output (frames, sheets, audio) — regenerable
+artifacts/_ref/
+artifacts/_check/
+
+# Node (motion video)
+node_modules/
+
 # Python
 __pycache__/
 *.py[cod]
