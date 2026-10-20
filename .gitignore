@@ -3,6 +3,10 @@
 .env.local
 *.env
 
+# OAuth client credentials (Google, etc.)
+client_secret_*.json
+*.apps.googleusercontent.com.json
+
 # Reference-video study output (frames, sheets, audio) — regenerable
 artifacts/_ref/
 artifacts/_check/

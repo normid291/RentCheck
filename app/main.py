@@ -6,7 +6,7 @@ from pathlib import Path
 import requests as requests_lib
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
@@ -143,6 +143,20 @@ async def unhandled_error_handler(request: Request, exc: Exception):
         status_code=500,
         content={"detail": "Internal server error. The issue has been logged."},
     )
+
+
+# Legal pages. Generated from docs/legal/*.md by scripts/build_legal_pages.py.
+# Registered explicitly rather than left to the static mount resolving
+# extensionless paths, so /privacy and /terms are guaranteed to resolve and are
+# easy to find from the code.
+@app.get("/privacy", include_in_schema=False)
+def privacy_policy():
+    return FileResponse(BASE_DIR / "static" / "privacy.html")
+
+
+@app.get("/terms", include_in_schema=False)
+def terms_of_service():
+    return FileResponse(BASE_DIR / "static" / "terms.html")
 
 
 # Serve the frontend (index.html + any static assets) at /. Mounted last so it

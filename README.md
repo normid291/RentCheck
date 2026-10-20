@@ -222,11 +222,17 @@ app/
   static/index.html           - Frontend markup
   static/styles.css           - Frontend styles
   static/app.js               - Frontend logic
+  static/privacy.html         - Privacy Policy page (generated — see docs/legal)
+  static/terms.html           - Terms of Service page (generated)
 tests/
   test_document_type.py        - End-to-end gate tests over real + generated fixtures
   make_generated_fixtures.py   - Build derived scans / generated fixtures
   fetch_real_fixtures.py       - Re-download the real fixtures (network)
   fixtures/manifest.json       - Every fixture with its source URL + expected result
+docs/
+  legal/                       - Privacy policy + terms; the Markdown is the source
+scripts/
+  build_legal_pages.py         - Renders docs/legal/*.md into the pages the app serves
 ```
 
 ## Current scope
@@ -270,6 +276,24 @@ If Tesseract is missing, PDF (text layer), Word and text uploads still work;
 image uploads and scanned PDFs return a clear error rather than crashing. On
 Windows the default install location is auto-detected; set `TESSERACT_CMD` in
 `.env` to override it.
+
+## Legal pages
+
+The privacy policy and terms of service are served by the app at `/privacy` and
+`/terms`, and linked from the footer of the main page.
+
+The Markdown in `docs/legal/` is the single source. The HTML the app serves is
+generated from it — edit the Markdown, never the HTML:
+
+```bash
+python scripts/build_legal_pages.py
+```
+
+Both documents describe what the code actually does (which clauses reach the AI,
+what is stored, that rejected uploads are dropped), so they need updating when
+that behaviour changes. `docs/legal/README.md` lists what is still to be filled
+in — the registered address, where the hosting and AI providers actually run —
+and flags that neither document has been reviewed by a lawyer yet.
 
 ## Status
 
