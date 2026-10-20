@@ -16,7 +16,7 @@ Plan for the RentCheck promo film, built to match `docs/video/technique-guide.md
 | **Voiceover** | Yes — professional, warm, trustworthy, ~147 wpm with ~0.6 s phrase pauses (measured from the reference) |
 | **Look** | Dark **brand-green** stage (one continuous gradient world, grain + dust), with the **real app UI redrawn in code as light cards** — the hero element filling the frame and being pushed into |
 | **Characters** | Flat-illustration tenant (and agent) as *hosts*, small at the frame edge, entering from below — consistent with the reference |
-| **Music / SFX** | Synthesised beat bed + a cue on every visual event (~3.6 events/s), mastered to −14 LUFS / −2 dBTP |
+| **Music / SFX** | Synthesised in numpy: a slow pad over I–V–vi–IV in A major, a soft sub, a rhodes-like motif and convolution reverb. No cues — the picture carries the beats. Mastered to −14 LUFS / −2 dBTP |
 
 **No claims are invented.** Every number, label, quote and severity in the film
 comes from `tests/fixtures/explainer_data.json` — a real agreement run through the
@@ -72,10 +72,11 @@ Exact line lengths get re-timed against the real VO before the beat sheet is loc
   `app/static/styles.css` (`--brand #0e7a52`, `--brand-dark #0a5c3e`,
   `--high #c0392b`, `--medium #b9770a`, `--low #2f6fb0`, `--rule #6d47d9`,
   ink `#10201a`, muted `#5c6f66`, line `#e2eae5`).
-- **Voice**: draft on `edge-tts` (already used, no key needed); final on ElevenLabs
-  if a key is supplied. Re-checked with faster-whisper for wrong words.
+- **Voice**: `edge-tts` `en-US-AndrewMultilingualNeural` at `+6%`. ElevenLabs was
+  the intent, but no premium TTS key exists in the project — the Rumpty endpoint
+  returns HTTP 403 — so edge-tts ships. Re-checked with faster-whisper for wrong words.
 - **Captions**: generated from the VO's word timestamps — never hand-keyed.
-- **Master**: music + SFX mixed, `loudnorm` to −14 LUFS / −2 dBTP, H.264 crf 17, `+faststart`.
+- **Master**: voice + music mixed (bed sidechain-ducked under the voice), `loudnorm` to −14 LUFS / −2 dBTP, H.264 crf 17, `+faststart`.
 - **Check stills first**: 5 key frames compared side by side with the matching
   reference frames before any full render.
 

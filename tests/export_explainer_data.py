@@ -142,6 +142,7 @@ def main() -> int:
                 "severity": (c.get("severity") or "low").lower(),
                 "source": c.get("source") or "ai",
                 "evidence": scrub(c.get("evidence") or ""),
+                "reason": scrub(c.get("reason") or ""),
             })
         # a good quote to expand on screen: shortest punchy one at the top severity
         sev_rank = {"high": 0, "medium": 1, "low": 2}
@@ -157,7 +158,7 @@ def main() -> int:
         missing = [{"label": label_for(m.get("clause_type")), "why": scrub(m.get("why", ""))}
                    for m in (result.get("missing_protections") or [])][:4]
 
-        questions = [scrub(q) for q in (result.get("questions_to_ask") or []) if q][:4]
+        questions = [scrub(q) for q in (result.get("questions_to_ask") or []) if q][:8]
 
         summary = scrub(result.get("summary") or "")
         m = re.search(r"(\d+)\s+of\s+(\d+)\s+checked", summary)

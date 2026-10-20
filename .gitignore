@@ -6,9 +6,18 @@
 # Reference-video study output (frames, sheets, audio) — regenerable
 artifacts/_ref/
 artifacts/_check/
+artifacts/_still/
+
+# The supplied reference clip — local reference material, not ours to publish
+artifacts/VID-*.mp4
 
 # Node (motion video)
 node_modules/
+
+# Rendered + synthesised video output — regenerable
+video/out/
+video/public/vo/
+video/public/audio/
 
 # Python
 __pycache__/

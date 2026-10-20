@@ -1,0 +1,75 @@
+{
+  "generated_at": "2026-10-20T07:59:17.346995+00:00",
+  "source_note": "Real tenancy agreement analysed by the RentCheck pipeline",
+  "provenance": "stored analysis (database)",
+  "risk_score": 100,
+  "risk_level": "High risk",
+  "risk_key": "high",
+  "summary": "4 of 7 checked clause(s) flagged, 4 expected protection(s) missing (10 clauses found in total).",
+  "counts": {
+    "flagged": 4,
+    "missing": 4,
+    "questions": 8,
+    "checked": 7,
+    "clauses": 10
+  },
+  "flagged": [
+    {
+      "label": "Taxes & outgoings",
+      "severity": "medium",
+      "source": "rule",
+      "evidence": "all taxes, rates, duties, assessments, i mpositions and outgoings whatsoever",
+      "reason": "The tenant is made responsible for all taxes and outgoings without limitation, including ones normally borne by the owner."
+    },
+    {
+      "label": "Entry without notice",
+      "severity": "low",
+      "source": "ai",
+      "evidence": "at all reasonable times during the term hereby granted",
+      "reason": "The phrase 'reasonable times' does not match the common practice of 24-48 hours notice."
+    },
+    {
+      "label": "Subletting",
+      "severity": "high",
+      "source": "ai",
+      "evidence": "such consent not to be unreasonably withheld",
+      "reason": ""
+    },
+    {
+      "label": "Re-entry & forfeiture",
+      "severity": "high",
+      "source": "rule",
+      "evidence": "Whether or not lawfully demanded",
+      "reason": "The landlord may re-enter and end the tenancy even without a lawful demand for the rent - courts normally require a formal demand first."
+    }
+  ],
+  "quote": "Whether or not lawfully demanded",
+  "missing": [
+    {
+      "label": "Clear exit / termination terms",
+      "why": "No notice period is stated, so either side could end the tenancy without a clear process."
+    },
+    {
+      "label": "Caution fee / deposit terms",
+      "why": "The agreement does not say what deposit is required or whether it is refundable."
+    },
+    {
+      "label": "Utilities / service charges",
+      "why": "The agreement does not say who pays for electricity, water, waste, or any shared service charge."
+    },
+    {
+      "label": "Rent review / increase terms",
+      "why": "The agreement does not state how or when rent can be increased, leaving the tenant exposed to arbitrary review."
+    }
+  ],
+  "questions": [
+    "Ask which taxes and rates are yours versus the landlord's, and remove open-ended 'all outgoings' language.",
+    "Ask for a clause requiring the landlord to give you advance written notice before entering the premises.",
+    "Ask for subletting or assignment to be allowed with the landlord's written consent, which cannot be unreasonably withheld.",
+    "Ask that re-entry require a written demand, a grace period, and lawful process instead of automatic forfeiture.",
+    "There is no exit or termination clause. Ask what notice period applies if either side wants to end the tenancy, and get it written in.",
+    "The agreement does not mention a caution fee or deposit. Ask how much is required and confirm in writing that it is refundable, minus documented damage.",
+    "The agreement does not say who pays utilities. Ask which utilities are yours and whether any service charge is fixed and itemised.",
+    "The agreement does not cover rent increases. Ask how often rent can be reviewed, by how much, and on what notice."
+  ]
+}

@@ -1,0 +1,1270 @@
+{
+ "fps": 60,
+ "voice": "en-US-AndrewMultilingualNeural",
+ "rate": "+6%",
+ "total": 61.92,
+ "total_frames": 3715,
+ "lead_in": 0.2,
+ "words": 131,
+ "vo_seconds": 41.8,
+ "wpm": 188.0,
+ "beats": [
+  {
+   "id": "b01_hook",
+   "label": "HOOK",
+   "start": 0.2,
+   "dur": 2.86,
+   "lines": [
+    {
+     "text": "Do you actually know what's in your tenancy agreement?",
+     "start": 0.2,
+     "end": 2.292
+    }
+   ],
+   "words": [
+    {
+     "w": "Do",
+     "s": 0.294,
+     "e": 0.33
+    },
+    {
+     "w": "you",
+     "s": 0.33,
+     "e": 0.459
+    },
+    {
+     "w": "actually",
+     "s": 0.471,
+     "e": 0.754
+    },
+    {
+     "w": "know",
+     "s": 0.754,
+     "e": 1.049
+    },
+    {
+     "w": "what's",
+     "s": 1.061,
+     "e": 1.249
+    },
+    {
+     "w": "in",
+     "s": 1.25,
+     "e": 1.308
+    },
+    {
+     "w": "your",
+     "s": 1.32,
+     "e": 1.403
+    },
+    {
+     "w": "tenancy",
+     "s": 1.403,
+     "e": 1.816
+    },
+    {
+     "w": "agreement",
+     "s": 1.816,
+     "e": 2.228
+    }
+   ],
+   "events": [
+    {
+     "id": "docIn",
+     "at": 0.122,
+     "sfx": "paper"
+    },
+    {
+     "id": "scan",
+     "at": 0.669,
+     "sfx": "sweep"
+    },
+    {
+     "id": "chip1",
+     "at": 1.46,
+     "sfx": "pop"
+    },
+    {
+     "id": "chip2",
+     "at": 1.826,
+     "sfx": "pop"
+    },
+    {
+     "id": "chip3",
+     "at": 2.191,
+     "sfx": "pop"
+    },
+    {
+     "id": "stamp",
+     "at": 2.66,
+     "sfx": "tick"
+    }
+   ]
+  },
+  {
+   "id": "b02_meet",
+   "label": "MEET",
+   "start": 3.06,
+   "dur": 5.87,
+   "lines": [
+    {
+     "text": "Meet Ada.",
+     "start": 3.06,
+     "end": 3.874
+    },
+    {
+     "text": "She found a flat, paid the agent,",
+     "start": 4.45,
+     "end": 6.402
+    },
+    {
+     "text": "and got a ten-page deed.",
+     "start": 6.85,
+     "end": 8.162
+    }
+   ],
+   "words": [
+    {
+     "w": "Meet",
+     "s": 3.154,
+     "e": 3.355
+    },
+    {
+     "w": "Ada",
+     "s": 3.461,
+     "e": 3.779
+    },
+    {
+     "w": "She",
+     "s": 4.544,
+     "e": 4.662
+    },
+    {
+     "w": "found",
+     "s": 4.662,
+     "e": 4.863
+    },
+    {
+     "w": "a",
+     "s": 4.863,
+     "e": 4.898
+    },
+    {
+     "w": "flat",
+     "s": 4.898,
+     "e": 5.393
+    },
+    {
+     "w": "paid",
+     "s": 5.582,
+     "e": 5.83
+    },
+    {
+     "w": "the",
+     "s": 5.83,
+     "e": 5.889
+    },
+    {
+     "w": "agent",
+     "s": 5.889,
+     "e": 6.337
+    },
+    {
+     "w": "and",
+     "s": 6.944,
+     "e": 6.991
+    },
+    {
+     "w": "got",
+     "s": 6.991,
+     "e": 7.121
+    },
+    {
+     "w": "a",
+     "s": 7.133,
+     "e": 7.18
+    },
+    {
+     "w": "ten-page",
+     "s": 7.18,
+     "e": 7.746
+    },
+    {
+     "w": "deed",
+     "s": 7.758,
+     "e": 8.088
+    }
+   ],
+   "events": [
+    {
+     "id": "hostIn",
+     "at": 0.123,
+     "sfx": "whoosh"
+    },
+    {
+     "id": "paper1",
+     "at": 0.678,
+     "sfx": "pop"
+    },
+    {
+     "id": "paper2",
+     "at": 1.357,
+     "sfx": "pop"
+    },
+    {
+     "id": "deed",
+     "at": 2.343,
+     "sfx": "paper"
+    }
+   ]
+  },
+  {
+   "id": "b03_pain",
+   "label": "PAIN",
+   "start": 8.93,
+   "dur": 8.82,
+   "lines": [
+    {
+     "text": "Every clause is in legal English.",
+     "start": 8.93,
+     "end": 10.944
+    },
+    {
+     "text": "Nobody explains it.",
+     "start": 11.52,
+     "end": 12.664
+    },
+    {
+     "text": "And when something goes wrong, she only finds out after she has signed.",
+     "start": 13.24,
+     "end": 16.854
+    }
+   ],
+   "words": [
+    {
+     "w": "Every",
+     "s": 9.001,
+     "e": 9.225
+    },
+    {
+     "w": "clause",
+     "s": 9.225,
+     "e": 9.814
+    },
+    {
+     "w": "is",
+     "s": 9.897,
+     "e": 10.015
+    },
+    {
+     "w": "in",
+     "s": 10.015,
+     "e": 10.133
+    },
+    {
+     "w": "legal",
+     "s": 10.133,
+     "e": 10.392
+    },
+    {
+     "w": "English",
+     "s": 10.392,
+     "e": 10.876
+    },
+    {
+     "w": "Nobody",
+     "s": 11.614,
+     "e": 11.874
+    },
+    {
+     "w": "explains",
+     "s": 11.874,
+     "e": 12.416
+    },
+    {
+     "w": "it",
+     "s": 12.428,
+     "e": 12.605
+    },
+    {
+     "w": "And",
+     "s": 13.334,
+     "e": 13.393
+    },
+    {
+     "w": "when",
+     "s": 13.405,
+     "e": 13.499
+    },
+    {
+     "w": "something",
+     "s": 13.499,
+     "e": 13.794
+    },
+    {
+     "w": "goes",
+     "s": 13.794,
+     "e": 14.042
+    },
+    {
+     "w": "wrong",
+     "s": 14.054,
+     "e": 14.478
+    },
+    {
+     "w": "she",
+     "s": 14.749,
+     "e": 14.95
+    },
+    {
+     "w": "only",
+     "s": 14.962,
+     "e": 15.174
+    },
+    {
+     "w": "finds",
+     "s": 15.186,
+     "e": 15.551
+    },
+    {
+     "w": "out",
+     "s": 15.563,
+     "e": 15.74
+    },
+    {
+     "w": "after",
+     "s": 15.811,
+     "e": 16.058
+    },
+    {
+     "w": "she",
+     "s": 16.07,
+     "e": 16.212
+    },
+    {
+     "w": "has",
+     "s": 16.212,
+     "e": 16.33
+    },
+    {
+     "w": "signed",
+     "s": 16.33,
+     "e": 16.79
+    }
+   ],
+   "events": [
+    {
+     "id": "cards",
+     "at": 0.12,
+     "sfx": "whoosh"
+    },
+    {
+     "id": "card1",
+     "at": 0.538,
+     "sfx": "pop"
+    },
+    {
+     "id": "card2",
+     "at": 0.837,
+     "sfx": "pop"
+    },
+    {
+     "id": "card3",
+     "at": 1.135,
+     "sfx": "pop"
+    },
+    {
+     "id": "chipA",
+     "at": 2.749,
+     "sfx": "pop"
+    },
+    {
+     "id": "chipB",
+     "at": 3.107,
+     "sfx": "pop"
+    },
+    {
+     "id": "chipC",
+     "at": 3.466,
+     "sfx": "pop"
+    },
+    {
+     "id": "drop",
+     "at": 5.498,
+     "sfx": "thud"
+    }
+   ]
+  },
+  {
+   "id": "b04_turn",
+   "label": "TURN",
+   "start": 17.75,
+   "dur": 5.07,
+   "lines": [
+    {
+     "text": "Ada doesn't need any more jargon.",
+     "start": 17.75,
+     "end": 19.74
+    },
+    {
+     "text": "She needs one clear answer.",
+     "start": 20.38,
+     "end": 21.796
+    }
+   ],
+   "words": [
+    {
+     "w": "Ada",
+     "s": 17.833,
+     "e": 18.021
+    },
+    {
+     "w": "doesn't",
+     "s": 18.116,
+     "e": 18.387
+    },
+    {
+     "w": "need",
+     "s": 18.387,
+     "e": 18.693
+    },
+    {
+     "w": "any",
+     "s": 18.835,
+     "e": 18.976
+    },
+    {
+     "w": "more",
+     "s": 18.988,
+     "e": 19.2
+    },
+    {
+     "w": "jargon",
+     "s": 19.212,
+     "e": 19.66
+    },
+    {
+     "w": "She",
+     "s": 20.474,
+     "e": 20.58
+    },
+    {
+     "w": "needs",
+     "s": 20.58,
+     "e": 20.746
+    },
+    {
+     "w": "one",
+     "s": 20.757,
+     "e": 21.04
+    },
+    {
+     "w": "clear",
+     "s": 21.04,
+     "e": 21.323
+    },
+    {
+     "w": "answer",
+     "s": 21.323,
+     "e": 21.736
+    }
+   ],
+   "events": [
+    {
+     "id": "out1",
+     "at": 0.063,
+     "sfx": "whoosh"
+    },
+    {
+     "id": "in2",
+     "at": 2.915,
+     "sfx": "bloom"
+    },
+    {
+     "id": "pulse",
+     "at": 3.676,
+     "sfx": "tick"
+    }
+   ]
+  },
+  {
+   "id": "b05_reveal",
+   "label": "REVEAL",
+   "start": 22.82,
+   "dur": 2.14,
+   "lines": [
+    {
+     "text": "Meet RentCheck.",
+     "start": 22.82,
+     "end": 23.808
+    }
+   ],
+   "words": [
+    {
+     "w": "Meet",
+     "s": 22.914,
+     "e": 23.138
+    },
+    {
+     "w": "RentCheck",
+     "s": 23.15,
+     "e": 23.74
+    }
+   ],
+   "events": [
+    {
+     "id": "converge",
+     "at": 0.0,
+     "sfx": "sweep"
+    },
+    {
+     "id": "bloom",
+     "at": 0.785,
+     "sfx": "bloom"
+    },
+    {
+     "id": "mark",
+     "at": 0.999,
+     "sfx": "chime"
+    },
+    {
+     "id": "pill1",
+     "at": 1.94,
+     "sfx": "pop"
+    },
+    {
+     "id": "pill2",
+     "at": 1.94,
+     "sfx": "pop"
+    },
+    {
+     "id": "pill3",
+     "at": 1.94,
+     "sfx": "pop"
+    }
+   ]
+  },
+  {
+   "id": "b06_upload",
+   "label": "UPLOAD",
+   "start": 24.96,
+   "dur": 8.52,
+   "lines": [
+    {
+     "text": "First, upload.",
+     "start": 24.96,
+     "end": 25.9
+    },
+    {
+     "text": "RentCheck checks it is a tenancy agreement,",
+     "start": 26.54,
+     "end": 29.162
+    },
+    {
+     "text": "reads every clause,",
+     "start": 29.61,
+     "end": 31.172
+    },
+    {
+     "text": "and scores the risk.",
+     "start": 31.62,
+     "end": 32.712
+    }
+   ],
+   "words": [
+    {
+     "w": "First",
+     "s": 25.113,
+     "e": 25.396
+    },
+    {
+     "w": "upload",
+     "s": 25.42,
+     "e": 25.821
+    },
+    {
+     "w": "RentCheck",
+     "s": 26.623,
+     "e": 27.13
+    },
+    {
+     "w": "checks",
+     "s": 27.13,
+     "e": 27.637
+    },
+    {
+     "w": "it",
+     "s": 27.814,
+     "e": 27.896
+    },
+    {
+     "w": "is",
+     "s": 27.896,
+     "e": 28.002
+    },
+    {
+     "w": "a",
+     "s": 28.014,
+     "e": 28.061
+    },
+    {
+     "w": "tenancy",
+     "s": 28.073,
+     "e": 28.58
+    },
+    {
+     "w": "agreement",
+     "s": 28.58,
+     "e": 29.099
+    },
+    {
+     "w": "reads",
+     "s": 29.693,
+     "e": 30.058
+    },
+    {
+     "w": "every",
+     "s": 30.223,
+     "e": 30.471
+    },
+    {
+     "w": "clause",
+     "s": 30.471,
+     "e": 31.108
+    },
+    {
+     "w": "and",
+     "s": 31.703,
+     "e": 31.785
+    },
+    {
+     "w": "scores",
+     "s": 31.785,
+     "e": 32.139
+    },
+    {
+     "w": "the",
+     "s": 32.139,
+     "e": 32.21
+    },
+    {
+     "w": "risk",
+     "s": 32.21,
+     "e": 32.634
+    }
+   ],
+   "events": [
+    {
+     "id": "panel",
+     "at": 0.119,
+     "sfx": "whoosh"
+    },
+    {
+     "id": "dropzone",
+     "at": 0.418,
+     "sfx": "pop"
+    },
+    {
+     "id": "clickUpload",
+     "at": 1.909,
+     "sfx": "click"
+    },
+    {
+     "id": "rowGate",
+     "at": 2.625,
+     "sfx": "tick"
+    },
+    {
+     "id": "gateOk",
+     "at": 3.699,
+     "sfx": "chime"
+    },
+    {
+     "id": "rowRead",
+     "at": 4.296,
+     "sfx": "sweep"
+    },
+    {
+     "id": "readDone",
+     "at": 5.847,
+     "sfx": "tick"
+    },
+    {
+     "id": "rowScore",
+     "at": 6.682,
+     "sfx": "pop"
+    },
+    {
+     "id": "scoreDone",
+     "at": 7.876,
+     "sfx": "chime"
+    }
+   ]
+  },
+  {
+   "id": "b07_report",
+   "label": "REPORT",
+   "start": 33.48,
+   "dur": 6.76,
+   "lines": [
+    {
+     "text": "You get one clear risk score,",
+     "start": 33.48,
+     "end": 35.212
+    },
+    {
+     "text": "the clauses that are risky,",
+     "start": 35.66,
+     "end": 37.282
+    },
+    {
+     "text": "and the protections that are missing.",
+     "start": 37.73,
+     "end": 39.408
+    }
+   ],
+   "words": [
+    {
+     "w": "You",
+     "s": 33.563,
+     "e": 33.621
+    },
+    {
+     "w": "get",
+     "s": 33.621,
+     "e": 33.763
+    },
+    {
+     "w": "one",
+     "s": 33.763,
+     "e": 34.129
+    },
+    {
+     "w": "clear",
+     "s": 34.14,
+     "e": 34.482
+    },
+    {
+     "w": "risk",
+     "s": 34.482,
+     "e": 34.718
+    },
+    {
+     "w": "score",
+     "s": 34.718,
+     "e": 35.155
+    },
+    {
+     "w": "the",
+     "s": 35.766,
+     "e": 35.825
+    },
+    {
+     "w": "clauses",
+     "s": 35.825,
+     "e": 36.379
+    },
+    {
+     "w": "that",
+     "s": 36.391,
+     "e": 36.497
+    },
+    {
+     "w": "are",
+     "s": 36.509,
+     "e": 36.639
+    },
+    {
+     "w": "risky",
+     "s": 36.639,
+     "e": 37.217
+    },
+    {
+     "w": "and",
+     "s": 37.813,
+     "e": 37.871
+    },
+    {
+     "w": "the",
+     "s": 37.871,
+     "e": 37.942
+    },
+    {
+     "w": "protections",
+     "s": 37.954,
+     "e": 38.626
+    },
+    {
+     "w": "that",
+     "s": 38.638,
+     "e": 38.744
+    },
+    {
+     "w": "are",
+     "s": 38.744,
+     "e": 38.791
+    },
+    {
+     "w": "missing",
+     "s": 38.791,
+     "e": 39.357
+    }
+   ],
+   "events": [
+    {
+     "id": "screen",
+     "at": 0.06,
+     "sfx": "whoosh"
+    },
+    {
+     "id": "ring",
+     "at": 0.657,
+     "sfx": "rise"
+    },
+    {
+     "id": "ringDone",
+     "at": 2.747,
+     "sfx": "chime"
+    },
+    {
+     "id": "tile1",
+     "at": 3.225,
+     "sfx": "pop"
+    },
+    {
+     "id": "tile2",
+     "at": 3.523,
+     "sfx": "pop"
+    },
+    {
+     "id": "tile3",
+     "at": 3.822,
+     "sfx": "pop"
+    },
+    {
+     "id": "tile4",
+     "at": 4.12,
+     "sfx": "pop"
+    },
+    {
+     "id": "list",
+     "at": 5.494,
+     "sfx": "whoosh"
+    },
+    {
+     "id": "row1",
+     "at": 5.852,
+     "sfx": "tick"
+    },
+    {
+     "id": "row2",
+     "at": 6.151,
+     "sfx": "tick"
+    },
+    {
+     "id": "row3",
+     "at": 6.449,
+     "sfx": "tick"
+    },
+    {
+     "id": "row4",
+     "at": 6.56,
+     "sfx": "tick"
+    }
+   ]
+  },
+  {
+   "id": "b08_clause",
+   "label": "CLAUSE",
+   "start": 40.24,
+   "dur": 5.36,
+   "lines": [
+    {
+     "text": "Every flag shows the exact wording,",
+     "start": 40.24,
+     "end": 42.592
+    },
+    {
+     "text": "and explains it in plain English.",
+     "start": 43.04,
+     "end": 44.768
+    }
+   ],
+   "words": [
+    {
+     "w": "Every",
+     "s": 40.323,
+     "e": 40.547
+    },
+    {
+     "w": "flag",
+     "s": 40.547,
+     "e": 41.101
+    },
+    {
+     "w": "shows",
+     "s": 41.278,
+     "e": 41.62
+    },
+    {
+     "w": "the",
+     "s": 41.62,
+     "e": 41.679
+    },
+    {
+     "w": "exact",
+     "s": 41.679,
+     "e": 42.174
+    },
+    {
+     "w": "wording",
+     "s": 42.174,
+     "e": 42.528
+    },
+    {
+     "w": "and",
+     "s": 43.134,
+     "e": 43.181
+    },
+    {
+     "w": "explains",
+     "s": 43.181,
+     "e": 43.677
+    },
+    {
+     "w": "it",
+     "s": 43.677,
+     "e": 43.748
+    },
+    {
+     "w": "in",
+     "s": 43.748,
+     "e": 43.83
+    },
+    {
+     "w": "plain",
+     "s": 43.83,
+     "e": 44.148
+    },
+    {
+     "w": "English",
+     "s": 44.149,
+     "e": 44.691
+    }
+   ],
+   "events": [
+    {
+     "id": "cardIn",
+     "at": 0.121,
+     "sfx": "whoosh"
+    },
+    {
+     "id": "quote",
+     "at": 1.449,
+     "sfx": "sweep"
+    },
+    {
+     "id": "quoteDone",
+     "at": 2.656,
+     "sfx": "tick"
+    },
+    {
+     "id": "reason",
+     "at": 3.622,
+     "sfx": "pop"
+    }
+   ]
+  },
+  {
+   "id": "b09_ask",
+   "label": "ASK",
+   "start": 45.6,
+   "dur": 3.77,
+   "lines": [
+    {
+     "text": "And a ready list of questions to ask before you sign.",
+     "start": 45.6,
+     "end": 48.538
+    }
+   ],
+   "words": [
+    {
+     "w": "And",
+     "s": 45.683,
+     "e": 45.753
+    },
+    {
+     "w": "a",
+     "s": 45.765,
+     "e": 45.824
+    },
+    {
+     "w": "ready",
+     "s": 45.836,
+     "e": 46.083
+    },
+    {
+     "w": "list",
+     "s": 46.083,
+     "e": 46.355
+    },
+    {
+     "w": "of",
+     "s": 46.355,
+     "e": 46.414
+    },
+    {
+     "w": "questions",
+     "s": 46.414,
+     "e": 46.991
+    },
+    {
+     "w": "to",
+     "s": 47.003,
+     "e": 47.133
+    },
+    {
+     "w": "ask",
+     "s": 47.145,
+     "e": 47.64
+    },
+    {
+     "w": "before",
+     "s": 47.652,
+     "e": 47.958
+    },
+    {
+     "w": "you",
+     "s": 47.958,
+     "e": 48.041
+    },
+    {
+     "w": "sign",
+     "s": 48.041,
+     "e": 48.454
+    }
+   ],
+   "events": [
+    {
+     "id": "listIn",
+     "at": 0.113,
+     "sfx": "whoosh"
+    },
+    {
+     "id": "q1",
+     "at": 0.563,
+     "sfx": "tick"
+    },
+    {
+     "id": "q2",
+     "at": 0.844,
+     "sfx": "tick"
+    },
+    {
+     "id": "q3",
+     "at": 1.125,
+     "sfx": "tick"
+    },
+    {
+     "id": "q4",
+     "at": 1.407,
+     "sfx": "tick"
+    },
+    {
+     "id": "cursor",
+     "at": 2.476,
+     "sfx": "pop"
+    },
+    {
+     "id": "expand",
+     "at": 3.376,
+     "sfx": "pop"
+    }
+   ]
+  },
+  {
+   "id": "b10_proof",
+   "label": "PROOF",
+   "start": 49.37,
+   "dur": 5.39,
+   "lines": [
+    {
+     "text": "Four risky clauses.",
+     "start": 49.37,
+     "end": 50.606
+    },
+    {
+     "text": "Four missing protections.",
+     "start": 50.99,
+     "end": 52.306
+    },
+    {
+     "text": "Eight questions to ask.",
+     "start": 52.69,
+     "end": 53.928
+    }
+   ],
+   "words": [
+    {
+     "w": "Four",
+     "s": 49.5,
+     "e": 49.606
+    },
+    {
+     "w": "risky",
+     "s": 49.618,
+     "e": 49.936
+    },
+    {
+     "w": "clauses",
+     "s": 49.936,
+     "e": 50.537
+    },
+    {
+     "w": "Four",
+     "s": 51.131,
+     "e": 51.214
+    },
+    {
+     "w": "missing",
+     "s": 51.214,
+     "e": 51.509
+    },
+    {
+     "w": "protections",
+     "s": 51.509,
+     "e": 52.228
+    },
+    {
+     "w": "Eight",
+     "s": 52.773,
+     "e": 52.879
+    },
+    {
+     "w": "questions",
+     "s": 52.879,
+     "e": 53.315
+    },
+    {
+     "w": "to",
+     "s": 53.327,
+     "e": 53.409
+    },
+    {
+     "w": "ask",
+     "s": 53.409,
+     "e": 53.857
+    }
+   ],
+   "events": [
+    {
+     "id": "stat1",
+     "at": 0.124,
+     "sfx": "rise"
+    },
+    {
+     "id": "stat2",
+     "at": 1.615,
+     "sfx": "rise"
+    },
+    {
+     "id": "stat3",
+     "at": 2.981,
+     "sfx": "rise"
+    }
+   ]
+  },
+  {
+   "id": "b11_close",
+   "label": "CLOSE",
+   "start": 54.76,
+   "dur": 7.13,
+   "lines": [
+    {
+     "text": "RentCheck.",
+     "start": 54.76,
+     "end": 55.424
+    },
+    {
+     "text": "Stop guessing.",
+     "start": 56.0,
+     "end": 56.85
+    },
+    {
+     "text": "Know what you're signing.",
+     "start": 57.49,
+     "end": 58.382
+    }
+   ],
+   "words": [
+    {
+     "w": "RentCheck",
+     "s": 54.819,
+     "e": 55.361
+    },
+    {
+     "w": "Stop",
+     "s": 56.083,
+     "e": 56.33
+    },
+    {
+     "w": "guessing",
+     "s": 56.342,
+     "e": 56.778
+    },
+    {
+     "w": "Know",
+     "s": 57.584,
+     "e": 57.69
+    },
+    {
+     "w": "what",
+     "s": 57.69,
+     "e": 57.773
+    },
+    {
+     "w": "you're",
+     "s": 57.773,
+     "e": 57.867
+    },
+    {
+     "w": "signing",
+     "s": 57.879,
+     "e": 58.304
+    }
+   ],
+   "events": [
+    {
+     "id": "logo",
+     "at": 0.07,
+     "sfx": "bloom"
+    },
+    {
+     "id": "mark",
+     "at": 0.28,
+     "sfx": "chime"
+    },
+    {
+     "id": "line",
+     "at": 1.051,
+     "sfx": "pop"
+    },
+    {
+     "id": "sub",
+     "at": 2.662,
+     "sfx": "pop"
+    },
+    {
+     "id": "cta",
+     "at": 4.764,
+     "sfx": "pop"
+    },
+    {
+     "id": "hover",
+     "at": 5.745,
+     "sfx": "click"
+    }
+   ]
+  }
+ ]
+}
