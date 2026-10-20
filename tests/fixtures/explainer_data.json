@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-19T12:13:17.192018+00:00",
+  "generated_at": "2026-10-20T05:28:29.259767+00:00",
   "source_note": "Real tenancy agreement analysed by the RentCheck pipeline",
   "provenance": "stored analysis (database)",
   "risk_score": 100,
@@ -57,5 +57,11 @@
       "label": "Rent review / increase terms",
       "why": "The agreement does not state how or when rent can be increased, leaving the tenant exposed to arbitrary review."
     }
+  ],
+  "questions": [
+    "Ask which taxes and rates are yours versus the landlord's, and remove open-ended 'all outgoings' language.",
+    "Ask for a clause requiring the landlord to give you advance written notice before entering the premises.",
+    "Ask for subletting or assignment to be allowed with the landlord's written consent, which cannot be unreasonably withheld.",
+    "Ask that re-entry require a written demand, a grace period, and lawful process instead of automatic forfeiture."
   ]
 }

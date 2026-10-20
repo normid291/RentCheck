@@ -157,6 +157,8 @@ def main() -> int:
         missing = [{"label": label_for(m.get("clause_type")), "why": scrub(m.get("why", ""))}
                    for m in (result.get("missing_protections") or [])][:4]
 
+        questions = [scrub(q) for q in (result.get("questions_to_ask") or []) if q][:4]
+
         summary = scrub(result.get("summary") or "")
         m = re.search(r"(\d+)\s+of\s+(\d+)\s+checked", summary)
         checked = int(m.group(2)) if m else len(flagged)
@@ -183,6 +185,7 @@ def main() -> int:
             "flagged": flagged,
             "quote": quote,
             "missing": missing,
+            "questions": questions,
         }
         os.makedirs(os.path.dirname(OUT), exist_ok=True)
         with open(OUT, "w", encoding="utf-8") as fh:

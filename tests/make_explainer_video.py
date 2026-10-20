@@ -1,19 +1,21 @@
 """
-Build the RentCheck explainer video as a classic MOTION-GRAPHICS explainer.
+Build the RentCheck explainer video as a premium SaaS-style motion explainer.
 
-Design rules (per the brief)
-----------------------------
-* Motion is calm and minimal: fades, gentle scale, soft opacity, subtle
-  vertical easing only.  Nothing slides sideways across the screen.
-* It is an explainer, not a screen recording: every scene is drawn with icons,
-  simple illustrations and short on-screen text - the app UI is never shown.
-* One idea per scene, with a short voiceover line each.
-* The content is driven by REAL analysis output: tests/export_explainer_data.py
-  runs a real tenancy agreement from the database through the real pipeline and
-  writes tests/fixtures/explainer_data.json (already anonymised).
-* Brand palette and fonts match the product.
-* Professional voiceover (Edge neural TTS) with scene timing synced to the
-  narration, plus a soft ambient music bed at low volume.
+Reference style (per the brief): a dark gradient stage, a flat-illustration
+character at a laptop, floating glass UI cards, stage labels ("01 - UPLOAD"),
+animated stat numbers, and subtitle-style captions - but with RentCheck's own
+brand, wording and real analysis data.
+
+Design rules
+------------
+* Motion is calm: fades, gentle scale, vertical bobbing/easing. Nothing slides
+  sideways across the screen.
+* Every number and clause shown comes from REAL output:
+  tests/export_explainer_data.py runs a real agreement from the database
+  through the real pipeline and writes tests/fixtures/explainer_data.json
+  (already anonymised).
+* Professional voiceover (Edge neural TTS) synced to the scenes, plus a quiet
+  ambient music bed that is sidechain-ducked under the voice.
 
 Pipeline
 --------
@@ -21,15 +23,14 @@ Pipeline
 2. Synthesise one voiceover line per scene; each scene's length follows its VO.
 3. Render each scene frame-by-frame with Pillow and pipe raw RGB frames
    straight into ffmpeg (no PNG round-trip).
-4. Concatenate video, build the matching narration track, synthesise a quiet
-   music bed, mix and mux to H.264/AAC mp4.
+4. Concatenate video, build the narration track, synthesise a music bed,
+   mix/duck and mux to H.264/AAC mp4.
 
-Requires (dev only):  pip install -r requirements-dev.txt
-    imageio-ffmpeg edge-tts
+Requires (dev only):  pip install -r requirements-dev.txt   (imageio-ffmpeg edge-tts)
 
 Run from the repo root:
     python tests/make_explainer_video.py
-    python tests/make_explainer_video.py --voice en-GB-SoniaNeural
+    python tests/make_explainer_video.py --voice en-GB-SoniaNeural --rate -2%
 """
 from __future__ import annotations
 
@@ -39,6 +40,7 @@ import asyncio
 import json
 import math
 import os
+import random
 import shutil
 import subprocess
 import wave
@@ -56,42 +58,47 @@ DATA = os.path.join(HERE, "fixtures", "explainer_data.json")
 W, H, FPS = 1920, 1080, 30
 DEFAULT_VOICE = "en-US-AndrewNeural"
 
-# Brand palette (matches app/static/styles.css)
-BRAND = (14, 122, 82)
-BRAND_DARK = (10, 92, 62)
-BRAND_DEEP = (7, 61, 41)
-BRAND_SOFT = (232, 244, 238)
-INK = (16, 32, 26)
-MUTED = (86, 106, 97)
-FAINT = (150, 168, 160)
-BG = (244, 247, 245)
-CARD = (255, 255, 255)
-LINE = (216, 226, 221)
+# --- dark, premium RentCheck palette ---------------------------------------- #
+BG_TOP = (10, 58, 43)
+BG_BOT = (4, 22, 19)
+BRAND = (34, 176, 122)
 MINT = (143, 227, 189)
-AMBER = (185, 119, 10)
-RED = (192, 57, 43)
-BLUE = (47, 111, 176)
+MINT_DIM = (96, 168, 138)
+TEXT = (236, 246, 241)
+MUTED = (150, 182, 170)
+FAINT = (92, 122, 111)
+GLASS = (255, 255, 255, 22)
+GLASS_LINE = (255, 255, 255, 54)
+CARD = (13, 46, 36)
+RED = (238, 96, 84)
+AMBER = (240, 180, 74)
+BLUE = (112, 171, 238)
 WHITE = (255, 255, 255)
 
 SEV_COLOR = {"high": RED, "medium": AMBER, "low": BLUE}
 SEV_LABEL = {"high": "HIGH", "medium": "MEDIUM", "low": "LOW"}
 RISK_COLOR = {"high": RED, "medium": AMBER, "low": BLUE}
 
+# character
+SKIN = (233, 189, 158)
+HAIR = (34, 30, 36)
+SHIRT = (46, 148, 120)
+SHIRT_DARK = (30, 104, 84)
+
 FONT_BOLD = [r"C:\Windows\Fonts\segoeuib.ttf", r"C:\Windows\Fonts\seguisb.ttf", r"C:\Windows\Fonts\arialbd.ttf"]
 FONT_SEMI = [r"C:\Windows\Fonts\seguisb.ttf", r"C:\Windows\Fonts\segoeuib.ttf", r"C:\Windows\Fonts\arialbd.ttf"]
 FONT_REG = [r"C:\Windows\Fonts\segoeui.ttf", r"C:\Windows\Fonts\arial.ttf"]
 
-# extra seconds beyond the voiceover, and narration lead-in
-PAD = 1.0
-INTRO_PAD = 1.7
-LEAD = 0.45
+PAD = 1.05
+HOOK_PAD = 1.2
+LEAD = 0.5
 FADE = 0.5
 
 FFMPEG = str(imageio_ffmpeg.get_ffmpeg_exe())
 
 
 # --------------------------------------------------------------------------- #
-# small math / easing helpers
+# math / easing
 # --------------------------------------------------------------------------- #
 def clamp01(x: float) -> float:
     return 0.0 if x < 0 else 1.0 if x > 1 else x
@@ -127,6 +134,14 @@ def mix(c, a: float):
     return (c[0], c[1], c[2], al(a))
 
 
+def rgba(c, mult: float):
+    return (c[0], c[1], c[2], al((c[3] / 255.0) * mult))
+
+
+def bob(el: float, amp: float = 6.0, speed: float = 1.5, phase: float = 0.0) -> float:
+    return math.sin(el * speed + phase) * amp
+
+
 # --------------------------------------------------------------------------- #
 # fonts / text
 # --------------------------------------------------------------------------- #
@@ -150,12 +165,12 @@ def load_font(size: int, weight: str = "regular") -> ImageFont.FreeTypeFont:
 
 def fit_font(text: str, max_w: int, start: int, weight: str = "bold") -> ImageFont.FreeTypeFont:
     size = start
-    while size > 20:
+    while size > 18:
         f = load_font(size, weight)
         if f.getlength(text) <= max_w:
             return f
         size -= 2
-    return load_font(20, weight)
+    return load_font(18, weight)
 
 
 def wrap(d, text: str, font, max_w: int) -> list[str]:
@@ -172,24 +187,52 @@ def wrap(d, text: str, font, max_w: int) -> list[str]:
     return lines
 
 
-def draw_center(d, cx, y, text, font, fill, anchor="mm"):
-    d.text((cx, y), text, font=font, fill=fill, anchor=anchor)
+def wrap_clamp(d, text: str, font, max_w: int, max_lines: int) -> list[str]:
+    lines = wrap(d, text, font, max_w)
+    if len(lines) > max_lines:
+        lines = lines[:max_lines]
+        lines[-1] = lines[-1].rstrip(" ,;:.") + " ..."
+    return lines
 
 
-def tracked(text: str) -> str:
-    """Fake letter-spacing for small uppercase kickers."""
-    return " ".join(text.upper())
+def rich_line(d, cx, y, parts, font, alpha=1.0, anchor="mm"):
+    """Draw a centred line made of coloured runs: parts = [(text, colour), ...]."""
+    total = sum(d.textlength(t, font=font) for t, _ in parts)
+    x = cx - total / 2 if anchor == "mm" else cx
+    for t, c in parts:
+        d.text((x, y), t, font=font, fill=mix(c, alpha), anchor="lm")
+        x += d.textlength(t, font=font)
+
+
+def headline(d, el, text, sub=None, y=262, size=80):
+    ha = a_in(el, 0.15, 0.5)
+    if ha > 0:
+        f = fit_font(text, 1560, size, "bold")
+        d.text((W / 2, y - (1 - ha) * 22), text, font=f, fill=mix(TEXT, ha), anchor="mm")
+    if sub:
+        sa = a_in(el, 0.35, 0.5)
+        if sa > 0:
+            sf = fit_font(sub, 1300, 36, "regular")
+            d.text((W / 2, y + 62), sub, font=sf, fill=mix(MUTED, sa), anchor="mm")
 
 
 # --------------------------------------------------------------------------- #
 # primitives
 # --------------------------------------------------------------------------- #
-def panel(d, box, radius, fill, shadow=True, shadow_a=0.10, dy=10):
+def glass(d, box, r=22, a=1.0, fill=GLASS, line=GLASS_LINE, shadow=True, shadow_a=0.5, dy=14):
     x0, y0, x1, y1 = box
-    if shadow:
-        d.rounded_rectangle((x0 + 2, y0 + dy, x1 + 2, y1 + dy), radius=radius,
-                            fill=(16, 32, 26, al(shadow_a)))
-    d.rounded_rectangle(box, radius=radius, fill=fill)
+    if shadow and a > 0:
+        d.rounded_rectangle((x0 + 2, y0 + dy, x1 + 2, y1 + dy), radius=r, fill=(0, 0, 0, al(0.30 * a * shadow_a)))
+    if a > 0:
+        d.rounded_rectangle(box, radius=r, fill=rgba(fill, a))
+        d.rounded_rectangle(box, radius=r, outline=rgba(line, a), width=2)
+
+
+def pill(d, box, r, fill, line=None, a=1.0):
+    x0, y0, x1, y1 = box
+    d.rounded_rectangle(box, radius=r, fill=rgba(fill, a) if len(fill) == 4 else mix(fill, a))
+    if line is not None:
+        d.rounded_rectangle(box, radius=r, outline=(rgba(line, a) if len(line) == 4 else mix(line, a)), width=2)
 
 
 def line_round(d, pts, fill, w):
@@ -199,32 +242,21 @@ def line_round(d, pts, fill, w):
         d.ellipse((p[0] - r, p[1] - r, p[0] + r, p[1] + r), fill=fill)
 
 
-def shield_pts(cx, cy, w, h):
-    x, y = cx - w / 2, cy - h / 2
-    return [
-        (x, y), (x + w, y), (x + w, y + h * 0.44),
-        (x + w * 0.62, y + h * 0.82), (x + w * 0.5, y + h),
-        (x + w * 0.38, y + h * 0.82), (x, y + h * 0.44),
-    ]
+def text_bars(d, x, y, w, color, a, rows=2):
+    d.rounded_rectangle((x, y, x + w, y + 16), radius=8, fill=mix(color, a))
+    if rows > 1:
+        d.rounded_rectangle((x, y + 28, x + w * 0.6, y + 40), radius=6, fill=mix(color, a * 0.5))
 
 
-def draw_shield(d, cx, cy, size, color, check=True, check_color=WHITE):
-    w, h = size, size * 1.15
-    x, y = cx - w / 2, cy - h / 2
-    d.polygon(shield_pts(cx, cy, w, h), fill=color)
-    if check:
-        lw = max(3, int(size * 0.10))
-        line_round(d, [(x + w * 0.30, y + h * 0.42), (x + w * 0.45, y + h * 0.58),
-                       (x + w * 0.72, y + h * 0.30)], check_color, lw)
-
-
-# --- line icons (all centred on cx,cy, sized to s) ------------------------- #
-def icon_doc(d, cx, cy, s, color, w=None, lines=4, alpha=1.0):
+# --------------------------------------------------------------------------- #
+# icons
+# --------------------------------------------------------------------------- #
+def icon_doc(d, cx, cy, s, color, w=None, alpha=1.0, lines=4):
     w = w or max(3, int(s * 0.075))
     col = mix(color, alpha) if len(color) == 3 else color
     x0, y0 = cx - s * 0.42, cy - s * 0.55
     x1, y1 = cx + s * 0.42, cy + s * 0.55
-    d.rounded_rectangle((x0, y0, x1, y1), radius=int(s * 0.09), outline=col, width=w)
+    d.rounded_rectangle((x0, y0, x1, y1), radius=int(s * 0.10), outline=col, width=w)
     ly = y0 + s * 0.30
     for i in range(lines):
         end = x1 - s * (0.14 if i % 3 == 2 else 0.30)
@@ -235,23 +267,17 @@ def icon_doc(d, cx, cy, s, color, w=None, lines=4, alpha=1.0):
 def icon_upload(d, cx, cy, s, color, w=None, alpha=1.0):
     w = w or max(3, int(s * 0.075))
     col = mix(color, alpha) if len(color) == 3 else color
-    # tray
     y0 = cy + s * 0.10
-    d.line((cx - s * 0.34, y0, cx - s * 0.34, cy + s * 0.44), fill=col, width=w, joint="curve")
-    d.line((cx - s * 0.34, cy + s * 0.44, cx + s * 0.34, cy + s * 0.44), fill=col, width=w, joint="curve")
-    d.line((cx + s * 0.34, cy + s * 0.44, cx + s * 0.34, y0), fill=col, width=w, joint="curve")
-    # up arrow
+    line_round(d, [(cx - s * 0.34, y0), (cx - s * 0.34, cy + s * 0.44), (cx + s * 0.34, cy + s * 0.44), (cx + s * 0.34, y0)], col, w)
     d.line((cx, cy + s * 0.30, cx, cy - s * 0.42), fill=col, width=w)
-    d.line((cx - s * 0.22, cy - s * 0.18, cx, cy - s * 0.42, cx + s * 0.22, cy - s * 0.18),
-           fill=col, width=w, joint="curve")
+    d.line((cx - s * 0.22, cy - s * 0.18, cx, cy - s * 0.42, cx + s * 0.22, cy - s * 0.18), fill=col, width=w, joint="curve")
 
 
 def icon_search(d, cx, cy, s, color, w=None, alpha=1.0):
     w = w or max(3, int(s * 0.075))
     col = mix(color, alpha) if len(color) == 3 else color
     r = s * 0.32
-    d.ellipse((cx - r - s * 0.06, cy - r - s * 0.20, cx + r - s * 0.06, cy + r - s * 0.20),
-              outline=col, width=w)
+    d.ellipse((cx - r - s * 0.06, cy - r - s * 0.20, cx + r - s * 0.06, cy + r - s * 0.20), outline=col, width=w)
     line_round(d, [(cx + r * 0.62, cy + r * 0.42), (cx + s * 0.40, cy + s * 0.44)], col, w)
 
 
@@ -260,34 +286,28 @@ def icon_check(d, cx, cy, s, color, alpha=1.0):
     r = s * 0.46
     d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=col)
     lw = max(3, int(s * 0.13))
-    line_round(d, [(cx - s * 0.22, cy + s * 0.02), (cx - s * 0.05, cy + s * 0.19),
-                   (cx + s * 0.24, cy - s * 0.19)], WHITE, lw)
+    line_round(d, [(cx - s * 0.22, cy + s * 0.02), (cx - s * 0.05, cy + s * 0.19), (cx + s * 0.24, cy - s * 0.19)], WHITE, lw)
+
+
+def icon_check_outline(d, cx, cy, s, color, alpha=1.0):
+    col = mix(color, alpha) if len(color) == 3 else color
+    r = s * 0.46
+    d.ellipse((cx - r, cy - r, cx + r, cy + r), outline=col, width=max(3, int(s * 0.09)))
 
 
 def icon_flag(d, cx, cy, s, color, w=None, alpha=1.0):
     w = w or max(3, int(s * 0.075))
     col = mix(color, alpha) if len(color) == 3 else color
     d.line((cx - s * 0.22, cy - s * 0.46, cx - s * 0.22, cy + s * 0.48), fill=col, width=w)
-    d.polygon([(cx - s * 0.22, cy - s * 0.44), (cx + s * 0.40, cy - s * 0.26),
-               (cx - s * 0.22, cy - s * 0.04)], fill=col)
+    d.polygon([(cx - s * 0.22, cy - s * 0.44), (cx + s * 0.40, cy - s * 0.26), (cx - s * 0.22, cy - s * 0.04)], fill=col)
 
 
-def icon_bars(d, cx, cy, s, color, w=None, alpha=1.0):
-    w = w or max(3, int(s * 0.10))
+def icon_lock(d, cx, cy, s, color, w=None, alpha=1.0):
+    w = w or max(3, int(s * 0.075))
     col = mix(color, alpha) if len(color) == 3 else color
-    base_y = cy + s * 0.42
-    for i, hh in enumerate((0.40, 0.66, 0.92)):
-        x = cx - s * 0.30 + i * s * 0.30
-        d.rounded_rectangle((x - w / 2, base_y - s * hh, x + w / 2, base_y),
-                            radius=int(w / 2), fill=col)
-
-
-def icon_question(d, cx, cy, s, color, alpha=1.0):
-    col = mix(color, alpha) if len(color) == 3 else color
-    r = s * 0.46
-    d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=col)
-    f = load_font(int(s * 0.66), "bold")
-    d.text((cx, cy + s * 0.02), "?", font=f, fill=WHITE, anchor="mm")
+    bw, bh = s * 0.66, s * 0.50
+    d.rounded_rectangle((cx - bw / 2, cy - s * 0.06, cx + bw / 2, cy + s * 0.44), radius=int(s * 0.10), fill=col)
+    d.arc((cx - bw * 0.32, cy - s * 0.44, cx + bw * 0.32, cy + s * 0.10), start=180, end=360, fill=col, width=w)
 
 
 def icon_clock(d, cx, cy, s, color, w=None, alpha=1.0):
@@ -298,390 +318,470 @@ def icon_clock(d, cx, cy, s, color, w=None, alpha=1.0):
     line_round(d, [(cx, cy - r * 0.55), (cx, cy), (cx + r * 0.50, cy + r * 0.30)], col, w)
 
 
-def icon_lock(d, cx, cy, s, color, w=None, alpha=1.0):
-    w = w or max(3, int(s * 0.075))
+def icon_bars(d, cx, cy, s, color, alpha=1.0):
     col = mix(color, alpha) if len(color) == 3 else color
-    bw, bh = s * 0.66, s * 0.50
-    d.rounded_rectangle((cx - bw / 2, cy - s * 0.06, cx + bw / 2, cy + s * 0.44),
-                        radius=int(s * 0.10), fill=col)
-    d.arc((cx - bw * 0.32, cy - s * 0.44, cx + bw * 0.32, cy + s * 0.10),
-          start=180, end=360, fill=col, width=w)
+    base_y = cy + s * 0.42
+    w = max(4, int(s * 0.14))
+    for i, hh in enumerate((0.40, 0.66, 0.92)):
+        x = cx - s * 0.30 + i * s * 0.30
+        d.rounded_rectangle((x - w / 2, base_y - s * hh, x + w / 2, base_y), radius=int(w / 2), fill=col)
+
+
+def icon_shield(d, cx, cy, s, color, alpha=1.0, check=True, check_color=WHITE):
+    col = mix(color, alpha) if len(color) == 3 else color
+    w, h = s, s * 1.15
+    x, y = cx - w / 2, cy - h / 2
+    d.polygon([(x, y), (x + w, y), (x + w, y + h * 0.44), (x + w * 0.62, y + h * 0.82),
+               (x + w * 0.5, y + h), (x + w * 0.38, y + h * 0.82), (x, y + h * 0.44)], fill=col)
+    if check:
+        line_round(d, [(x + w * 0.30, y + h * 0.42), (x + w * 0.45, y + h * 0.58), (x + w * 0.72, y + h * 0.30)],
+                   check_color if len(check_color) == 4 else mix(check_color, alpha), max(3, int(s * 0.10)))
 
 
 ICONS = {
-    "doc": lambda d, x, y, s, c, a=1.0: icon_doc(d, x, y, s, c, alpha=a),
-    "upload": lambda d, x, y, s, c, a=1.0: icon_upload(d, x, y, s, c, alpha=a),
-    "search": lambda d, x, y, s, c, a=1.0: icon_search(d, x, y, s, c, alpha=a),
-    "bars": lambda d, x, y, s, c, a=1.0: icon_bars(d, x, y, s, c, alpha=a),
-    "flag": lambda d, x, y, s, c, a=1.0: icon_flag(d, x, y, s, c, alpha=a),
-    "clock": lambda d, x, y, s, c, a=1.0: icon_clock(d, x, y, s, c, alpha=a),
-    "lock": lambda d, x, y, s, c, a=1.0: icon_lock(d, x, y, s, c, alpha=a),
+    "doc": icon_doc, "upload": icon_upload, "search": icon_search, "flag": icon_flag,
+    "lock": icon_lock, "clock": icon_clock, "bars": icon_bars,
 }
+ICON_EMOJI_LABEL = {"doc": "PDF", "upload": "Upload"}
 
 
 # --------------------------------------------------------------------------- #
-# background
+# background + particles
 # --------------------------------------------------------------------------- #
-_BASE_CACHE: dict = {}
+_BASE = {}
+_PARTICLES = []
 
 
-def soft_glow(d, cx, cy, radius, color, max_alpha, steps=54):
+def soft_glow(d, cx, cy, radius, color, max_alpha, steps=56):
     for i in range(steps, 0, -1):
         r = radius * i / steps
-        a = max_alpha * (1 - i / steps) ** 2.1
+        a = max_alpha * (1 - i / steps) ** 2.0
         if a <= 0.004:
             continue
         d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(*color, al(a)))
 
 
 def get_base() -> Image.Image:
-    if "base" in _BASE_CACHE:
-        return _BASE_CACHE["base"]
-    img = Image.new("RGBA", (W, H), (*BG, 255))
-    ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    d = ImageDraw.Draw(ov, "RGBA")
-    # faint vertical wash, slightly brighter at the top
-    for y in range(0, H, 4):
+    if "base" in _BASE:
+        return _BASE["base"]
+    img = Image.new("RGBA", (W, H), (*BG_BOT, 255))
+    d = ImageDraw.Draw(img, "RGBA")
+    # vertical gradient
+    for y in range(0, H, 3):
         t = y / H
-        v = int(6 * (1 - t))
-        d.rectangle((0, y, W, y + 4), fill=(255, 255, 255, v))
-    # soft brand-tinted glows (top-right and bottom-left)
-    soft_glow(d, W - 300, 90, 760, BRAND, 0.085)
-    soft_glow(d, 240, H - 60, 720, MINT, 0.16)
+        c = (int(BG_TOP[0] + (BG_BOT[0] - BG_TOP[0]) * t),
+             int(BG_TOP[1] + (BG_BOT[1] - BG_TOP[1]) * t),
+             int(BG_TOP[2] + (BG_BOT[2] - BG_TOP[2]) * t))
+        d.rectangle((0, y, W, y + 3), fill=(*c, 255))
+    ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    od = ImageDraw.Draw(ov, "RGBA")
+    soft_glow(od, W * 0.5, -120, 980, BRAND, 0.22)
+    soft_glow(od, W - 260, H - 120, 760, MINT, 0.10)
+    soft_glow(od, 220, H + 60, 700, BRAND, 0.10)
     img = Image.alpha_composite(img, ov)
-    _BASE_CACHE["base"] = img
+    # vignette
+    v = Image.new("L", (W, H), 0)
+    vd = ImageDraw.Draw(v)
+    vd.rectangle((0, 0, W, H), fill=0)
+    vd.ellipse((-W * 0.35, -H * 0.5, W * 1.35, H * 1.5), fill=255)
+    dark = Image.new("RGBA", (W, H), (2, 12, 10, 120))
+    dark.putalpha(Image.composite(Image.new("L", (W, H), 0), v, v))
+    img = Image.alpha_composite(img, dark)
+    _BASE["base"] = img
     return img
 
 
-# --------------------------------------------------------------------------- #
-# global chrome: progress rail, brand mark, caption
-# --------------------------------------------------------------------------- #
-def draw_chrome(d, scene_key, idx, el, dur, g_before, total):
-    # vertical progress rail (grows downward - no sideways motion)
-    x = 52
-    top, bot = 150, H - 150
-    d.rounded_rectangle((x, top, x + 6, bot), radius=3, fill=(16, 32, 26, 26))
-    frac = clamp01((g_before + el) / total)
-    y = top + (bot - top) * frac
-    if y > top + 3:
-        d.rounded_rectangle((x, top, x + 6, y), radius=3, fill=(*BRAND, 235))
+def init_particles():
+    rng = random.Random(11)
+    for _ in range(64):
+        _PARTICLES.append((rng.uniform(0, W), rng.uniform(0, H), rng.uniform(1.0, 2.6),
+                           rng.uniform(0, 6.28), rng.uniform(0.05, 0.22), rng.uniform(6, 18)))
 
-    # brand mark (top-left), fades in
-    if scene_key not in ("intro", "outro"):
-        a = a_in(el, 0.15, 0.5)
-        if a > 0:
-            draw_shield(d, 132, 92, 34, mix(BRAND, a), check_color=mix(WHITE, a))
-            d.text((166, 94), "RentCheck", font=load_font(30, "bold"),
-                   fill=mix(BRAND_DEEP, a), anchor="lm")
 
-    # soft caption of the narration line (accessibility), fades in late
-    vo = SCENE_BY_KEY[scene_key]["vo"]
-    a = a_in(el, 0.5, 0.6)
+def draw_particles(d, el):
+    for (px, py, pr, ph, pa, spd) in _PARTICLES:
+        y = (py - el * spd) % (H + 60) - 30
+        tw = 0.55 + 0.45 * math.sin(el * 1.7 + ph)
+        a = pa * tw
+        d.ellipse((px - pr, y - pr, px + pr, y + pr), fill=(*MINT, al(a)))
+
+
+# --------------------------------------------------------------------------- #
+# the character (flat illustration)
+# --------------------------------------------------------------------------- #
+def draw_character(d, cx, base_y, s, el, mood="idle", alpha=1.0, laptop=False):
+    by = base_y + bob(el, s * 0.012, 1.5)
+    hr = s * 0.105
+    head_y = by - s * 0.72
+    tw = s * 0.30
+    lw = max(4, int(s * 0.062))
+    sh_y = by - s * 0.56
+    lsh = (cx - tw * 0.48, sh_y + s * 0.03)
+    rsh = (cx + tw * 0.48, sh_y + s * 0.03)
+    arm = mix(SHIRT_DARK, alpha)
+    skin = mix(SKIN, alpha)
+    # arms (behind the torso)
+    if mood == "wave":
+        line_round(d, [lsh, (lsh[0] - s * 0.06, by - s * 0.22)], arm, lw)
+        hx, hy = cx + tw * 0.62, by - s * 0.80
+        line_round(d, [rsh, (rsh[0] + s * 0.05, by - s * 0.50), (hx, hy)], arm, lw)
+        d.ellipse((hx - s * 0.045, hy - s * 0.045, hx + s * 0.045, hy + s * 0.045), fill=skin)
+    elif mood == "point":
+        line_round(d, [lsh, (lsh[0] - s * 0.05, by - s * 0.20)], arm, lw)
+        tip = (cx - tw * 1.05, by - s * 0.44)
+        line_round(d, [rsh, (rsh[0] + s * 0.10, by - s * 0.06), tip], arm, lw)
+        d.ellipse((tip[0] - s * 0.04, tip[1] - s * 0.04, tip[0] + s * 0.04, tip[1] + s * 0.04), fill=skin)
+    else:
+        line_round(d, [lsh, (lsh[0] - s * 0.03, by - s * 0.16)], arm, lw)
+        line_round(d, [rsh, (rsh[0] + s * 0.03, by - s * 0.16)], arm, lw)
+    # torso
+    d.rounded_rectangle((cx - tw / 2, sh_y, cx + tw / 2, by + s * 0.50),
+                        radius=int(tw * 0.42), fill=mix(SHIRT, alpha))
+    d.polygon([(cx - tw * 0.22, sh_y), (cx, sh_y + s * 0.10), (cx + tw * 0.22, sh_y)],
+              fill=mix(SHIRT_DARK, alpha))
+    # neck
+    d.rounded_rectangle((cx - hr * 0.28, head_y + hr * 0.50, cx + hr * 0.28, sh_y + s * 0.03),
+                        radius=int(hr * 0.3), fill=skin)
+    # hair back + bun
+    d.ellipse((cx - hr * 1.06, head_y - hr * 1.16, cx + hr * 1.06, head_y + hr * 1.02), fill=mix(HAIR, alpha))
+    d.ellipse((cx - hr * 0.40, head_y - hr * 1.62, cx + hr * 0.46, head_y - hr * 1.00), fill=mix(HAIR, alpha))
+    # face
+    d.ellipse((cx - hr * 0.86, head_y - hr * 0.94, cx + hr * 0.86, head_y + hr * 1.00), fill=skin)
+    # fringe
+    d.pieslice((cx - hr * 0.92, head_y - hr * 1.06, cx + hr * 0.92, head_y + hr * 0.62),
+               start=184, end=356, fill=mix(HAIR, alpha))
+    # eyes (blink occasionally)
+    eye_y = head_y - hr * 0.02
+    blink = (el % 3.6) > 0.14
+    for sx in (-1, 1):
+        ex = cx + sx * hr * 0.33
+        if blink:
+            d.ellipse((ex - hr * 0.07, eye_y - hr * 0.07, ex + hr * 0.07, eye_y + hr * 0.07), fill=mix(HAIR, alpha))
+        else:
+            d.line((ex - hr * 0.08, eye_y, ex + hr * 0.08, eye_y), fill=mix(HAIR, alpha), width=max(2, int(hr * 0.09)))
+    d.arc((cx - hr * 0.28, head_y + hr * 0.22, cx + hr * 0.28, head_y + hr * 0.70),
+          start=15, end=165, fill=mix((150, 84, 74), alpha), width=max(2, int(hr * 0.09)))
+    for sx in (-1, 1):
+        d.ellipse((cx + sx * hr * 0.60 - hr * 0.13, head_y + hr * 0.28 - hr * 0.08,
+                   cx + sx * hr * 0.60 + hr * 0.13, head_y + hr * 0.28 + hr * 0.08),
+                  fill=mix((224, 150, 138), alpha * 0.45))
+    if laptop:
+        draw_laptop(d, cx, by, s * 1.05, alpha)
+
+
+def draw_laptop(d, cx, base_y, s, alpha=1.0):
+    """Back of a laptop in front of the character, as in the reference."""
+    w, h = s * 0.66, s * 0.40
+    x0, y0 = cx - w / 2, base_y - h
+    d.rounded_rectangle((x0, y0, x0 + w, y0 + h), radius=int(s * 0.03),
+                        fill=mix((26, 40, 46), alpha), outline=mix((74, 102, 106), alpha), width=3)
+    d.rounded_rectangle((x0 + 14, y0 + 14, x0 + w - 14, y0 + h - 14), radius=int(s * 0.02),
+                        fill=mix((18, 30, 35), alpha))
+    d.ellipse((cx - s * 0.045, y0 + h * 0.42, cx + s * 0.045, y0 + h * 0.52), fill=mix((74, 102, 106), alpha))
+    d.rounded_rectangle((x0 - w * 0.06, y0 + h, x0 + w * 1.06, y0 + h + s * 0.03), radius=int(s * 0.015),
+                        fill=mix((32, 50, 56), alpha))
+
+
+# --------------------------------------------------------------------------- #
+# chrome: brand, stage chip, captions, dots
+# --------------------------------------------------------------------------- #
+STAGE_ORDER = ["upload", "analyse", "flag", "understand", "act"]
+
+
+def draw_chrome(d, scene, el, g_before, total):
+    key = scene["key"]
+    # brand mark top-left
+    a = a_in(el, 0.1, 0.5)
     if a > 0:
-        cap = load_font(28, "regular")
-        lines = wrap(d, vo, cap, 1560)[:2]
-        y0 = H - 78 if len(lines) == 2 else H - 54
-        for i, ln in enumerate(lines):
-            d.text((W / 2 + 1, y0 + i * 36 + 1), ln, font=cap, fill=(16, 32, 26, al(0.10 * a)), anchor="mm")
-            d.text((W / 2, y0 + i * 36), ln, font=cap, fill=(72, 90, 82, al(0.92 * a)), anchor="mm")
-
-
-# --------------------------------------------------------------------------- #
-# scene drawing
-# --------------------------------------------------------------------------- #
-def kicker_headline(d, el, kicker, headline, sub=None, hsize=78):
-    ka = a_in(el, 0.10, 0.45)
-    if ka > 0:
-        d.text((W / 2, 168), tracked(kicker), font=load_font(26, "bold"),
-               fill=mix(BRAND, ka), anchor="mm")
-    ha = a_in(el, 0.22, 0.55)
-    if ha > 0:
-        hf = fit_font(headline, 1500, hsize, "bold")
-        y = 246 - (1 - ha) * 22
-        d.text((W / 2, y), headline, font=hf, fill=mix(INK, ha), anchor="mm")
-    if sub:
-        sa = a_in(el, 0.45, 0.55)
+        icon_shield(d, 118, 84, 40, mix(BRAND, a), check_color=mix(WHITE, a))
+        d.text((152, 86), "RentCheck", font=load_font(34, "bold"), fill=mix(TEXT, a), anchor="lm")
+    # stage chip top-right
+    stage = scene.get("stage")
+    if stage:
+        sa = a_in(el, 0.2, 0.5)
         if sa > 0:
-            sf = fit_font(sub, 1200, 38, "regular")
-            d.text((W / 2, 316), sub, font=sf, fill=mix(MUTED, sa), anchor="mm")
-
-
-def scene_intro(d, el, dur, data):
-    a = a_in(el, 0.05, 0.6)
-    if a > 0:
-        s = 176 * (0.80 + 0.20 * pop(min(1.0, (el - 0.05) / 0.6)))
-        draw_shield(d, W / 2, 470, s, mix(BRAND, a), check_color=mix(WHITE, a))
-    ta = a_in(el, 0.35, 0.6)
-    if ta > 0:
-        y = 690 - (1 - ta) * 24
-        d.text((W / 2, y), "RentCheck", font=load_font(118, "bold"), fill=mix(BRAND_DEEP, ta), anchor="mm")
-    sa = a_in(el, 0.60, 0.6)
-    if sa > 0:
-        d.text((W / 2, 770), "Tenancy agreement review", font=load_font(40, "regular"),
-               fill=mix(MUTED, sa), anchor="mm")
-
-
-def scene_problem(d, el, dur, data):
-    kicker_headline(d, el, "The problem", "Long agreements. One-sided terms.",
-                    "It is easy to sign without understanding what is inside.")
-    # a document card, revealed with a gentle rise
-    ca = a_in(el, 0.55, 0.7)
-    if ca <= 0:
-        return
-    cw, ch = 660, 520
-    cx, top = W / 2, 418
-    rise = (1 - ca) * 26
-    top = top + rise
-    panel(d, (cx - cw / 2, top, cx + cw / 2, top + ch), 28, mix(CARD, ca))
-    # heading line inside the document
-    d.rounded_rectangle((cx - cw / 2 + 46, top + 50, cx - cw / 2 + 240, top + 72),
-                        radius=7, fill=mix((30, 60, 50), ca * 0.85))
-    ly = top + 122
-    highlights = {2: AMBER, 5: RED, 8: AMBER}
-    for i in range(11):
-        w = cw - 130 if i % 4 else cw - 280
-        col = mix(LINE, ca)
-        if i in highlights:
-            pulse = 0.55 + 0.45 * (0.5 + 0.5 * math.sin(el * 3.2 + i))
-            col = mix(highlights[i], ca * (0.35 + 0.5 * pulse))
-            fx = cx - cw / 2 + 46 + w + 30
-            fa = a_in(el, 0.9 + i * 0.12, 0.5)
-            if fa > 0:
-                d.ellipse((fx - 9, ly - 9, fx + 9, ly + 9), fill=mix(highlights[i], ca * fa))
-        d.rounded_rectangle((cx - cw / 2 + 46, ly - 8, cx - cw / 2 + 46 + w, ly + 8),
-                            radius=8, fill=col)
-        ly += 36
-    # question badge on the card's top-right corner (scale pop)
-    qa = a_in(el, 1.25, 0.6)
-    if qa > 0:
-        qs = 68 * (0.7 + 0.3 * pop(min(1.0, (el - 1.25) / 0.6)))
-        icon_question(d, cx + cw / 2 - 10, top + 18, qs, mix(RED, qa))
-
-
-def scene_add(d, el, dur, data):
-    kicker_headline(d, el, "Step 1 - add it", "Add your agreement.",
-                    "Paste the text, or upload a file.")
-    ca = a_in(el, 0.5, 0.7)
-    if ca <= 0:
-        return
-    cw, ch = 1120, 380
-    x0, y0 = W / 2 - cw / 2, 420
-    rise = (1 - ca) * 24
-    y0 += rise
-    # dashed drop zone
-    dash = mix((150, 200, 178), ca)
-    step = 30
-    x = x0
-    while x < x0 + cw:
-        d.line((x, y0, min(x + 18, x0 + cw), y0), fill=dash, width=5)
-        d.line((x, y0 + ch, min(x + 18, x0 + cw), y0 + ch), fill=dash, width=5)
-        x += step
-    y = y0
-    while y < y0 + ch:
-        d.line((x0, y, x0, min(y + 18, y0 + ch)), fill=dash, width=5)
-        d.line((x0 + cw, y, x0 + cw, min(y + 18, y0 + ch)), fill=dash, width=5)
-        y += step
-    d.rounded_rectangle((x0, y0, x0 + cw, y0 + ch), radius=28, fill=mix((247, 251, 249), ca))
-    # upload icon rises gently + fades
-    ia = a_in(el, 0.75, 0.7)
-    if ia > 0:
-        icon_upload(d, W / 2, y0 + 120 - (1 - ia) * 22, 150, mix(BRAND, ia))
-    ta = a_in(el, 0.95, 0.6)
-    if ta > 0:
-        d.text((W / 2, y0 + 232), "Drop a file here, or paste your text",
-               font=load_font(38, "semi"), fill=mix(INK, ta), anchor="mm")
-        d.text((W / 2, y0 + 288), "PDF  .  Photo  .  Word  .  Plain text",
-               font=load_font(30, "regular"), fill=mix(MUTED, ta), anchor="mm")
-
-
-def scene_analyse(d, el, dur, data):
-    kicker_headline(d, el, "Step 2 - analyse", "Every clause, checked.",
-                    "Compared against common Nigerian rental norms.")
-    rows = 5
-    rw, rh, gap = 1080, 92, 18
-    x0 = W / 2 - rw / 2
-    top = 400
-    total_h = rows * rh + (rows - 1) * gap
-    # scanning highlight sweeping downward over the clause rows (vertical only)
-    scan = clamp01((el - 0.6) / 2.2)
-    col_a = a_in(el, 0.5, 0.6)
-    for i in range(rows):
-        ra = a_in(el, 0.55 + i * 0.14, 0.55)
-        if ra <= 0:
-            continue
-        yy = top + i * (rh + gap) - (1 - ra) * 18
-        panel(d, (x0, yy, x0 + rw, yy + rh), 18, mix(CARD, ra), shadow_a=0.07, dy=7)
-        # fake clause text bars
-        bw = rw - 320 if i % 2 == 0 else rw - 420
-        d.rounded_rectangle((x0 + 34, yy + rh / 2 - 9, x0 + 34 + bw * 0.62, yy + rh / 2 + 9),
-                            radius=9, fill=mix(LINE, ra))
-        d.rounded_rectangle((x0 + 34, yy + rh / 2 + 20, x0 + 34 + bw * 0.38, yy + rh / 2 + 32),
-                            radius=6, fill=mix((238, 244, 241), ra))
-        # check badge pops in
-        cb = a_in(el, 1.0 + i * 0.30, 0.45)
-        if cb > 0:
-            cs = 46 * (0.65 + 0.35 * pop(min(1.0, (el - (1.0 + i * 0.30)) / 0.45)))
-            icon_check(d, x0 + rw - 58, yy + rh / 2, cs, mix(BRAND, cb))
-    # soft scan band sweeping downward
-    if col_a > 0 and scan < 1.0:
-        by = top + scan * (total_h + 40) - 30
-        d.rounded_rectangle((x0 - 40, by, x0 + rw + 40, by + 60), radius=20,
-                            fill=(*BRAND, 22), outline=(*BRAND, 40), width=2)
-
-
-def scene_flagged(d, el, dur, data):
-    kicker_headline(d, el, "Step 3 - flagged", "Risky terms, flagged.",
-                    "Every flag quotes the words in your agreement.")
-    flags = data["flagged"]
-    rw, rh, gap = 1120, 100, 16
-    x0 = W / 2 - rw / 2
-    top = 372
-    for i, f in enumerate(flags):
-        ra = a_in(el, 0.5 + i * 0.26, 0.55)
-        if ra <= 0:
-            continue
-        yy = top + i * (rh + gap) - (1 - ra) * 20
-        sev = f["severity"]
-        col = SEV_COLOR.get(sev, BLUE)
-        panel(d, (x0, yy, x0 + rw, yy + rh), 18, mix(CARD, ra), shadow_a=0.08, dy=7)
-        d.rounded_rectangle((x0 + 22, yy + 20, x0 + 30, yy + rh - 20), radius=4, fill=mix(col, ra))
-        icon_flag(d, x0 + 78, yy + rh / 2, 46, mix(col, ra))
-        d.text((x0 + 128, yy + rh / 2), f["label"], font=load_font(42, "semi"),
-               fill=mix(INK, ra), anchor="lm")
-        # severity pill
-        pf = load_font(24, "bold")
-        label = SEV_LABEL.get(sev, sev.upper())
-        pw = pf.getlength(label) + 52
-        px1 = x0 + rw - 24
-        px0 = px1 - pw
-        d.rounded_rectangle((px0, yy + rh / 2 - 22, px1, yy + rh / 2 + 22), radius=22,
-                            fill=(col[0], col[1], col[2], al(0.14 * ra)))
-        d.rounded_rectangle((px0, yy + rh / 2 - 22, px1, yy + rh / 2 + 22), radius=22,
-                            outline=(*col, al(0.9 * ra)), width=2)
-        d.text(((px0 + px1) / 2, yy + rh / 2), label, font=pf, fill=mix(col, ra), anchor="mm")
-    # quote plate
-    qa = a_in(el, 0.5 + len(flags) * 0.26 + 0.15, 0.7)
-    if qa > 0:
-        y0 = top + len(flags) * (rh + gap) + 6
-        y1 = y0 + 128
-        panel(d, (x0, y0, x0 + rw, y1), 18, mix(BRAND_DEEP, qa), shadow_a=0.14, dy=8)
-        d.rounded_rectangle((x0 + 22, y0 + 22, x0 + 30, y1 - 22), radius=4, fill=mix(MINT, qa))
-        d.text((x0 + 60, y0 + 34), tracked("Quoted from the agreement"),
-               font=load_font(22, "bold"), fill=mix(MINT, qa), anchor="lm")
-        qf = fit_font(f"\u201c{data['quote']}\u201d", rw - 140, 40, "semi")
-        d.text((x0 + 60, y0 + 84), f"\u201c{data['quote']}\u201d", font=qf,
-               fill=mix(WHITE, qa), anchor="lm")
-
-
-def scene_result(d, el, dur, data):
-    kicker_headline(d, el, "Step 4 - your report", "A clear risk score.",
-                    "What is risky, what is missing, and what to ask.")
-    score = int(data["risk_score"])
-    key = data["risk_key"]
-    col = RISK_COLOR.get(key, BRAND)
-    # gauge
-    ga = a_in(el, 0.55, 0.7)
-    if ga > 0:
-        cx, cy, r = 540, 640, 168
-        lw = 30
-        box = (cx - r, cy - r, cx + r, cy + r)
-        d.arc(box, start=135, end=405, fill=(16, 32, 26, al(0.10 * ga)), width=lw)
-        p = ease_out((el - 0.75) / 1.6)
-        d.arc(box, start=135, end=135 + 270 * max(0.0, p), fill=mix(col, ga), width=lw)
-        shown = int(round(score * max(0.0, min(1.0, p)) / 1) )
-        f = load_font(104, "bold")
-        d.text((cx, cy - 14), str(shown), font=f, fill=mix(INK, ga), anchor="mm")
-        d.text((cx, cy + 74), "RISK SCORE", font=load_font(26, "bold"),
-               fill=mix(MUTED, ga), anchor="mm")
-        lab = data["risk_level"].upper()
-        lf = load_font(34, "bold")
-        lw_ = lf.getlength(lab) + 56
-        d.rounded_rectangle((cx - lw_ / 2, cy + 118, cx + lw_ / 2, cy + 174), radius=28,
-                            fill=(col[0], col[1], col[2], al(0.14 * ga)))
-        d.text((cx, cy + 146), lab, font=lf, fill=mix(col, ga), anchor="mm")
-    # stat cards
-    c = data["counts"]
-    stats = [
-        ("flag", c["flagged"], "flagged clauses"),
-        ("lock", c["missing"], "missing protections"),
-        ("search", c["questions"], "questions to ask"),
-    ]
-    x0, x1 = 880, 1700
-    ch, gap = 140, 22
-    top = 430
-    for i, (ic, num, label) in enumerate(stats):
-        ra = a_in(el, 0.7 + i * 0.22, 0.6)
-        if ra <= 0:
-            continue
-        yy = top + i * (ch + gap) - (1 - ra) * 20
-        panel(d, (x0, yy, x1, yy + ch), 20, mix(CARD, ra), shadow_a=0.08, dy=7)
-        d.rounded_rectangle((x0 + 24, yy + 24, x0 + 24 + 92, yy + ch - 24), radius=18,
-                            fill=(BRAND[0], BRAND[1], BRAND[2], al(0.10 * ra)))
-        ICONS[ic](d, x0 + 70, yy + ch / 2, 58, mix(BRAND, ra))
-        p = max(0.0, ease_out((el - (0.9 + i * 0.22)) / 1.1))
-        d.text((x0 + 150, yy + ch / 2 - 18), str(int(round(num * p))), font=load_font(66, "bold"),
-               fill=mix(INK, ra), anchor="lm")
-        d.text((x0 + 150, yy + ch / 2 + 40), label, font=load_font(32, "regular"),
-               fill=mix(MUTED, ra), anchor="lm")
-    # real summary line
-    sa = a_in(el, 1.5, 0.7)
-    if sa > 0:
-        d.text((W / 2, 930), data["summary"], font=load_font(30, "regular"),
-               fill=mix(MUTED, sa), anchor="mm")
-
-
-def scene_outro(d, el, dur, data):
-    a = a_in(el, 0.05, 0.6)
-    if a > 0:
-        s = 150 * (0.82 + 0.18 * pop(min(1.0, (el - 0.05) / 0.6)))
-        draw_shield(d, W / 2, 372, s, mix(BRAND, a), check_color=mix(WHITE, a))
-    ta = a_in(el, 0.30, 0.6)
-    if ta > 0:
-        d.text((W / 2, 540), "RentCheck", font=load_font(104, "bold"),
-               fill=mix(BRAND_DEEP, ta), anchor="mm")
-    da = a_in(el, 0.55, 0.6)
-    if da > 0:
-        d.text((W / 2, 622), "Know what you are signing, before you sign it.",
-               font=load_font(48, "semi"), fill=mix(INK, da), anchor="mm")
-    ua = a_in(el, 0.8, 0.6)
-    if ua > 0:
-        f = load_font(40, "bold")
-        url = "rentcheck.rumptycloud.app"
-        pw = f.getlength(url) + 76
-        d.rounded_rectangle((W / 2 - pw / 2, 706, W / 2 + pw / 2, 782), radius=38,
-                            fill=mix(BRAND, ua))
-        d.text((W / 2, 744), url, font=f, fill=mix(WHITE, ua), anchor="mm")
-    fa = a_in(el, 1.05, 0.6)
-    if fa > 0:
-        d.text((W / 2, 856), "Not legal advice - always verify anything important.",
-               font=load_font(30, "regular"), fill=mix(MUTED, fa), anchor="mm")
+            f = load_font(26, "bold")
+            tw = f.getlength(stage) + 56
+            x1 = W - 96
+            pill(d, (x1 - tw, 64, x1, 116), 26, (BRAND[0], BRAND[1], BRAND[2], 46),
+                 line=(MINT[0], MINT[1], MINT[2], 150), a=sa)
+            d.text((x1 - tw / 2, 90), stage, font=f, fill=mix(MINT, sa), anchor="mm")
+    # caption pill (subtitle)
+    vo = scene["vo"]
+    ca = a_in(el, 0.4, 0.6)
+    if ca > 0:
+        cf = load_font(32, "regular")
+        lines = wrap_clamp(d, vo, cf, 1180, 2)
+        lh = 40
+        pad_x, pad_y = 40, 22
+        tw = max(d.textlength(ln, font=cf) for ln in lines) + pad_x * 2
+        th = len(lines) * lh + pad_y * 2 - 8
+        x0 = W / 2 - tw / 2
+        y0 = H - 58 - th
+        pill(d, (x0, y0, x0 + tw, y0 + th), 18, (6, 18, 15, 190), a=ca)
+        ty = y0 + pad_y + lh / 2 - 4
+        for ln in lines:
+            d.text((W / 2, ty), ln, font=cf, fill=mix((232, 244, 238), ca), anchor="mm")
+            ty += lh
+    # stage dots bottom-left
+    if stage:
+        idx = STAGE_ORDER.index(key) if key in STAGE_ORDER else 0
+        for i in range(len(STAGE_ORDER)):
+            x = 118 + i * 26
+            on = i <= idx
+            r = 6 if on else 5
+            d.ellipse((x - r, H - 52 - r, x + r, H - 52 + r),
+                      fill=(*MINT, al(0.9 if on else 0.25)))
 
 
 # --------------------------------------------------------------------------- #
 # scenes
 # --------------------------------------------------------------------------- #
+def scene_hook(d, el, dur, data):
+    # faint dashboard card behind the headline
+    ba = a_in(el, 0.0, 0.8) * 0.5
+    if ba > 0:
+        cx, cy = W / 2, 500 + bob(el, 8, 0.9)
+        bw, bh = 1180, 520
+        glass(d, (cx - bw / 2, cy - bh / 2, cx + bw / 2, cy + bh / 2), 26, ba, shadow_a=0.6)
+        # fake dashboard rows
+        d.rounded_rectangle((cx - bw / 2 + 40, cy - bh / 2 + 36, cx - bw / 2 + 240, cy - bh / 2 + 60),
+                            radius=10, fill=mix(MINT_DIM, ba * 0.7))
+        for i in range(4):
+            yy = cy - bh / 2 + 110 + i * 78
+            d.rounded_rectangle((cx - bw / 2 + 40, yy, cx + bw / 2 - 40, yy + 56), radius=14,
+                                fill=(255, 255, 255, al(0.05 * ba)))
+    # headline with a highlighted word
+    ha = a_in(el, 0.35, 0.7)
+    if ha > 0:
+        f = fit_font("Do you actually understand", 1500, 92, "bold")
+        y = 420 - (1 - ha) * 24
+        rich_line(d, W / 2, y, [("Do you ", TEXT), ("actually", MINT), (" understand", TEXT)], f, alpha=ha)
+        f2 = fit_font("what's in your tenancy agreement?", 1500, 92, "bold")
+        d.text((W / 2, y + 110), "what's in your tenancy agreement?", font=f2, fill=mix(TEXT, ha), anchor="mm")
+
+
+def scene_upload(d, el, dur, data):
+    headline(d, el, "Add your agreement.", "Paste the text, or upload a file.")
+    # dropzone glass card
+    a = a_in(el, 0.5, 0.7)
+    if a > 0:
+        x0, x1 = 300, 1150
+        y0, y1 = 400, 820
+        rise = (1 - a) * 24
+        glass(d, (x0, y0 + rise, x1, y1 + rise), 26, a)
+        ia = a_in(el, 0.7, 0.6)
+        if ia > 0:
+            icon_upload(d, (x0 + x1) / 2, y0 + 150 + rise - (1 - ia) * 20, 150, mix(MINT, ia))
+        ta = a_in(el, 0.85, 0.6)
+        if ta > 0:
+            d.text(((x0 + x1) / 2, y0 + 300 + rise), "Drop a file here, or paste your text",
+                   font=load_font(40, "semi"), fill=mix(TEXT, ta), anchor="mm")
+    # format chips floating on the right
+    chips = [("doc", "PDF"), ("doc", "Photo"), ("doc", "Word"), ("doc", "Plain text")]
+    for i, (ic, label) in enumerate(chips):
+        ca = a_in(el, 0.9 + i * 0.22, 0.55)
+        if ca <= 0:
+            continue
+        cw, ch = 290, 84
+        cx = 1330
+        cy = 430 + i * 110 + bob(el, 7, 1.1, i) - (1 - ca) * 18
+        glass(d, (cx - cw / 2, cy - ch / 2, cx + cw / 2, cy + ch / 2), 20, ca, shadow_a=0.4)
+        ICONS[ic](d, cx - cw / 2 + 52, cy, 46, mix(MINT, ca), alpha=ca)
+        d.text((cx - cw / 2 + 94, cy), label, font=load_font(32, "semi"), fill=mix(TEXT, ca), anchor="lm")
+    draw_character(d, 1780, H + 30, 520, el, mood="idle", laptop=True)
+
+
+def scene_analyse(d, el, dur, data):
+    headline(d, el, "Every clause, checked.", "Compared against common Nigerian rental norms.")
+    rows = 5
+    rw, rh, gap = 760, 92, 18
+    x0 = 470
+    top = 400
+    total_h = rows * rh + (rows - 1) * gap
+    scan = clamp01((el - 0.7) / 2.4)
+    for i in range(rows):
+        ra = a_in(el, 0.55 + i * 0.13, 0.5)
+        if ra <= 0:
+            continue
+        yy = top + i * (rh + gap) - (1 - ra) * 18
+        glass(d, (x0, yy, x0 + rw, yy + rh), 18, ra, shadow_a=0.4)
+        d.rounded_rectangle((x0 + 30, yy + rh / 2 - 9, x0 + 30 + (rw - 260) * 0.7, yy + rh / 2 + 9),
+                            radius=9, fill=(255, 255, 255, al(0.22 * ra)))
+        d.rounded_rectangle((x0 + 30, yy + rh / 2 + 20, x0 + 30 + (rw - 260) * 0.4, yy + rh / 2 + 32),
+                            radius=6, fill=(255, 255, 255, al(0.10 * ra)))
+        cb = a_in(el, 1.1 + i * 0.28, 0.45)
+        if cb > 0:
+            cs = 46 * (0.6 + 0.4 * pop(min(1.0, (el - (1.1 + i * 0.28)) / 0.45)))
+            icon_check(d, x0 + rw - 54, yy + rh / 2, cs, mix(BRAND, cb))
+    if scan < 1.0:
+        by = top + scan * (total_h + 40) - 30
+        d.rounded_rectangle((x0 - 30, by, x0 + rw + 30, by + 58), radius=18,
+                            fill=(BRAND[0], BRAND[1], BRAND[2], 26), outline=(*MINT, 54), width=2)
+    draw_character(d, 1660, H + 60, 540, el, mood="point")
+
+
+def scene_flag(d, el, dur, data):
+    headline(d, el, "Unfair terms, flagged.", "Every flag quotes the words in your agreement.")
+    flags = data["flagged"]
+    rw, rh, gap = 880, 104, 16
+    x0 = 300
+    top = 360
+    for i, f in enumerate(flags):
+        ra = a_in(el, 0.5 + i * 0.24, 0.5)
+        if ra <= 0:
+            continue
+        yy = top + i * (rh + gap) - (1 - ra) * 20
+        sev = f["severity"]
+        col = SEV_COLOR.get(sev, BLUE)
+        glass(d, (x0, yy, x0 + rw, yy + rh), 18, ra, shadow_a=0.45)
+        d.rounded_rectangle((x0 + 22, yy + 20, x0 + 30, yy + rh - 20), radius=4, fill=mix(col, ra))
+        icon_flag(d, x0 + 76, yy + rh / 2, 46, mix(col, ra))
+        d.text((x0 + 126, yy + rh / 2), f["label"], font=load_font(40, "semi"), fill=mix(TEXT, ra), anchor="lm")
+        pf = load_font(24, "bold")
+        label = SEV_LABEL.get(sev, sev.upper())
+        pw = pf.getlength(label) + 52
+        px1 = x0 + rw - 24
+        px0 = px1 - pw
+        pill(d, (px0, yy + rh / 2 - 22, px1, yy + rh / 2 + 22), 22, (col[0], col[1], col[2], 60), a=ra)
+        d.rounded_rectangle((px0, yy + rh / 2 - 22, px1, yy + rh / 2 + 22), radius=22, outline=mix(col, ra), width=2)
+        d.text(((px0 + px1) / 2, yy + rh / 2), label, font=pf, fill=mix(col, ra), anchor="mm")
+    # real quote in a floating card on the right (no overlap with the caption)
+    qa = a_in(el, 0.5 + len(flags) * 0.24 + 0.2, 0.7)
+    if qa > 0:
+        cx = 1580
+        cy = 520 + bob(el, 8, 0.9)
+        bx0, bx1 = cx - 250, cx + 250
+        by0, by1 = 340, 720
+        glass(d, (bx0, by0, bx1, by1), 26, qa, fill=(BRAND[0], BRAND[1], BRAND[2], 66), shadow_a=0.5)
+        icon_flag(d, cx, by0 + 78, 74, mix(RED, qa))
+        d.text((cx, by0 + 150), "QUOTED FROM THE", font=load_font(22, "bold"), fill=mix(MINT, qa), anchor="mm")
+        d.text((cx, by0 + 180), "AGREEMENT", font=load_font(22, "bold"), fill=mix(MINT, qa), anchor="mm")
+        qf = load_font(34, "semi")
+        lines = wrap_clamp(d, f"\u201c{data['quote']}\u201d", qf, bx1 - bx0 - 70, 3)
+        ty = by0 + 236
+        for ln in lines:
+            d.text((cx, ty), ln, font=qf, fill=mix(TEXT, qa), anchor="mm")
+            ty += 44
+
+
+def scene_understand(d, el, dur, data):
+    headline(d, el, "A clear risk score.", "What is risky, what is missing, and what to ask.")
+    score = int(data["risk_score"])
+    key = data["risk_key"]
+    col = RISK_COLOR.get(key, BRAND)
+    a = a_in(el, 0.5, 0.7)
+    if a <= 0:
+        return
+    x0, x1 = 300, 1180
+    y0, y1 = 400, 900
+    rise = (1 - a) * 24
+    glass(d, (x0, y0 + rise, x1, y1 + rise), 26, a)
+    # gauge on the left of the card
+    gx, gy, gr = x0 + 240, (y0 + y1) / 2 + rise, 150
+    p = ease_out((el - 0.8) / 1.6)
+    d.arc((gx - gr, gy - gr, gx + gr, gy + gr), start=135, end=405, fill=(255, 255, 255, al(0.10 * a)), width=26)
+    d.arc((gx - gr, gy - gr, gx + gr, gy + gr), start=135, end=135 + 270 * max(0.0, p), fill=mix(col, a), width=26)
+    d.text((gx, gy - 6), str(int(round(score * max(0.0, min(1.0, p))))), font=load_font(84, "bold"), fill=mix(TEXT, a), anchor="mm")
+    d.text((gx, gy + 66), "RISK SCORE", font=load_font(22, "bold"), fill=mix(MUTED, a), anchor="mm")
+    # stat rows on the right of the card
+    c = data["counts"]
+    rows = [("flag", c["flagged"], "flagged clauses"), ("lock", c["missing"], "missing protections"),
+            ("search", c["questions"], "questions to ask")]
+    rx = x0 + 470
+    for i, (ic, num, label) in enumerate(rows):
+        ra = a_in(el, 0.75 + i * 0.2, 0.55)
+        if ra <= 0:
+            continue
+        yy = y0 + 80 + i * 130 + rise
+        d.rounded_rectangle((rx, yy, rx + 70, yy + 70), radius=16, fill=(BRAND[0], BRAND[1], BRAND[2], al(0.30 * ra)))
+        ICONS[ic](d, rx + 35, yy + 35, 44, mix(MINT, ra))
+        pp = max(0.0, ease_out((el - (0.95 + i * 0.2)) / 1.1))
+        d.text((rx + 96, yy + 20), str(int(round(num * pp))), font=load_font(56, "bold"), fill=mix(TEXT, ra), anchor="lm")
+        d.text((rx + 96, yy + 62), label, font=load_font(28, "regular"), fill=mix(MUTED, ra), anchor="lm")
+    draw_character(d, 1780, H + 30, 520, el, mood="idle", laptop=True)
+
+
+def scene_act(d, el, dur, data):
+    headline(d, el, "Know what to ask.", "Plain questions to raise before you sign.")
+    qs = data.get("questions") or []
+    items = qs[:3] if qs else ["Ask about notice periods.", "Ask who pays for repairs.", "Ask about the deposit."]
+    a = a_in(el, 0.5, 0.7)
+    if a <= 0:
+        return
+    x0, x1 = 300, 1180
+    y0, y1 = 400, 900
+    rise = (1 - a) * 24
+    glass(d, (x0, y0 + rise, x1, y1 + rise), 26, a)
+    n = len(items)
+    row_h = (y1 - y0 - 70) / n
+    for i, q in enumerate(items):
+        ra = a_in(el, 0.7 + i * 0.25, 0.55)
+        if ra <= 0:
+            continue
+        yy = y0 + 40 + i * row_h + rise
+        d.ellipse((x0 + 34, yy + 8, x0 + 70, yy + 44), outline=mix(MINT_DIM, ra * 0.7), width=2)
+        # tick once the row has settled
+        tb = a_in(el, 1.2 + i * 0.25, 0.4)
+        if tb > 0:
+            icon_check(d, x0 + 52, yy + 26, 34, mix(BRAND, tb))
+        f = load_font(28, "regular")
+        lines = wrap_clamp(d, q, f, x1 - x0 - 130, 3)
+        ly = yy + 6
+        for ln in lines:
+            d.text((x0 + 96, ly), ln, font=f, fill=mix(TEXT, ra), anchor="lm")
+            ly += 36
+    draw_character(d, 1740, H + 50, 540, el, mood="idle")
+
+
+def scene_outro(d, el, dur, data):
+    a = a_in(el, 0.05, 0.6)
+    if a > 0:
+        s = 160 * (0.82 + 0.18 * pop(min(1.0, (el - 0.05) / 0.6)))
+        icon_shield(d, W / 2 - 60, 430, s, mix(BRAND, a), check_color=mix(WHITE, a))
+    ta = a_in(el, 0.3, 0.6)
+    if ta > 0:
+        d.text((W / 2 - 60, 560), "RentCheck", font=load_font(104, "bold"), fill=mix(TEXT, ta), anchor="mm")
+    da = a_in(el, 0.55, 0.6)
+    if da > 0:
+        d.text((W / 2 - 60, 640), "Know what you're signing, before you sign it.",
+               font=load_font(44, "semi"), fill=mix(MINT, da), anchor="mm")
+    ua = a_in(el, 0.8, 0.6)
+    if ua > 0:
+        f = load_font(38, "bold")
+        url = "rentcheck.rumptycloud.app"
+        pw = f.getlength(url) + 76
+        pill(d, (W / 2 - 60 - pw / 2, 706, W / 2 - 60 + pw / 2, 776), 36, (BRAND[0], BRAND[1], BRAND[2], 230), a=ua)
+        d.text((W / 2 - 60, 741), url, font=f, fill=mix(WHITE, ua), anchor="mm")
+    fa = a_in(el, 1.05, 0.6)
+    if fa > 0:
+        d.text((W / 2 - 60, 846), "Not legal advice - always verify anything important.",
+               font=load_font(28, "regular"), fill=mix(MUTED, fa), anchor="mm")
+    draw_character(d, 1780, H + 20, 560, el, mood="wave")
+
+
+# --------------------------------------------------------------------------- #
+# scene table
+# --------------------------------------------------------------------------- #
 SCENES = [
-    {"key": "intro", "build": scene_intro, "pad": INTRO_PAD,
-     "vo": "RentCheck."},
-    {"key": "problem", "build": scene_problem,
-     "vo": "Most tenancy agreements are long, and, honestly, pretty one-sided. "
-           "And it's far too easy to sign one without understanding what's actually in it."},
-    {"key": "add", "build": scene_add,
-     "vo": "So, add your agreement. You can paste the text, or upload a PDF, a photo, "
+    {"key": "hook", "build": scene_hook, "pad": HOOK_PAD,
+     "vo": "Signing a tenancy agreement shouldn't feel like a guess. But too often, it does."},
+    {"key": "upload", "build": scene_upload, "stage": "01  -  UPLOAD",
+     "vo": "So start by adding your agreement. You can paste the text, or upload a PDF, a photo, "
            "or a Word document."},
-    {"key": "analyse", "build": scene_analyse,
-     "vo": "RentCheck reads it clause by clause, and checks each one against common "
-           "Nigerian rental norms."},
-    {"key": "flagged", "build": scene_flagged,
-     "vo": "Anything unfair or risky gets flagged. And every flag quotes the exact words, "
-           "so you can check it for yourself."},
-    {"key": "result", "build": scene_result,
-     "vo": "Then you get a clear risk score, the protections that are missing, and the "
-           "questions to ask before you sign."},
+    {"key": "analyse", "build": scene_analyse, "stage": "02  -  ANALYSE",
+     "vo": "RentCheck splits it into clauses, and checks each one against common Nigerian rental norms."},
+    {"key": "flag", "build": scene_flag, "stage": "03  -  FLAGGED",
+     "vo": "Anything unfair or risky gets flagged. And every flag quotes the exact words, so you can "
+           "check it for yourself."},
+    {"key": "understand", "build": scene_understand, "stage": "04  -  YOUR REPORT",
+     "vo": "You get a clear risk score, the protections that are missing, and a plain-English reason "
+           "behind every flag."},
+    {"key": "act", "build": scene_act, "stage": "05  -  WHAT TO ASK",
+     "vo": "And a ready list of questions to ask, so you know exactly what to raise before you sign."},
     {"key": "outro", "build": scene_outro,
      "vo": "RentCheck. Know what you're signing, before you sign it. Not legal advice."},
 ]
-SCENE_BY_KEY = {s["key"]: s for s in SCENES}
 
 
 # --------------------------------------------------------------------------- #
@@ -718,7 +818,7 @@ def synthesize(scenes, voice, rate, pitch) -> list[float]:
 
 
 # --------------------------------------------------------------------------- #
-# ambient music bed (synthesised, no external asset / licence)
+# ambient music bed
 # --------------------------------------------------------------------------- #
 def make_music(path: str, duration: float, sr: int = 44100) -> None:
     if duration <= 1:
@@ -747,12 +847,10 @@ def make_music(path: str, duration: float, sr: int = 44100) -> None:
             for f in chords[ci]:
                 s += wgt * (math.sin(two_pi * f * t) + 0.32 * math.sin(two_pi * 2 * f * t)
                             + 0.10 * math.sin(two_pi * 3 * f * t))
-        # slow tremolo + envelopes
         s /= 4.26
         s *= 0.88 + 0.12 * math.sin(two_pi * 0.07 * t)
         env = min(clamp01(t / fade_in), clamp01((duration - t) / fade_out))
-        s *= env * 0.30
-        buf[i] = int(max(-32767, min(32767, s * 32767)))
+        buf[i] = int(max(-32767, min(32767, s * env * 0.30 * 32767)))
     with wave.open(path, "wb") as w:
         w.setnchannels(1)
         w.setsampwidth(2)
@@ -763,14 +861,12 @@ def make_music(path: str, duration: float, sr: int = 44100) -> None:
 # --------------------------------------------------------------------------- #
 # rendering
 # --------------------------------------------------------------------------- #
-def render_scene(scene, idx, dur, g_before, total, out):
+def render_scene(scene, dur, g_before, total, out):
     bg = get_base()
     content = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    cmd = [
-        FFMPEG, "-hide_banner", "-loglevel", "error", "-y",
-        "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
-        "-an", "-c:v", "libx264", "-crf", "19", "-preset", "medium", "-pix_fmt", "yuv420p", out,
-    ]
+    cmd = [FFMPEG, "-hide_banner", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt",
+           "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-an", "-c:v", "libx264",
+           "-crf", "19", "-preset", "medium", "-pix_fmt", "yuv420p", out]
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     n = max(2, int(round(dur * FPS)))
     build = scene["build"]
@@ -778,15 +874,17 @@ def render_scene(scene, idx, dur, g_before, total, out):
         el = i / FPS
         content.paste((0, 0, 0, 0), (0, 0, W, H))
         d = ImageDraw.Draw(content, "RGBA")
+        draw_particles(d, el + g_before)
         build(d, el, dur, DATA_CACHE)
         fade = min(a_in(el, 0.0, FADE), a_out(el, dur, FADE))
         img = Image.alpha_composite(bg, content)
+        # chrome on its own layer so alpha blends correctly
+        ch = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        cd = ImageDraw.Draw(ch, "RGBA")
+        draw_chrome(cd, scene, el, g_before, total)
+        img = Image.alpha_composite(img, ch)
         if fade < 0.999:
             img = Image.blend(img, bg, 1 - fade)
-        dc_img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        dc = ImageDraw.Draw(dc_img, "RGBA")
-        draw_chrome(dc, scene["key"], idx, el, dur, g_before, total)
-        img = Image.alpha_composite(img, dc_img)
         proc.stdin.write(img.convert("RGB").tobytes())
     proc.stdin.close()
     proc.wait()
@@ -794,8 +892,7 @@ def render_scene(scene, idx, dur, g_before, total, out):
 
 def render_audio(vo: str, dur: float, out: str) -> None:
     ms = int(LEAD * 1000)
-    ff(["-i", vo, "-af", f"adelay={ms}|{ms},apad", "-t", f"{dur:.3f}",
-        "-ar", "44100", "-ac", "2", out])
+    ff(["-i", vo, "-af", f"adelay={ms}|{ms},apad", "-t", f"{dur:.3f}", "-ar", "44100", "-ac", "2", out])
 
 
 # --------------------------------------------------------------------------- #
@@ -820,20 +917,18 @@ def main() -> int:
     with open(args.data, encoding="utf-8") as fh:
         DATA_CACHE.update(json.load(fh))
     print(f"[data] risk={DATA_CACHE['risk_score']} ({DATA_CACHE['risk_level']}), "
-          f"flagged={len(DATA_CACHE['flagged'])}, counts={DATA_CACHE['counts']}, "
+          f"flagged={len(DATA_CACHE['flagged'])}, questions={len(DATA_CACHE.get('questions') or [])}, "
           f"provenance={DATA_CACHE.get('provenance', '?')}")
 
+    init_particles()
     os.makedirs(WORK, exist_ok=True)
     vo_durs = synthesize(SCENES, args.voice, args.rate, args.pitch)
 
-    durs = []
-    for sc, vd in zip(SCENES, vo_durs):
-        pad = sc.get("pad", PAD)
-        durs.append(round(max(3.2, vd + pad), 3))
+    durs = [round(max(3.2, vd + sc.get("pad", PAD)), 3) for sc, vd in zip(SCENES, vo_durs)]
     total = sum(durs)
     print(f"[timing] total {total:.2f}s")
     for sc, vd, dd in zip(SCENES, vo_durs, durs):
-        print(f"  {sc['key']:8s} vo={vd:5.2f}s  scene={dd:5.2f}s")
+        print(f"  {sc['key']:11s} vo={vd:5.2f}s  scene={dd:5.2f}s")
 
     vparts, aparts = [], []
     g_before = 0.0
@@ -841,23 +936,19 @@ def main() -> int:
         vp = os.path.join(WORK, f"v_{i:02d}.mp4")
         apre = os.path.join(WORK, f"a_{i:02d}.wav")
         print(f"[render] scene {i} ({sc['key']}) {dur:.2f}s ...")
-        render_scene(sc, i, dur, g_before, total, vp)
+        render_scene(sc, dur, g_before, total, vp)
         render_audio(os.path.join(WORK, f"vo_{i:02d}.mp3"), dur, apre)
         vparts.append(vp)
         aparts.append(apre)
         g_before += dur
 
-    vlist = os.path.join(WORK, "v.txt")
-    alist = os.path.join(WORK, "a.txt")
+    vlist, alist = os.path.join(WORK, "v.txt"), os.path.join(WORK, "a.txt")
     with open(vlist, "w", encoding="utf-8") as fh:
-        for p in vparts:
-            fh.write(f"file '{p}'\n")
+        fh.writelines(f"file '{p}'\n" for p in vparts)
     with open(alist, "w", encoding="utf-8") as fh:
-        for p in aparts:
-            fh.write(f"file '{p}'\n")
+        fh.writelines(f"file '{p}'\n" for p in aparts)
 
-    full_v = os.path.join(WORK, "full.mp4")
-    full_a = os.path.join(WORK, "full.wav")
+    full_v, full_a = os.path.join(WORK, "full.mp4"), os.path.join(WORK, "full.wav")
     ff(["-f", "concat", "-safe", "0", "-i", vlist, "-c", "copy", full_v])
     ff(["-f", "concat", "-safe", "0", "-i", alist, "-c", "copy", full_a])
 
@@ -868,8 +959,6 @@ def main() -> int:
         music = os.path.join(WORK, "music.wav")
         print("[music] synthesising ambient bed ...")
         make_music(music, total)
-        # keep the voice clearly in front: the bed is sidechain-ducked under the
-        # narration (dips while speaking), then gently limited.
         ff([
             "-i", full_v, "-i", full_a, "-i", music,
             "-filter_complex",
