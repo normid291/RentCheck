@@ -1,6 +1,6 @@
 # Tenura Privacy Policy
 
-**Version 1.2 — last updated 21 October 2026**
+**Version 1.3 — last updated 21 October 2026**
 
 Tenura is a tenancy-agreement analysis tool. You paste or upload a tenancy
 agreement and it returns flagged clauses, missing protections and questions to
@@ -18,8 +18,8 @@ The data controller for the Service is:
 | | |
 | --- | --- |
 | **Data controller** | NORMID INC |
-| **Contact** | faizahmadadetola@gmail.com |
-| **Registered address** | [REGISTERED ADDRESS] |
+| **Contact** | privacy@tenura.online |
+| **Registered address** | FJQG+XWH Oke Ogun, Ilorin, Kwara State, Nigeria |
 | **Service** | Tenura, at www.tenura.online |
 
 "Controller" means we decide why and how personal data is processed. We are not
@@ -214,7 +214,7 @@ than claim a retention period we do not enforce — and it is the reason the del
 button is in your hands rather than ours.
 
 To close your account, or to have anything else deleted, email
-**faizahmadadetola@gmail.com** from the address on the account.
+**privacy@tenura.online** from the address on the account.
 
 ## 9. How we protect it
 
@@ -251,7 +251,7 @@ Under the NDPA you have the right to:
 - **Withdraw consent** at any time, where consent is what we relied on.
 - **Complain** to the Nigeria Data Protection Commission (NDPC).
 
-To exercise any of these, email **faizahmadadetola@gmail.com**. We aim to respond
+To exercise any of these, email **privacy@tenura.online**. We aim to respond
 within 30 days and will not charge you for a reasonable request.
 
 One honest note on access and erasure: if you have an account, the fastest route
@@ -291,7 +291,7 @@ policy.
 
 Questions, requests and complaints about privacy go to:
 
-**NORMID INC** — faizahmadadetola@gmail.com — [REGISTERED ADDRESS]
+**NORMID INC** — privacy@tenura.online — FJQG+XWH Oke Ogun, Ilorin, Kwara State, Nigeria
 
 If you are not satisfied with how we have handled something, you have the right
 to complain to the **Nigeria Data Protection Commission (NDPC)**. We would

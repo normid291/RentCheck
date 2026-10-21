@@ -27,7 +27,6 @@ guessed. They have **not been reviewed by a lawyer**. Before relying on them,
 and certainly before a public launch, have a Nigerian lawyer read them. The open
 items:
 
-- **Fill in `[REGISTERED ADDRESS]`.** It appears twice in each document.
 - **Confirm where Rumpty Cloud hosts** the app and its database, and where
   Rumpty AI Inference runs. Section 7 of the privacy policy assumes data may
   leave Nigeria and leans on the NDPA's transfer safeguards. If it stays in
@@ -36,10 +35,9 @@ items:
   automatic expiry. Either keep that wording, or implement a retention window
   and update the section to match. Do not promise a period the code does not
   enforce.
-- **Decide on a deletion mechanism.** Today deletion is by email. Section 8 has
-  to ask the user for details from the document itself, because the UI shows no
-  analysis ID and there are no accounts. If you add a delete endpoint or start
-  showing the analysis ID, update that section.
+- **Closing an account is still manual.** Deleting a saved analysis is
+  self-service from `/history`, but closing the account itself means emailing us
+  (privacy §8). If you add an account-delete endpoint, update §8 and §10.
 - **Consider whether a Data Protection Officer is required.** The NDPA requires
   one in some circumstances; a project this size may not, but it is worth
   checking.
@@ -56,10 +54,13 @@ changes. The claims most likely to go stale:
   excerpt length is `EXCERPT_CHARS` in `app/services/document_classifier.py`.
 - **Rejected uploads are not stored** (privacy §3.1): a rejection writes no
   `Agreement` row — see `_rejection_response` in `app/routers/agreements.py`.
-- **The full document text is stored** (privacy §3.1): `Agreement.raw_text` in
-  `app/models/db.py`. If that ever stops being true, the policy gets simpler.
-- **"No cookies, no analytics, no third-party scripts"** (privacy §3.2): this
-  holds because `app/static/index.html` loads nothing external. Keep it that way,
-  or soften the sentence.
+- **Document text is stored only for signed-in users** (privacy §3.1):
+  `Agreement.raw_text` in `app/models/db.py`, written from
+  `app/routers/agreements.py` only when a run is authenticated. Guest analyses
+  are not persisted at all, so the policy is simpler for them.
+- **"One session cookie, no analytics, no third-party scripts"** (privacy
+  §3.2): `tenura_session` is the only cookie, set in `app/services/auth.py`.
+  This holds because `app/static/index.html` loads nothing external. Keep it
+  that way, or soften the sentence.
 - **"Uploads are never written to disk"** (privacy §3.1, §9): uploads are read
   into memory in `app/routers/agreements.py` and passed as bytes.

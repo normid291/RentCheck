@@ -1,6 +1,6 @@
 # Tenura Terms of Service
 
-**Version 1.1 — last updated 21 October 2026**
+**Version 1.2 — last updated 21 October 2026**
 
 These Terms govern your use of Tenura. By using the Service you agree to
 them. If you do not agree, please do not use it.
@@ -11,7 +11,7 @@ of these Terms — please read it alongside them.
 ## 1. Who we are
 
 Tenura (the "Service") is operated by **NORMID INC** ("we", "us", "our").
-You can contact us at **faizahmadadetola@gmail.com**.
+You can contact us at **privacy@tenura.online**.
 
 ## 2. What Tenura is — and what it is not
 
@@ -172,7 +172,7 @@ the courts of Nigeria have exclusive jurisdiction over any dispute arising from
 them or from the Service.
 
 Before going to court, please contact us at
-**faizahmadadetola@gmail.com** — most issues are easier to resolve directly.
+**privacy@tenura.online** — most issues are easier to resolve directly.
 
 ## 14. Changes to these Terms
 
@@ -193,6 +193,6 @@ to use the Service after a change means you accept the updated Terms.
 
 ## 16. Contact
 
-**NORMID INC** — faizahmadadetola@gmail.com — [REGISTERED ADDRESS]
+**NORMID INC** — privacy@tenura.online — FJQG+XWH Oke Ogun, Ilorin, Kwara State, Nigeria
 
 See also our [Privacy Policy](/privacy).
