@@ -1,6 +1,6 @@
-/* RentCheck — shared front-end helpers.
+/* Tenura — shared front-end helpers.
  *
- * Loaded before any page script and exposed as window.RC. Three jobs:
+ * Loaded before any page script and exposed as window.Tenura. Three jobs:
  *
  *   1. apiFetch() — every call to our API goes through this. It exists because
  *      the host can cold-start and answer with a 503 (or an HTML error page
@@ -18,7 +18,7 @@
   "use strict";
 
   var MAX_ATTEMPTS = 5;
-  var STATUS_ID = "rcStatus";
+  var STATUS_ID = "tenuraStatus";
 
   /* ---------- status banner (injected once, used by apiFetch) ---------- */
 
@@ -27,7 +27,7 @@
     if (el) return el;
     el = document.createElement("div");
     el.id = STATUS_ID;
-    el.className = "rc-status";
+    el.className = "tenura-status";
     el.setAttribute("role", "status");
     el.setAttribute("aria-live", "polite");
     el.hidden = true;
@@ -267,7 +267,7 @@
    * round-tripped through sessionStorage), so for uploads the offer is simply
    * to save the next one. */
 
-  var PENDING_KEY = "rc_pending_analysis";
+  var PENDING_KEY = "tenura_pending_analysis";
 
   var pending = {
     save: function (text) {
@@ -364,7 +364,7 @@
       });
   }
 
-  window.RC = {
+  window.Tenura = {
     apiFetch: apiFetch,
     ApiError: ApiError,
     setStatus: setStatus,

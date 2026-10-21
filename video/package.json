@@ -1,8 +1,8 @@
 {
-  "name": "rentcheck-promo",
+  "name": "tenura-promo",
   "version": "1.0.0",
   "private": true,
-  "description": "RentCheck promo film \u2014 Remotion (matches docs/video/technique-guide.md)",
+  "description": "Tenura promo film \u2014 Remotion (matches docs/video/technique-guide.md)",
   "scripts": {
     "studio": "remotion studio",
     "still": "remotion still",

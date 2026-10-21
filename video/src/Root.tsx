@@ -10,7 +10,7 @@ export const RemotionRoot: React.FC = () => {
   const tl = timeline as unknown as Timeline;
   return (
     <Composition
-      id="RentCheck"
+      id="Tenura"
       component={Film}
       durationInFrames={tl.total_frames}
       fps={tl.fps}

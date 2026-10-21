@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-10-20T07:59:17.346995+00:00",
-  "source_note": "Real tenancy agreement analysed by the RentCheck pipeline",
+  "source_note": "Real tenancy agreement analysed by the Tenura pipeline",
   "provenance": "stored analysis (database)",
   "risk_score": 100,
   "risk_level": "High risk",

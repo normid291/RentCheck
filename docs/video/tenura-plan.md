@@ -1,13 +1,13 @@
-# RentCheck promo — brief, script and beat sheet
+# Tenura promo — brief, script and beat sheet
 
-Plan for the RentCheck promo film, built to match `docs/video/technique-guide.md`
+Plan for the Tenura promo film, built to match `docs/video/technique-guide.md`
 (measured from the user's reference).
 
 ## 1. Brief
 
 | | |
 | --- | --- |
-| **Brand / product** | **RentCheck** — AI-assisted tenancy agreement analysis. `rentcheck.rumptycloud.app` |
+| **Brand / product** | **Tenura** — AI-assisted tenancy agreement analysis. `www.tenura.online` |
 | **One-liner** | Upload a tenancy agreement; get a risk score, the risky clauses with the exact wording, the protections that are missing, and the questions to ask. |
 | **Goal** | Launch / awareness ad that sells the *result*: **know what you are signing before you sign**. |
 | **Audience** | Nigerian tenants about to sign a tenancy agreement (deed of lease / tenancy agreement), often handed dense legal English by a landlord or agent. |
@@ -33,13 +33,13 @@ Words in **bold** are the italic accent words.
 | 2 Meet | *Meet Ada. She found a flat, paid the agent, and got a ten-page deed.* | "Meet Ada." · "She found a flat." · "and got a ten-page deed." |
 | 3 Pain | *Every clause is in legal English. Nobody explains it. And when something goes wrong, she only finds out after she has signed.* | doc fanned into clause cards; chips "Too much legalese" · "Nothing explained" · "Problems go unnoticed" |
 | 4 Turn | *Ada doesn't need more jargon. She needs **one clear answer**.* | **Not more jargon.** → **One clear answer.** |
-| 5 Reveal | *Meet RentCheck.* | shield-check mark bloom + RENTCHECK; pills "Upload." · "Understand." · "Know what to ask." |
-| 6 Upload | *First, upload. RentCheck checks it is a tenancy agreement, reads every clause, and scores the risk.* | upload panel → scan rows "Is this a tenancy agreement? ✓" · "Reading the document…" · "Scoring 10 clauses…" |
+| 5 Reveal | *Meet Tenura.* | shield-check mark bloom + TENURA; pills "Upload." · "Understand." · "Know what to ask." |
+| 6 Upload | *First, upload. Tenura checks it is a tenancy agreement, reads every clause, and scores the risk.* | upload panel → scan rows "Is this a tenancy agreement? ✓" · "Reading the document…" · "Scoring 10 clauses…" |
 | 7 Report | *You get one clear risk score, the clauses that are risky, and the protections that are missing.* | real results screen: ring counts to **100 / High risk**, tiles **4 flagged** · **4 missing protections** · **8 questions**, "4 of 7 checked" |
 | 8 Clause | *Every flag shows the exact wording, and explains it in plain English.* | clause card **Subletting — HIGH**, real quote "such consent not to be unreasonably withheld" highlighted, plain-English reason under it |
 | 9 Ask | *And a ready list of questions to ask before you sign.* | real question list; cursor hovers → "Ask for a clause requiring advance written notice" expands |
 | 10 Proof | *Four risky clauses. Four missing protections. Eight questions to ask.* | counters 4 · 4 · 8 counting up |
-| 11 Close | *RentCheck. Stop guessing. Know what you're signing.* | logo + "Stop guessing." → "Know what you're **signing**." + CTA pill `rentcheck.rumptycloud.app` |
+| 11 Close | *Tenura. Stop guessing. Know what you're signing.* | logo + "Stop guessing." → "Know what you're **signing**." + CTA pill `www.tenura.online` |
 
 Word count ≈ 136 → **~63 s** at the reference's 147 wpm pacing.
 Exact line lengths get re-timed against the real VO before the beat sheet is locked.
@@ -52,7 +52,7 @@ Exact line lengths get re-timed against the real VO before the beat sheet is loc
 | 2 | 0:04–0:09 | Ada at the table with the deed | Cross-dissolve #10, character rise | shot 2 ("Meet Maya") |
 | 3 | 0:09–0:19 | Clauses fan out around her; cards at the frame edges; push to a macro | Match-cut #4, camera #1 | shots 3–5 (icons → arc → macro) |
 | 4 | 0:19–0:24 | Turn: "Not more jargon." → "One clear answer." | WordReveal #2 + turn crossfade | shot 6 |
-| 5 | 0:24–0:28 | Clause cards converge → bloom → RentCheck mark + pills | Match-cut morph #4, glow | shot 7 (logo reveal) |
+| 5 | 0:24–0:28 | Clause cards converge → bloom → Tenura mark + pills | Match-cut morph #4, glow | shot 7 (logo reveal) |
 | 6 | 0:28–0:35 | Upload → gate → scan rows | Cursor #7 + row state machine | shot 8 (connect panel) |
 | 7 | 0:35–0:42 | Results screen lands, ring counts to 100, camera pushes to the flagged list | Ring #6, count-up #5, camera #1 | shot 9 (dashboard + ring) |
 | 8 | 0:42–0:49 | Macro on the Subletting clause; real quote highlights; reason pops | Card #8, popover spring #7 | shot 10 (cheat-sheet popover) |

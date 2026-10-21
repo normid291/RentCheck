@@ -123,10 +123,10 @@ def main() -> int:
     limiter.clear()  # otherwise a previous run's counters limit this one
 
     client = TestClient(app, base_url="https://testserver")
-    email = f"rc-e2e-{uuid.uuid4().hex[:10]}@example.com"
-    other_email = f"rc-e2e-other-{uuid.uuid4().hex[:8]}@example.com"
-    unverified_email = f"rc-e2e-unv-{uuid.uuid4().hex[:8]}@example.com"
-    otp_email = f"rc-e2e-otp-{uuid.uuid4().hex[:8]}@example.com"
+    email = f"tenura-e2e-{uuid.uuid4().hex[:10]}@example.com"
+    other_email = f"tenura-e2e-other-{uuid.uuid4().hex[:8]}@example.com"
+    unverified_email = f"tenura-e2e-unv-{uuid.uuid4().hex[:8]}@example.com"
+    otp_email = f"tenura-e2e-otp-{uuid.uuid4().hex[:8]}@example.com"
     created = [email, other_email, unverified_email, otp_email]
 
     try:
@@ -162,10 +162,15 @@ def main() -> int:
             "/api/auth/signup", json={"email": email, "password": "attacker-chosen-password"}
         )
         check("re-signup gives the same status", _mangled.status_code == response.status_code)
+        # The whole body, not just the message: any field that varied here - "was
+        # a code actually sent?", say - would let the sign-up form be used to
+        # test which addresses already have accounts.
         check(
-            "re-signup gives the identical message",
-            _mangled.json().get("message") == response.json().get("message"),
+            "re-signup gives an identical response body",
+            _mangled.json() == response.json(),
+            f"{response.json()} vs {_mangled.json()}",
         )
+        check("no field says whether a code went out", "sent" not in response.json())
         check(
             "the attacker's password was not accepted",
             client.post(
@@ -201,7 +206,7 @@ def main() -> int:
         print("\n[5] The right code verifies the account and signs the user in")
         verified = client.post("/api/auth/verify-otp", json={"email": email, "code": code})
         check("verify returns 200", verified.status_code == 200, verified.text[:160])
-        check("a session cookie was set", "rc_session" in client.cookies)
+        check("a session cookie was set", "tenura_session" in client.cookies)
         me = client.get("/api/auth/me").json()
         check("me returns the signed-in user", me["user"] and me["user"]["email"] == email)
         check("the user payload carries no hash", "password_hash" not in json.dumps(me))
@@ -281,7 +286,7 @@ def main() -> int:
         check("the client is told why", blocked.json()["detail"].get("code") == "unverified")
         check(
             "it did not hand out a session",
-            blocked.cookies.get("rc_session") is None,
+            blocked.cookies.get("tenura_session") is None,
         )
 
         print("\n[13] Forgot password")
@@ -360,7 +365,38 @@ def main() -> int:
             ).status_code == 400,
         )
 
-        print("\n[15] Delete removes the analysis and its agreement text")
+        print("\n[15] A broken mail provider fails the same way for every address")
+        # If only some sign-up paths raised on a mail failure, the status code
+        # alone would reveal whether the address was brand new or already
+        # registered. Every path has to fail identically.
+        limiter.clear()
+        fresh_email = f"tenura-e2e-mail-{uuid.uuid4().hex[:8]}@example.com"
+        created.append(fresh_email)
+
+        def _failing_send(to, subject, body):
+            raise email_service.EmailError("simulated provider outage")
+
+        real_send = email_service.send_email
+        email_service.send_email = _failing_send
+        try:
+            free = client.post(
+                "/api/auth/signup", json={"email": fresh_email, "password": PASSWORD}
+            )
+            known = client.post(
+                "/api/auth/signup", json={"email": email, "password": PASSWORD}
+            )
+        finally:
+            email_service.send_email = real_send
+
+        check("a mail failure is a 502 for a new address", free.status_code == 502, free.text[:120])
+        check("a mail failure is a 502 for a registered address", known.status_code == 502, known.text[:120])
+        check(
+            "the two failures are indistinguishable",
+            free.json() == known.json(),
+            f"{free.text[:90]} vs {known.text[:90]}",
+        )
+
+        print("\n[16] Delete removes the analysis and its agreement text")
         db = SessionLocal()
         row = db.get(Analysis, uuid.UUID(analysis_id))
         agreement_id = row.agreement_id
@@ -375,7 +411,7 @@ def main() -> int:
         db.close()
 
     finally:
-        print("\n[16] Cleaning up test accounts")
+        print("\n[17] Cleaning up test accounts")
         db = SessionLocal()
         try:
             for address in created:

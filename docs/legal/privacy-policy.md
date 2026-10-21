@@ -1,8 +1,8 @@
-# RentCheck Privacy Policy
+# Tenura Privacy Policy
 
-**Version 1.1 — last updated 21 October 2026**
+**Version 1.2 — last updated 21 October 2026**
 
-RentCheck is a tenancy-agreement analysis tool. You paste or upload a tenancy
+Tenura is a tenancy-agreement analysis tool. You paste or upload a tenancy
 agreement and it returns flagged clauses, missing protections and questions to
 ask before you sign. You can use it as a guest, or create an account to keep the
 analyses you run. This policy explains what personal data each of those involves,
@@ -20,14 +20,14 @@ The data controller for the Service is:
 | **Data controller** | NORMID INC |
 | **Contact** | faizahmadadetola@gmail.com |
 | **Registered address** | [REGISTERED ADDRESS] |
-| **Service** | RentCheck, at rentcheck.rumptycloud.app |
+| **Service** | Tenura, at www.tenura.online |
 
 "Controller" means we decide why and how personal data is processed. We are not
 a law firm and we do not give legal advice — see our [Terms of Service](/terms).
 
 ## 2. At a glance
 
-You can use RentCheck without an account. If you do, your document is analysed
+You can use Tenura without an account. If you do, your document is analysed
 and **nothing is kept** — no document text, no result. If you are signed in, the
 analysis and the document text behind it are saved to your history until you
 delete them.
@@ -94,7 +94,7 @@ for your name, phone number, date of birth, or address.
   through a one-time code emailed to you, not by us reading anything out.
 - **One-time codes** are stored hashed as well, expire after 10 minutes, can be
   used once, and are replaced when you ask for a new one.
-- **One session cookie**, named `rc_session`, holds your signed-in state. It is
+- **One session cookie**, named `tenura_session`, holds your signed-in state. It is
   set `httpOnly` (JavaScript on the page cannot read it), `Secure`, and
   `SameSite=Lax`, and it contains only a signed user reference and an expiry — no
   password, no document data. Signing out clears it.
@@ -232,7 +232,7 @@ To close your account, or to have anything else deleted, email
   and abuse.
 - **Access is limited** to the people who operate and maintain the Service.
 
-No system is perfectly secure and we do not pretend otherwise. RentCheck is an
+No system is perfectly secure and we do not pretend otherwise. Tenura is an
 early-stage project, not a bank. If you are uncomfortable sending a particular
 document, consider redacting the parts that are not relevant to the clauses you
 want checked — the names, phone numbers and account details — before you submit
@@ -256,7 +256,7 @@ within 30 days and will not charge you for a reasonable request.
 
 One honest note on access and erasure: if you have an account, the fastest route
 is to manage your own data — [your history](/history) lists what we hold against
-you and lets you rename or delete any of it directly. If you used RentCheck as a
+you and lets you rename or delete any of it directly. If you used Tenura as a
 guest, nothing was stored, so there is nothing to retrieve or erase beyond
 ordinary server logs. For anything else, email us; if we need more from you to
 find a record, we will say so.
@@ -269,7 +269,7 @@ expected protections were missing — it is not a legal assessment of your
 agreement and it is not a decision *about you*.
 
 The NDPA restricts decisions based solely on automated processing that produce
-legal effects or similarly significantly affect you. RentCheck does not make
+legal effects or similarly significantly affect you. Tenura does not make
 that kind of decision. It gives you information about a document, and the choice
 of what to do with it — sign, renegotiate, walk away, take it to a lawyer —
 remains yours. Please treat every flag as a prompt to look, not a verdict.

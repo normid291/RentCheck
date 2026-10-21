@@ -36,7 +36,7 @@ PAGES = [
         "out": "privacy.html",
         "title": "Privacy Policy",
         "desc": (
-            "What RentCheck does with the tenancy agreement you submit, who else "
+            "What Tenura does with the tenancy agreement you submit, who else "
             "sees it, and what you can ask us to do about it."
         ),
     },
@@ -45,7 +45,7 @@ PAGES = [
         "out": "terms.html",
         "title": "Terms of Service",
         "desc": (
-            "The terms that govern your use of RentCheck, including what it is "
+            "The terms that govern your use of Tenura, including what it is "
             "not: legal advice."
         ),
     },
@@ -56,7 +56,7 @@ SHELL = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>__TITLE__ — RentCheck</title>
+  <title>__TITLE__ — Tenura</title>
   <meta name="description" content="__DESC__" />
   <meta name="theme-color" content="#0e7a52" />
   <link rel="icon" href="__ICON__" />
@@ -69,7 +69,7 @@ SHELL = """<!DOCTYPE html>
         <span class="brand-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
         </span>
-        RentCheck
+        Tenura
       </a>
       <span class="nav-spacer"></span>
       <nav class="nav-links">
@@ -90,12 +90,12 @@ __BODY__
   <footer class="footer">
     <div class="wrap">
       <div class="disclaimer">
-        <strong>Not legal advice.</strong> RentCheck provides general information about
+        <strong>Not legal advice.</strong> Tenura provides general information about
         common rental practices to help you read an agreement. It is not a substitute
         for advice from a qualified lawyer.
       </div>
       <div class="footer-row">
-        <span>RentCheck — built for the Devcenter Hacktober sprint.</span>
+        <span>Tenura — built for the Devcenter Hacktober sprint.</span>
         <span class="footer-links">
           <a href="/privacy">Privacy Policy</a>
           <a href="/terms">Terms of Service</a>

@@ -1,4 +1,4 @@
-"""Build the RentCheck promo soundtrack and master it.
+"""Build the Tenura promo soundtrack and master it.
 
 - synthesises the music bed in numpy: a pad over I-V-vi-IV in A major, a soft
   sub, a rhodes-like motif and convolution reverb (no licences, no samples)

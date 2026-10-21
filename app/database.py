@@ -12,7 +12,7 @@ DATABASE_URL_FROM_ENV = bool(os.environ.get("DATABASE_URL"))
 
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5432/rentcheck",
+    "postgresql://postgres:postgres@localhost:5432/tenura",
 )
 
 # A common production misconfiguration: DATABASE_URL is not set, so the app

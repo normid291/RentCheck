@@ -7,7 +7,7 @@ provider and only `_send_resend` needs rewriting.
 Configuration
     EMAIL_PROVIDER   "resend" | "console"  (optional; inferred from the key)
     RESEND_API_KEY   required for the resend provider
-    EMAIL_FROM       e.g. "RentCheck <no-reply@example.com>" (must be a domain
+    EMAIL_FROM       e.g. "Tenura <no-reply@example.com>" (must be a domain
                      you have verified with the provider)
     APP_ENV          "production" refuses the console provider outright
 
@@ -42,8 +42,8 @@ APP_ENV = (os.environ.get("APP_ENV") or "development").strip().lower()
 IS_PRODUCTION = APP_ENV in ("production", "prod")
 
 _SUBJECTS = {
-    "verify_email": "Your RentCheck verification code",
-    "reset_password": "Your RentCheck password reset code",
+    "verify_email": "Your Tenura verification code",
+    "reset_password": "Your Tenura password reset code",
 }
 
 
@@ -67,17 +67,17 @@ def otp_message(code: str, purpose: str, minutes: int) -> tuple[str, str]:
     the code, and the code is repeated in the subject-free body so it is easy to
     read on a phone.
     """
-    subject = _SUBJECTS.get(purpose, "Your RentCheck code")
+    subject = _SUBJECTS.get(purpose, "Your Tenura code")
 
     if purpose == "reset_password":
-        opening = "Use this code to reset your RentCheck password:"
+        opening = "Use this code to reset your Tenura password:"
         closing = (
             "If you did not ask to reset your password, you can ignore this "
             "email — your password will not change."
         )
     else:
-        opening = "Use this code to verify your email and activate your RentCheck account:"
-        closing = "If you did not create a RentCheck account, you can ignore this email."
+        opening = "Use this code to verify your email and activate your Tenura account:"
+        closing = "If you did not create a Tenura account, you can ignore this email."
 
     body = (
         f"{opening}\n\n"
@@ -85,7 +85,7 @@ def otp_message(code: str, purpose: str, minutes: int) -> tuple[str, str]:
         f"The code expires in {minutes} minutes and can only be used once. "
         f"You have 5 attempts before you need to request a new one.\n\n"
         f"{closing}\n\n"
-        f"— RentCheck\n"
+        f"— Tenura\n"
     )
     return subject, body
 
@@ -133,7 +133,7 @@ def _send_resend(to: str, subject: str, body: str) -> None:
     if not EMAIL_FROM:
         raise EmailError(
             "EMAIL_FROM is not set. It must be an address on a domain you have "
-            "verified with Resend, e.g. 'RentCheck <no-reply@yourdomain.com>'."
+            "verified with Resend, e.g. 'Tenura <no-reply@yourdomain.com>'."
         )
 
     try:

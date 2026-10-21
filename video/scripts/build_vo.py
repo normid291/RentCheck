@@ -1,4 +1,4 @@
-"""Build the RentCheck promo voiceover and the master timeline.
+"""Build the Tenura promo voiceover and the master timeline.
 
 Synthesises each script line with edge-tts, captures the real word boundaries,
 lays the lines out with the reference's phrase pauses (mean 0.65 s), writes the
@@ -32,7 +32,7 @@ FPS = 60
 GAP_SCALE = 1.28
 
 # --------------------------------------------------------------------------- #
-# the script: 11 beats, matching docs/video/rentcheck-plan.md
+# the script: 11 beats, matching docs/video/tenura-plan.md
 #   gap = pause AFTER the line (measured reference mean: 0.65 s)
 #   events = named animation moments, shared by the animation and the mixer
 # --------------------------------------------------------------------------- #
@@ -80,7 +80,7 @@ BEATS: list[dict] = [
         dict(id="pulse", at=2.90, sfx="tick"),
     ]),
     dict(id="b05_reveal", label="REVEAL", lines=[
-        dict(text="Meet RentCheck.", gap=0.90),
+        dict(text="Meet Tenura.", gap=0.90),
     ], events=[
         dict(id="converge", at=0.00, sfx="sweep"),
         dict(id="bloom", at=0.55, sfx="bloom"),
@@ -91,7 +91,7 @@ BEATS: list[dict] = [
     ]),
     dict(id="b06_upload", label="UPLOAD", lines=[
         dict(text="First, upload.", gap=0.50),
-        dict(text="RentCheck checks it is a tenancy agreement,", gap=0.35),
+        dict(text="Tenura checks it is a tenancy agreement,", gap=0.35),
         dict(text="reads every clause,", gap=0.35),
         dict(text="and scores the risk.", gap=0.60),
     ], events=[
@@ -153,7 +153,7 @@ BEATS: list[dict] = [
         dict(id="stat3", at=2.40, sfx="rise"),
     ]),
     dict(id="b11_close", label="CLOSE", lines=[
-        dict(text="RentCheck.", gap=0.45),
+        dict(text="Tenura.", gap=0.45),
         dict(text="Stop guessing.", gap=0.50),
         dict(text="Know what you're signing.", gap=1.10),
     ], events=[

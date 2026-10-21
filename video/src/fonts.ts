@@ -14,7 +14,7 @@ export const ensureFonts = () => {
   started = true;
   const handle = delayRender("Loading Inter");
   const style = document.createElement("style");
-  style.setAttribute("data-rc-fonts", "1");
+  style.setAttribute("data-tenura-fonts", "1");
   style.textContent = INTER_CSS;
   document.head.appendChild(style);
   const done = () => continueRender(handle);

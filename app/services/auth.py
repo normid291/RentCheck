@@ -33,7 +33,7 @@ from app.models.db import User
 # --------------------------------------------------------------------------- #
 # configuration
 # --------------------------------------------------------------------------- #
-SESSION_COOKIE = "rc_session"
+SESSION_COOKIE = "tenura_session"
 SESSION_TTL_SECONDS = 30 * 24 * 3600  # 30 days
 
 MIN_PASSWORD_LENGTH = 8

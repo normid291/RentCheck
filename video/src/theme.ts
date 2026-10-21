@@ -1,5 +1,5 @@
 /**
- * RentCheck promo — design tokens.
+ * Tenura promo — design tokens.
  * Palette is lifted from the app itself (app/static/styles.css) so the film and
  * the product can never drift apart.
  */

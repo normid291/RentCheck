@@ -1,4 +1,4 @@
-# RentCheck
+# Tenura
 
 AI-powered tenancy agreement analyzer for Nigerian renters. Paste or upload a
 tenancy agreement and get back flagged clauses, missing protections, and
@@ -14,7 +14,7 @@ Built for the Devcenter Hacktober sprint, deployed on Rumpty Cloud.
 
 Rumpty's AI Inference currently offers small open-source models (3B
 parameters), not large general-purpose LLMs. Rather than asking the model to
-reason freely about rental law — which small models do unreliably — RentCheck
+reason freely about rental law — which small models do unreliably — Tenura
 does the heavy lifting with deterministic code first:
 
 1. **Clause splitting** (rule-based, no AI) — breaks the agreement into
@@ -106,7 +106,7 @@ self-contained, so moving to Alembic later is mechanical.)
      restart (and a loud warning is printed). **Set this in production.**
    - `EMAIL_PROVIDER=resend`, `RESEND_API_KEY`, `EMAIL_FROM` — transactional
      email for sign-in codes. `EMAIL_FROM` must be on a domain verified with
-     Resend, in the form `RentCheck <no-reply@yourdomain.com>`. Without a
+     Resend, in the form `Tenura <no-reply@yourdomain.com>`. Without a
      provider, sign-up and password reset fail cleanly with a message telling
      the user the code could not be sent — no code is ever written to a log.
    - `APP_ENV=production` — refuses the development console email provider
@@ -215,7 +215,7 @@ required); the fixtures themselves are committed.
 `tests/make_demo_video.py` records a short walkthrough of the live app with a
 real browser (Playwright): it loads the page, analyses the sample agreement,
 tours the results, then shows the "this doesn't look like a tenancy agreement"
-notice. Output: `artifacts/rentcheck-demo.mp4`.
+notice. Output: `artifacts/tenura-demo.mp4`.
 
 ```bash
 pip install -r requirements-dev.txt
@@ -240,7 +240,7 @@ ask" scenes all render that real output; the report scene is shown as an actual
 app window containing the real result cards. A professional voiceover (Edge
 neural TTS, `en-US-AndrewNeural`) is synced to the scenes, with burned-in
 narration captions and a quiet ambient music bed that sidechain-ducks under the
-voice. Output: `artifacts/rentcheck-explainer.mp4`.
+voice. Output: `artifacts/tenura-explainer.mp4`.
 
 ```bash
 python tests/export_explainer_data.py            # refresh real data (runs the pipeline)
@@ -303,8 +303,8 @@ app/
   services/ratelimit.py       - In-memory sliding-window rate limiter
   services/analysis_store.py  - Ownership-scoped save/list/open/rename/delete
   seed_clause_reference.py    - Seed data for Nigerian rental norms
-  static/common.js            - Shared RC: apiFetch (cold-start retry), header
-                                session, result renderers, guest pending store
+  static/common.js            - Shared window.Tenura helpers: apiFetch (cold-start
+                                retry), header session, renderers, pending store
   static/index.html           - Frontend markup
   static/styles.css           - Frontend styles
   static/app.js               - Analyser logic + guest "keep this" flow

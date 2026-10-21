@@ -123,29 +123,35 @@ def guard(request: Request, *policies: tuple[str, tuple[int, int]]) -> None:
             )
 
 
-def send_code_or_fail(
-    db: Session, user: User, purpose: OtpPurpose
-) -> int:
+def send_or_fail(to: str, subject: str, body: str) -> None:
+    """Hand one message to the provider, turning a failure into a clean 502.
+
+    Every sign-up path sends through here, and that is not just tidiness: if
+    only some of them raised on a mail failure, the status code alone would tell
+    the caller which kind of address they had just submitted.
+    """
+    try:
+        email_service.send_email(to, subject, body)
+    except email_service.EmailError as exc:
+        print(f"[auth] could not send email: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="We could not send the email just now. Please try again in a moment.",
+        ) from exc
+
+
+def send_code_or_fail(db: Session, user: User, purpose: OtpPurpose) -> int:
     """Issue a code and mail it. Returns the resend cooldown in seconds.
 
     If the mail cannot be sent the code is left in place (it is valid and
-    unspent), and we answer 502 so the client can offer "resend" — better than
+    unspent) and we answer 502, so the client can offer "resend" - better than
     pretending the email went out.
     """
     code = otp.issue_code(db, user, purpose)
     subject, body = email_service.otp_message(
         code, purpose.value, otp.CODE_TTL_MINUTES
     )
-    try:
-        email_service.send_email(user.email, subject, body)
-    except email_service.EmailError as exc:
-        print(f"[auth] could not send {purpose.value} email: {exc}")
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=(
-                "We could not send the email just now. Please try " "\"Resend code\" in a moment."
-            ),
-        ) from exc
+    send_or_fail(user.email, subject, body)
     return otp.RESEND_COOLDOWN_SECONDS
 
 
@@ -172,34 +178,37 @@ def signup(payload: SignupIn, request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=error)
 
     existing = get_user_by_email(db, email)
-    sent = False
 
     if existing is None:
         user = create_user(db, email, payload.password)
         send_code_or_fail(db, user, OtpPurpose.verify_email)
-        sent = True
     elif existing.is_verified:
-        # Own the account: tell them, but hand out no code. Ignore the submitted
-        # password entirely — signing up again must never be a way to change it.
-        email_service.send_email(
+        # This address owns an account: tell them so, but hand out no code. The
+        # submitted password is ignored entirely - signing up again must never
+        # be a way to change an existing password.
+        send_or_fail(
             existing.email,
-            "You already have a RentCheck account",
+            "You already have a Tenura account",
             (
                 "Someone tried to sign up with this email address, but a "
-                "RentCheck account already exists for it.\n\n"
+                "Tenura account already exists for it.\n\n"
                 "If that was you, use \"Log in\" and, if you have forgotten your "
                 "password, \"Forgot password\" to reset it.\n\n"
-                "If it was not you, you can ignore this email — nothing has "
+                "If it was not you, you can ignore this email - nothing has "
                 "changed.\n"
             ),
         )
     else:
-        # Unverified account: an earlier code may still be live, so only resend
-        # once the cooldown has passed. Either way, say the same thing.
+        # Unverified account: an earlier code may still be live, so only send a
+        # fresh one once the cooldown has passed.
         if otp.resend_wait(db, existing, OtpPurpose.verify_email) == 0:
             send_code_or_fail(db, existing, OtpPurpose.verify_email)
-            sent = True
 
+    # The same body for all three cases, and deliberately no field saying
+    # whether a code actually went out - a "sent: true/false" would be a way to
+    # ask the API "does this address already have an account?" one address at a
+    # time. The sign-up page always moves to the code step, so it does not need
+    # to know either.
     return {
         "status": "ok",
         "message": (
@@ -207,7 +216,6 @@ def signup(payload: SignupIn, request: Request, db: Session = Depends(get_db)):
             "Enter it below to finish setting up your account."
         ),
         "email": email,
-        "sent": sent,
         "resend_in": otp.RESEND_COOLDOWN_SECONDS,
     }
 

@@ -1,4 +1,4 @@
-/* RentCheck — sign up: email + password, then the 6-digit code.
+/* Tenura — sign up: email + password, then the 6-digit code.
  *
  * The server answers the same way whether or not the address already had an
  * account, so this page always moves to the code step. That is deliberate: it
@@ -121,7 +121,7 @@
     }
 
     setBusy(els.btn, els.spinner, els.label, true, "Create account");
-    RC.apiFetch("/api/auth/signup", {
+    Tenura.apiFetch("/api/auth/signup", {
       method: "POST",
       body: JSON.stringify({ email: value, password: els.password.value }),
     })
@@ -150,12 +150,12 @@
     }
 
     setBusy(els.verifyBtn, els.verifySpinner, els.verifyLabel, true, "Verify and continue");
-    RC.apiFetch("/api/auth/verify-otp", {
+    Tenura.apiFetch("/api/auth/verify-otp", {
       method: "POST",
       body: JSON.stringify({ email: email, code: code }),
     })
       .then(function () {
-        window.location.href = RC.safeNext("/");
+        window.location.href = Tenura.safeNext("/");
       })
       .catch(function (err) {
         showError(els.otpError, err.message);
@@ -176,7 +176,7 @@
     showError(els.otpError, null);
     els.resendBtn.disabled = true;
 
-    RC.apiFetch("/api/auth/resend-otp", {
+    Tenura.apiFetch("/api/auth/resend-otp", {
       method: "POST",
       body: JSON.stringify({ email: email }),
     })

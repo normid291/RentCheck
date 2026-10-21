@@ -1,13 +1,20 @@
-# RentCheck promo film
+# Tenura promo film
 
-A Remotion project that renders the RentCheck promo. The delivered cut is
-tracked at `artifacts/rentcheck-promo.mp4`.
+A Remotion project that renders the Tenura promo. The delivered cut is
+tracked at `artifacts/tenura-promo.mp4`.
+
+> The tracked cut, and the voiceover baked into it, still say "RentCheck": they
+> were rendered before the product was renamed. Every string in this project is
+> already Tenura, so a re-render is all that is needed. Run `build_vo.py` first
+> to regenerate the VO and `public/timeline.json`, then
+> `npx remotion render Tenura`. The audio under `public/` is gitignored and is
+> rewritten by that step.
 
 | | |
 | --- | --- |
 | **Output** | 1920×1080, 60 fps, 61.92 s, H.264 High crf 17, AAC 48 kHz stereo |
 | **Loudness** | −14.1 LUFS integrated, −2.0 dBFS peak |
-| **Brief / script / beat sheet** | `docs/video/rentcheck-plan.md` |
+| **Brief / script / beat sheet** | `docs/video/tenura-plan.md` |
 | **Reference study (measured timings)** | `docs/video/technique-guide.md` |
 | **Engine** | Remotion 4.0.537 + React 19 + TypeScript |
 
@@ -40,7 +47,7 @@ python scripts/fetch_fonts.py     # once — Inter woff2 + src/fonts.generated.t
 python scripts/make_stage.py      # bakes public/stage.png
 python scripts/build_vo.py        # narration -> public/vo/, rewrites timeline.json
 python scripts/build_audio.py     # music + mix -> public/audio/mix.wav
-npx remotion render RentCheck out/rentcheck.mp4
+npx remotion render Tenura out/tenura.mp4
 ```
 
 The font woff2 files, `stage.png` and `timeline.json` are committed, so a fresh
@@ -105,9 +112,9 @@ existing render, copy the video stream and take only the new audio:
 
 ```bash
 python scripts/build_audio.py
-ffmpeg -y -i out/rentcheck.mp4 -i public/audio/mix.wav \
+ffmpeg -y -i out/tenura.mp4 -i public/audio/mix.wav \
   -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 320k -ar 48000 \
-  -shortest -movflags +faststart out/rentcheck_fix.mp4
+  -shortest -movflags +faststart out/tenura_fix.mp4
 ```
 
 The video stream comes through byte-identical, so it is a sub-minute loop

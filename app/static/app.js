@@ -1,6 +1,6 @@
-/* RentCheck — front-end logic for the analyser.
+/* Tenura — front-end logic for the analyser.
    Talks to /api/agreements/analyze (paste) and /api/agreements/analyze-upload
-   (file), through RC.apiFetch in common.js (which handles the host's cold-start
+   (file), through Tenura.apiFetch in common.js (which handles the host's cold-start
    503s and retries). */
 
 (function () {
@@ -95,9 +95,9 @@
   /* escapeHtml / titleCase / riskFor live in common.js, so a saved analysis
      opened from History renders exactly the way it does here. */
 
-  const escapeHtml = RC.escapeHtml;
-  const titleCase = RC.titleCase;
-  const riskFor = RC.riskFor;
+  const escapeHtml = Tenura.escapeHtml;
+  const titleCase = Tenura.titleCase;
+  const riskFor = Tenura.riskFor;
 
   function formatSize(bytes) {
     if (bytes < 1024) return bytes + " B";
@@ -368,7 +368,7 @@
   function runBannerAction(action, element) {
     if (action === "dismiss" || action === "discard-pending") {
       // Declining means declining for this session; the held text goes with it.
-      RC.pending.clear();
+      Tenura.pending.clear();
       hideSaveBanner();
       return;
     }
@@ -380,7 +380,7 @@
   // The analysis the user ran as a guest is re-run under their new session so
   // the server stores it properly — we never trust a client-supplied result.
   async function savePendingAnalysis(button) {
-    const pending = RC.pending.get();
+    const pending = Tenura.pending.get();
     if (!pending) {
       hideSaveBanner();
       return;
@@ -391,23 +391,23 @@
     button.textContent = "Saving…";
 
     try {
-      await RC.apiFetch("/api/agreements/analyze", {
+      await Tenura.apiFetch("/api/agreements/analyze", {
         method: "POST",
         body: JSON.stringify({ text: pending.text }),
       });
-      RC.pending.clear();
+      Tenura.pending.clear();
       window.location.href = "/history";
     } catch (err) {
       button.disabled = false;
       button.textContent = original;
-      RC.setStatus("Could not save that analysis: " + err.message);
-      setTimeout(() => RC.setStatus(null), 6000);
+      Tenura.setStatus("Could not save that analysis: " + err.message);
+      setTimeout(() => Tenura.setStatus(null), 6000);
     }
   }
 
   function afterResult(data, context) {
     if (data.saved) {
-      RC.pending.clear();
+      Tenura.pending.clear();
       renderSaveBanner({
         title: "Saved to your history",
         text:
@@ -420,7 +420,7 @@
 
     // Guest: the result is not stored anywhere. Offer to keep it — the text is
     // held in this tab only, and only if we have it (paste, not upload).
-    if (context.text) RC.pending.save(context.text);
+    if (context.text) Tenura.pending.save(context.text);
 
     renderSaveBanner({
       title: "Keep this analysis?",
@@ -479,7 +479,7 @@
     els.riskLabel.textContent = risk.label;
     els.scoreSummary.textContent = data.summary || "";
 
-    const flagged = RC.sortFindings(data.flagged_clauses);
+    const flagged = Tenura.sortFindings(data.flagged_clauses);
     const missing = data.missing_protections || [];
     const questions = data.questions_to_ask || [];
     lastQuestions = questions;
@@ -493,12 +493,12 @@
 
     els.flaggedCount.textContent = String(flagged.length);
     els.flaggedList.innerHTML = flagged.length
-      ? flagged.map((c) => RC.renderFinding(c)).join("")
+      ? flagged.map((c) => Tenura.renderFinding(c)).join("")
       : '<div class="empty">No flagged clauses found — the clauses we checked look broadly reasonable.</div>';
 
     els.missingCount.textContent = String(missing.length);
     els.missingList.innerHTML = missing.length
-      ? missing.map((m) => RC.renderMissing(m)).join("")
+      ? missing.map((m) => Tenura.renderMissing(m)).join("")
       : '<div class="empty">All expected protections appear to be present.</div>';
 
     if (questions.length) {
@@ -531,7 +531,7 @@
       }
       setBusy(true);
       try {
-        const data = await RC.apiFetch("/api/agreements/analyze", {
+        const data = await Tenura.apiFetch("/api/agreements/analyze", {
           method: "POST",
           body: JSON.stringify({ text: text }),
         });
@@ -562,7 +562,7 @@
     try {
       const form = new FormData();
       form.append("file", validFile, validFile.name);
-      const data = await RC.apiFetch("/api/agreements/analyze-upload", {
+      const data = await Tenura.apiFetch("/api/agreements/analyze-upload", {
         method: "POST",
         body: form,
       });
@@ -614,8 +614,8 @@
 
   // Once the header knows who is signed in, offer to save a guest analysis that
   // is still waiting in this tab (they ran it, then created an account).
-  RC.ready.then((user) => {
-    const pending = RC.pending.get();
+  Tenura.ready.then((user) => {
+    const pending = Tenura.pending.get();
     if (!user || !pending) return;
     renderSaveBanner({
       title: "Save the analysis you just ran?",

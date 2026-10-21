@@ -489,7 +489,7 @@
    "dur": 2.52,
    "lines": [
     {
-     "text": "Meet RentCheck.",
+     "text": "Meet Tenura.",
      "start": 24.33,
      "end": 26.202
     }
@@ -501,7 +501,7 @@
      "e": 24.656
     },
     {
-     "w": "RentCheck",
+     "w": "Tenura",
      "s": 24.669,
      "e": 25.241
     }
@@ -551,7 +551,7 @@
      "end": 28.72
     },
     {
-     "text": "RentCheck checks it is a tenancy agreement,",
+     "text": "Tenura checks it is a tenancy agreement,",
      "start": 29.08,
      "end": 31.718
     },
@@ -578,7 +578,7 @@
      "e": 27.761
     },
     {
-     "w": "RentCheck",
+     "w": "Tenura",
      "s": 29.184,
      "e": 29.666
     },
@@ -1176,7 +1176,7 @@
    "dur": 8.47,
    "lines": [
     {
-     "text": "RentCheck.",
+     "text": "Tenura.",
      "start": 58.1,
      "end": 59.976
     },
@@ -1193,7 +1193,7 @@
    ],
    "words": [
     {
-     "w": "RentCheck",
+     "w": "Tenura",
      "s": 58.204,
      "e": 58.725
     },

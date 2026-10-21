@@ -1,9 +1,9 @@
 """
-Build the RentCheck explainer video as a premium SaaS-style motion explainer.
+Build the Tenura explainer video as a premium SaaS-style motion explainer.
 
 Reference style (per the brief): a dark gradient stage, a flat-illustration
 character at a laptop, floating glass UI cards, stage labels ("01 - UPLOAD"),
-animated stat numbers, and subtitle-style captions - but with RentCheck's own
+animated stat numbers, and subtitle-style captions - but with Tenura's own
 brand, wording and real analysis data.
 
 Design rules
@@ -58,7 +58,7 @@ DATA = os.path.join(HERE, "fixtures", "explainer_data.json")
 W, H, FPS = 1920, 1080, 30
 DEFAULT_VOICE = "en-US-AndrewNeural"
 
-# --- dark, premium RentCheck palette ---------------------------------------- #
+# --- dark, premium Tenura palette ---------------------------------------- #
 BG_TOP = (10, 58, 43)
 BG_BOT = (4, 22, 19)
 BRAND = (34, 176, 122)
@@ -529,7 +529,7 @@ def draw_chrome(d, scene, el, g_before, total):
     a = a_in(el, 0.1, 0.5)
     if a > 0:
         icon_shield(d, 118, 84, 40, mix(BRAND, a), check_color=mix(WHITE, a))
-        d.text((152, 86), "RentCheck", font=load_font(34, "bold"), fill=mix(TEXT, a), anchor="lm")
+        d.text((152, 86), "Tenura", font=load_font(34, "bold"), fill=mix(TEXT, a), anchor="lm")
     # stage chip top-right
     stage = scene.get("stage")
     if stage:
@@ -722,7 +722,7 @@ def scene_understand(d, el, dur, data):
     d.line((wx0, wy0 + bar_h, wx1, wy0 + bar_h), fill=(255, 255, 255, al(0.10 * a)), width=2)
     for i, cd in enumerate(((238, 96, 84), (240, 180, 74), (120, 200, 150))):
         d.ellipse((wx0 + 28 + i * 30, wy0 + bar_h / 2 - 8, wx0 + 44 + i * 30, wy0 + bar_h / 2 + 8), fill=mix(cd, a))
-    d.text(((wx0 + wx1) / 2, wy0 + bar_h / 2), "rentcheck.rumptycloud.app", font=load_font(24, "regular"),
+    d.text(((wx0 + wx1) / 2, wy0 + bar_h / 2), "www.tenura.online", font=load_font(24, "regular"),
            fill=mix(MUTED, a), anchor="mm")
 
     body_y = wy0 + bar_h + 22
@@ -825,7 +825,7 @@ def scene_outro(d, el, dur, data):
         icon_shield(d, W / 2 - 60, 430, s, mix(BRAND, a), check_color=mix(WHITE, a))
     ta = a_in(el, 0.3, 0.6)
     if ta > 0:
-        d.text((W / 2 - 60, 560), "RentCheck", font=load_font(104, "bold"), fill=mix(TEXT, ta), anchor="mm")
+        d.text((W / 2 - 60, 560), "Tenura", font=load_font(104, "bold"), fill=mix(TEXT, ta), anchor="mm")
     da = a_in(el, 0.55, 0.6)
     if da > 0:
         d.text((W / 2 - 60, 640), "Know what you're signing, before you sign it.",
@@ -833,7 +833,7 @@ def scene_outro(d, el, dur, data):
     ua = a_in(el, 0.8, 0.6)
     if ua > 0:
         f = load_font(38, "bold")
-        url = "rentcheck.rumptycloud.app"
+        url = "www.tenura.online"
         pw = f.getlength(url) + 76
         pill(d, (W / 2 - 60 - pw / 2, 706, W / 2 - 60 + pw / 2, 776), 36, (BRAND[0], BRAND[1], BRAND[2], 230), a=ua)
         d.text((W / 2 - 60, 741), url, font=f, fill=mix(WHITE, ua), anchor="mm")
@@ -854,7 +854,7 @@ SCENES = [
      "vo": "So start by adding your agreement. You can paste the text, or upload a PDF, a photo, "
            "or a Word document."},
     {"key": "analyse", "build": scene_analyse, "stage": "02  -  ANALYSE",
-     "vo": "RentCheck splits it into clauses, and checks each one against common Nigerian rental norms."},
+     "vo": "Tenura splits it into clauses, and checks each one against common Nigerian rental norms."},
     {"key": "flag", "build": scene_flag, "stage": "03  -  FLAGGED",
      "vo": "Anything unfair or risky gets flagged. And every flag quotes the exact words, so you can "
            "check it for yourself."},
@@ -864,7 +864,7 @@ SCENES = [
     {"key": "act", "build": scene_act, "stage": "05  -  WHAT TO ASK",
      "vo": "And a ready list of questions to ask, so you know exactly what to raise before you sign."},
     {"key": "outro", "build": scene_outro,
-     "vo": "RentCheck. Know what you're signing, before you sign it. Not legal advice."},
+     "vo": "Tenura. Know what you're signing, before you sign it. Not legal advice."},
 ]
 
 
@@ -991,7 +991,7 @@ def main() -> int:
     ap.add_argument("--rate", default="-3%")
     ap.add_argument("--pitch", default="-2Hz")
     ap.add_argument("--data", default=DATA)
-    ap.add_argument("--out", default=os.path.join(ARTIFACTS, "rentcheck-explainer.mp4"))
+    ap.add_argument("--out", default=os.path.join(ARTIFACTS, "tenura-explainer.mp4"))
     ap.add_argument("--no-music", action="store_true")
     ap.add_argument("--vertical", action="store_true",
                     help="also produce a 9:16 social cut with a blurred fill background")

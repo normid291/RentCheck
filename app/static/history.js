@@ -1,4 +1,4 @@
-/* RentCheck — the account holder's own analyses.
+/* Tenura — the account holder's own analyses.
  *
  * Two views in one page, driven by the URL hash so the back button and a
  * refresh both behave:
@@ -14,7 +14,7 @@
   var $ = function (id) {
     return document.getElementById(id);
   };
-  var esc = RC.escapeHtml;
+  var esc = Tenura.escapeHtml;
 
   var els = {
     viewList: $("view-list"),
@@ -32,7 +32,7 @@
 
   // A 401 means the session ended (expired, or signed out elsewhere).
   function api(path, options) {
-    return RC.apiFetch(path, options).catch(function (err) {
+    return Tenura.apiFetch(path, options).catch(function (err) {
       if (err && err.status === 401) {
         window.location.href = "/login?next=" + encodeURIComponent("/history");
       }
@@ -41,15 +41,15 @@
   }
 
   function flash(message) {
-    RC.setStatus(message);
+    Tenura.setStatus(message);
     clearTimeout(flashTimer);
     flashTimer = setTimeout(function () {
-      RC.setStatus(null);
+      Tenura.setStatus(null);
     }, 5000);
   }
 
   function riskBadge(score) {
-    var risk = RC.riskFor(score);
+    var risk = Tenura.riskFor(score);
     return (
       '<span class="risk-level ' + risk.cls + '">' +
       '<span class="risk-dot"></span>' + esc(risk.label) +
@@ -91,12 +91,12 @@
 
     els.listContainer.innerHTML = analyses
       .map(function (a) {
-        var risk = RC.riskFor(a.risk_score);
+        var risk = Tenura.riskFor(a.risk_score);
         return (
           '<a class="history-item" href="#id=' + esc(a.id) + '">' +
           '<span class="hi-main">' +
           '<span class="hi-title">' + esc(a.title) + "</span>" +
-          '<span class="hi-meta">' + esc(RC.formatDate(a.created_at)) + " · " +
+          '<span class="hi-meta">' + esc(Tenura.formatDate(a.created_at)) + " · " +
           a.flagged_count + " flagged · " + a.missing_count + " missing</span>" +
           '<span class="hi-reco">' + esc(a.recommendation) + "</span>" +
           "</span>" +
@@ -134,10 +134,10 @@
   /* ---------- detail ---------- */
 
   function renderDetail(analysis) {
-    var flagged = RC.sortFindings(analysis.flagged_clauses);
+    var flagged = Tenura.sortFindings(analysis.flagged_clauses);
     var missing = analysis.missing_protections || [];
     var questions = analysis.questions_to_ask || [];
-    var risk = RC.riskFor(analysis.risk_score);
+    var risk = Tenura.riskFor(analysis.risk_score);
 
     var html = "";
 
@@ -148,7 +148,7 @@
     html += '<button class="ghost-btn danger" id="deleteBtn" type="button">Delete</button>';
     html += "</div></div>";
 
-    html += '<p class="detail-meta">Analysed ' + esc(RC.formatDateTime(analysis.created_at)) +
+    html += '<p class="detail-meta">Analysed ' + esc(Tenura.formatDateTime(analysis.created_at)) +
       " · " + riskBadge(analysis.risk_score) + "</p>";
 
     html += '<div class="panel detail-score">';
@@ -164,14 +164,14 @@
     html += section(
       "Flagged clauses", flagged.length, "Terms that may work against you",
       flagged.length
-        ? flagged.map(RC.renderFinding).join("")
+        ? flagged.map(Tenura.renderFinding).join("")
         : '<div class="empty">No flagged clauses found — the clauses we checked look broadly reasonable.</div>'
     );
 
     html += section(
       "Missing protections", missing.length, "Not clearly addressed in the agreement",
       missing.length
-        ? missing.map(RC.renderMissing).join("")
+        ? missing.map(Tenura.renderMissing).join("")
         : '<div class="empty">All expected protections appear to be present.</div>'
     );
 
@@ -332,7 +332,7 @@
 
   /* ---------- start ---------- */
 
-  RC.ready.then(function (user) {
+  Tenura.ready.then(function (user) {
     if (!user) {
       window.location.href = "/login?next=" + encodeURIComponent("/history");
       return;

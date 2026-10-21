@@ -42,7 +42,7 @@ export const Wordmark: React.FC<{size?: number; color?: string; markColor?: stri
         fontFamily: "Inter, sans-serif",
       }}
     >
-      RentCheck
+      Tenura
     </span>
   </div>
 );

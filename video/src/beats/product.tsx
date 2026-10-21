@@ -131,7 +131,7 @@ export const B11Close: React.FC<P> = ({beat, ev}) => {
         <div style={{display: "flex", alignItems: "center", gap: 20}}>
           <LogoMark size={78} color={STAGE.mint} />
           <span style={{fontFamily: "Inter, sans-serif", fontSize: 66, fontWeight: 800, letterSpacing: -2, color: "#ffffff"}}>
-            RentCheck
+            Tenura
           </span>
         </div>
       </div>
@@ -198,7 +198,7 @@ export const B11Close: React.FC<P> = ({beat, ev}) => {
             transform: `scale(${1 - 0.04 * hover})`,
           }}
         >
-          rentcheck.rumptycloud.app
+          www.tenura.online
           <span style={{fontSize: 28}}>→</span>
         </div>
       </div>

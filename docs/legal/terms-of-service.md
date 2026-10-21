@@ -1,8 +1,8 @@
-# RentCheck Terms of Service
+# Tenura Terms of Service
 
-**Version 1.0 — last updated 20 October 2026**
+**Version 1.1 — last updated 21 October 2026**
 
-These Terms govern your use of RentCheck. By using the Service you agree to
+These Terms govern your use of Tenura. By using the Service you agree to
 them. If you do not agree, please do not use it.
 
 Our [Privacy Policy](/privacy) explains how we handle your document and is part
@@ -10,12 +10,12 @@ of these Terms — please read it alongside them.
 
 ## 1. Who we are
 
-RentCheck (the "Service") is operated by **NORMID INC** ("we", "us", "our").
+Tenura (the "Service") is operated by **NORMID INC** ("we", "us", "our").
 You can contact us at **faizahmadadetola@gmail.com**.
 
-## 2. What RentCheck is — and what it is not
+## 2. What Tenura is — and what it is not
 
-RentCheck reads a tenancy agreement and gives you back:
+Tenura reads a tenancy agreement and gives you back:
 
 - **Flagged clauses**, each with the words in the agreement that caused the flag.
 - **Missing protections** — protections a Nigerian tenancy would usually have
@@ -25,7 +25,7 @@ RentCheck reads a tenancy agreement and gives you back:
 
 ### It is not legal advice
 
-This matters more than anything else on this page. RentCheck provides general
+This matters more than anything else on this page. Tenura provides general
 information about common rental practices to help you read a document. It is
 **not legal advice**, it is **not a substitute for advice from a qualified
 lawyer**, and using it does **not** create a lawyer–client relationship with us.
@@ -57,7 +57,7 @@ use the Service. By using it, you confirm that you meet these requirements.
 
 ## 4. Your responsibilities
 
-When you use RentCheck, you agree to:
+When you use Tenura, you agree to:
 
 - **Only submit documents you have the right to submit.** A tenancy agreement
   usually contains other people's personal data as well as your own. Do not
@@ -135,7 +135,7 @@ misrepresentation, or for death or personal injury caused by our negligence.
 
 ## 9. Availability, changes and limits
 
-RentCheck is an early-stage project. We may change, add to, suspend or
+Tenura is an early-stage project. We may change, add to, suspend or
 discontinue any part of the Service at any time, including imposing limits on
 how much you can submit. We do not guarantee any level of uptime. We will not be
 liable to you for any change, suspension or discontinuation.

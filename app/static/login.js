@@ -1,4 +1,4 @@
-/* RentCheck — log in, plus the two flows that reuse the email code:
+/* Tenura — log in, plus the two flows that reuse the email code:
  *   - an account that was never verified (the password was right, so offering
  *     to send a code reveals nothing to anyone who does not already know it)
  *   - a forgotten password
@@ -133,12 +133,12 @@
     }
 
     setBusy(els.loginBtn, els.loginSpinner, els.loginLabel, true, "Log in");
-    RC.apiFetch("/api/auth/login", {
+    Tenura.apiFetch("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ email: address, password: els.password.value }),
     })
       .then(function () {
-        window.location.href = RC.safeNext("/history");
+        window.location.href = Tenura.safeNext("/history");
       })
       .catch(function (err) {
         showError(els.loginError, err.message);
@@ -158,7 +158,7 @@
   els.sendVerifyBtn.addEventListener("click", function () {
     showError(els.loginError, null);
     els.sendVerifyBtn.disabled = true;
-    RC.apiFetch("/api/auth/resend-otp", {
+    Tenura.apiFetch("/api/auth/resend-otp", {
       method: "POST",
       body: JSON.stringify({ email: email }),
     })
@@ -196,7 +196,7 @@
     }
 
     setBusy(els.forgotBtn2, els.forgotSpinner, els.forgotLabel, true, "Send reset code");
-    RC.apiFetch("/api/auth/forgot-password", {
+    Tenura.apiFetch("/api/auth/forgot-password", {
       method: "POST",
       body: JSON.stringify({ email: address }),
     })
@@ -242,7 +242,7 @@
 
     var request =
       mode === "reset"
-        ? RC.apiFetch("/api/auth/reset-password", {
+        ? Tenura.apiFetch("/api/auth/reset-password", {
             method: "POST",
             body: JSON.stringify({
               email: email,
@@ -250,14 +250,14 @@
               password: els.newPassword.value,
             }),
           })
-        : RC.apiFetch("/api/auth/verify-otp", {
+        : Tenura.apiFetch("/api/auth/verify-otp", {
             method: "POST",
             body: JSON.stringify({ email: email, code: code }),
           });
 
     request
       .then(function () {
-        window.location.href = RC.safeNext("/history");
+        window.location.href = Tenura.safeNext("/history");
       })
       .catch(function (err) {
         showError(els.codeError, err.message);
@@ -276,7 +276,7 @@
     els.resendBtn.disabled = true;
 
     var path = mode === "reset" ? "/api/auth/forgot-password" : "/api/auth/resend-otp";
-    RC.apiFetch(path, { method: "POST", body: JSON.stringify({ email: email }) })
+    Tenura.apiFetch(path, { method: "POST", body: JSON.stringify({ email: email }) })
       .then(function (data) {
         startCooldown((data && data.resend_in) || 60);
         els.resendHint.textContent = "A new code is on its way.";

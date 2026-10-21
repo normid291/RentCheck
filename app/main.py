@@ -18,7 +18,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
 )
-logger = logging.getLogger("rentcheck")
+logger = logging.getLogger("tenura")
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -45,7 +45,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="RentCheck", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Tenura", version="0.1.0", lifespan=lifespan)
 
 # CORS is off by default: the front end is served from this same origin, so it
 # needs nothing, and allow_origins=["*"] alongside cookie sessions would invite

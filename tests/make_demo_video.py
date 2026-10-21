@@ -1,5 +1,5 @@
 """
-Record a short demo video of the live RentCheck app.
+Record a short demo video of the live Tenura app.
 
 Drives a real Chromium browser through the page the way a person would:
 
@@ -173,8 +173,8 @@ def _duration(path: str) -> float:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--url", default="https://rentcheck.rumptycloud.app")
-    ap.add_argument("--out", default=os.path.join(ARTIFACTS, "rentcheck-demo.mp4"))
+    ap.add_argument("--url", default="https://www.tenura.online")
+    ap.add_argument("--out", default=os.path.join(ARTIFACTS, "tenura-demo.mp4"))
     ap.add_argument("--trim", type=float, default=4.5, help="seconds of blank page to trim from the front")
     args = ap.parse_args()
 

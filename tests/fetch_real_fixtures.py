@@ -21,7 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REAL = os.path.join(HERE, "fixtures", "real")
 os.makedirs(REAL, exist_ok=True)
 
-UA = {"User-Agent": "Mozilla/5.0 (RentCheck fixture research)"}
+UA = {"User-Agent": "Mozilla/5.0 (Tenura fixture research)"}
 
 # Direct file downloads. (filename, url)
 FILES = [
@@ -37,7 +37,7 @@ FILES = [
 ]
 
 # SEC EDGAR full-text search -> download the matching exhibit and strip HTML to text.
-SEC_UA = {"User-Agent": "RentCheck fixture research contact@example.com"}
+SEC_UA = {"User-Agent": "Tenura fixture research contact@example.com"}
 SEC_TARGETS = [
     ("us_employment_agreement.txt", "employment agreement", "8-K", ["employment agreement"], ["form 8-k"]),
     ("us_loan_agreement.txt", "loan agreement", "8-K", ["agreement"], ["form 8-k"]),

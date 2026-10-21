@@ -1,5 +1,5 @@
 """
-Database models for RentCheck.
+Database models for Tenura.
 
 Tables:
   agreements        - raw text of a submitted agreement (analysed content lives

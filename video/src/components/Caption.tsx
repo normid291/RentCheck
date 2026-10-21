@@ -9,7 +9,7 @@ type Chunk = {words: W[]; start: number; end: number};
 
 /** Words that get the accent colour + glow, per the skill. */
 const KEY =
-  /^(₦|\$)?\d|\d|^rentcheck$|^risk$|^flagged$|^missing$|^signing$|^sign$|^high$|^questions$|^tenancy$|^protections$|^clauses$|^plain$|^english$/i;
+  /^(₦|\$)?\d|\d|^tenura$|^risk$|^flagged$|^missing$|^signing$|^sign$|^high$|^questions$|^tenancy$|^protections$|^clauses$|^plain$|^english$/i;
 
 const isKey = (w: string) => KEY.test(w.replace(/[.,?!…]/g, ""));
 

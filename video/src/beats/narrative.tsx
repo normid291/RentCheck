@@ -356,7 +356,7 @@ export const B05Reveal: React.FC<P> = ({beat, ev}) => {
           fontFamily: "Inter, sans-serif",
         }}
       >
-        <div style={{fontSize: 78, fontWeight: 800, letterSpacing: -2, color: "#ffffff"}}>RentCheck</div>
+        <div style={{fontSize: 78, fontWeight: 800, letterSpacing: -2, color: "#ffffff"}}>Tenura</div>
       </div>
       <div style={{position: "absolute", left: 0, right: 0, top: 730, display: "flex", justifyContent: "center", gap: 16}}>
         {pills.map((pl) => {

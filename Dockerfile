@@ -1,4 +1,4 @@
-# RentCheck — app + OCR engine
+# Tenura — app + OCR engine
 FROM python:3.12-slim
 
 # Tesseract is needed for image (photo) OCR at runtime. PDF and text uploads

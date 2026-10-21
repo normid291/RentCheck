@@ -1,5 +1,5 @@
 """
-End-to-end test of RentCheck's document-type gate ("is this a tenancy
+End-to-end test of Tenura's document-type gate ("is this a tenancy
 agreement?") using REAL sample documents plus generated gap-fillers.
 
 It starts the real FastAPI app (uvicorn) and sends every fixture through the

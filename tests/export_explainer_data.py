@@ -1,6 +1,6 @@
 """
 Export real ExplainER data: take an actual tenancy agreement stored in the
-database, run it through the REAL RentCheck analysis pipeline, anonymise the
+database, run it through the REAL Tenura analysis pipeline, anonymise the
 personal details, and write the result to tests/fixtures/explainer_data.json.
 
 The video builder (tests/make_explainer_video.py) reads that JSON so every
@@ -203,7 +203,7 @@ def main() -> int:
 
         data = {
             "generated_at": datetime.now(timezone.utc).isoformat(),
-            "source_note": "Real tenancy agreement analysed by the RentCheck pipeline",
+            "source_note": "Real tenancy agreement analysed by the Tenura pipeline",
             "provenance": provenance,
             "risk_score": score,
             "risk_level": level,
