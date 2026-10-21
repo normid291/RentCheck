@@ -1,5 +1,7 @@
-/* RentCheck — front-end logic.
-   Talks to /api/agreements/analyze (paste) and /api/agreements/analyze-upload (file). */
+/* RentCheck — front-end logic for the analyser.
+   Talks to /api/agreements/analyze (paste) and /api/agreements/analyze-upload
+   (file), through RC.apiFetch in common.js (which handles the host's cold-start
+   503s and retries). */
 
 (function () {
   "use strict";
@@ -58,6 +60,11 @@
     questionsSection: $("questionsSection"),
     copyQuestions: $("copyQuestions"),
     copyLabel: $("copyLabel"),
+
+    saveBanner: $("saveBanner"),
+    saveTitle: $("saveTitle"),
+    saveText: $("saveText"),
+    saveActions: $("saveActions"),
   };
 
   const RING_CIRCUMFERENCE = 2 * Math.PI * 64;
@@ -85,34 +92,17 @@
   let lastQuestions = [];
 
   /* ---------- helpers ---------- */
+  /* escapeHtml / titleCase / riskFor live in common.js, so a saved analysis
+     opened from History renders exactly the way it does here. */
 
-  function escapeHtml(value) {
-    return String(value == null ? "" : value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
-
-  function titleCase(type) {
-    return String(type || "").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  }
+  const escapeHtml = RC.escapeHtml;
+  const titleCase = RC.titleCase;
+  const riskFor = RC.riskFor;
 
   function formatSize(bytes) {
     if (bytes < 1024) return bytes + " B";
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + " KB";
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-  }
-
-  function riskFor(score) {
-    if (score >= 55) return { key: "high", label: "High risk", cls: "risk-high", color: "var(--high)" };
-    if (score >= 25) return { key: "medium", label: "Moderate risk", cls: "risk-medium", color: "var(--medium)" };
-    return { key: "low", label: "Low risk", cls: "risk-low", color: "var(--brand)" };
-  }
-
-  function severityRank(sev) {
-    return sev === "high" ? 3 : sev === "medium" ? 2 : 1;
   }
 
   /* ---------- tabs / mode ---------- */
@@ -313,6 +303,7 @@
       els.error.hidden = true;
       els.notice.hidden = true;
       els.results.hidden = true;
+      hideSaveBanner();
       els.btnIcon.hidden = true;
       els.btnSpinner.hidden = false;
       els.analyzeBtnLabel.textContent = "Analysing…";
@@ -331,37 +322,116 @@
     els.error.hidden = false;
   }
 
-  async function handleResponse(res) {
-    if (res.ok) return res.json();
-    let detail = "Request failed (HTTP " + res.status + ").";
-    try {
-      const ct = res.headers.get("content-type") || "";
-      if (ct.indexOf("application/json") !== -1) {
-        const body = await res.json();
-        if (body) {
-          if (typeof body.detail === "string") detail = body.detail;
-          else if (body.detail) detail = JSON.stringify(body.detail);
-          else if (typeof body.error === "string") detail = body.error;
-          else if (typeof body.message === "string") detail = body.message;
-        }
-      } else {
-        const text = (await res.text()).trim();
-        if (text) detail = "Request failed (HTTP " + res.status + "): " + text.slice(0, 300);
-      }
-    } catch (e) {
-      /* keep default */
-    }
-    throw new Error(detail);
-  }
-
   /* ---------- render results ---------- */
 
-  function handleResult(data) {
+  function handleResult(data, context) {
     if (data && data.status && data.status !== "ok") {
       renderNotice(data);
+      hideSaveBanner();
     } else {
       render(data);
+      afterResult(data, context || {});
     }
+  }
+
+  /* ---------- saving: the guest prompt and the "save that one" offer ---------- */
+
+  function hideSaveBanner() {
+    if (els.saveBanner) els.saveBanner.hidden = true;
+  }
+
+  function renderSaveBanner(config) {
+    if (!els.saveBanner) return;
+    els.saveTitle.textContent = config.title;
+    els.saveText.textContent = config.text || "";
+    els.saveActions.innerHTML = "";
+
+    (config.actions || []).forEach((action) => {
+      let element;
+      if (action.href) {
+        element = document.createElement("a");
+        element.href = action.href;
+        element.className = "btn " + (action.primary ? "btn-primary" : "btn-ghost");
+      } else {
+        element = document.createElement("button");
+        element.type = "button";
+        element.className = "btn " + (action.primary ? "btn-primary" : "btn-ghost");
+        element.addEventListener("click", () => runBannerAction(action.action, element));
+      }
+      element.textContent = action.label;
+      els.saveActions.appendChild(element);
+    });
+
+    els.saveBanner.hidden = false;
+  }
+
+  function runBannerAction(action, element) {
+    if (action === "dismiss" || action === "discard-pending") {
+      // Declining means declining for this session; the held text goes with it.
+      RC.pending.clear();
+      hideSaveBanner();
+      return;
+    }
+    if (action === "save-pending") {
+      savePendingAnalysis(element);
+    }
+  }
+
+  // The analysis the user ran as a guest is re-run under their new session so
+  // the server stores it properly — we never trust a client-supplied result.
+  async function savePendingAnalysis(button) {
+    const pending = RC.pending.get();
+    if (!pending) {
+      hideSaveBanner();
+      return;
+    }
+
+    const original = button.textContent;
+    button.disabled = true;
+    button.textContent = "Saving…";
+
+    try {
+      await RC.apiFetch("/api/agreements/analyze", {
+        method: "POST",
+        body: JSON.stringify({ text: pending.text }),
+      });
+      RC.pending.clear();
+      window.location.href = "/history";
+    } catch (err) {
+      button.disabled = false;
+      button.textContent = original;
+      RC.setStatus("Could not save that analysis: " + err.message);
+      setTimeout(() => RC.setStatus(null), 6000);
+    }
+  }
+
+  function afterResult(data, context) {
+    if (data.saved) {
+      RC.pending.clear();
+      renderSaveBanner({
+        title: "Saved to your history",
+        text:
+          "This analysis is in your account. You can rename it or delete it, " +
+          "and the agreement text with it, whenever you like.",
+        actions: [{ label: "View in history", href: "/history", primary: true }],
+      });
+      return;
+    }
+
+    // Guest: the result is not stored anywhere. Offer to keep it — the text is
+    // held in this tab only, and only if we have it (paste, not upload).
+    if (context.text) RC.pending.save(context.text);
+
+    renderSaveBanner({
+      title: "Keep this analysis?",
+      text: context.text
+        ? "Create a free account and we'll save this analysis to your history, so you can come back to it."
+        : "Create a free account and future analyses are saved to your history automatically.",
+      actions: [
+        { label: "Create a free account", href: "/signup", primary: true },
+        { label: "Not now", action: "dismiss" },
+      ],
+    });
   }
 
   function renderNotice(data) {
@@ -409,9 +479,7 @@
     els.riskLabel.textContent = risk.label;
     els.scoreSummary.textContent = data.summary || "";
 
-    const flagged = (data.flagged_clauses || [])
-      .slice()
-      .sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
+    const flagged = RC.sortFindings(data.flagged_clauses);
     const missing = data.missing_protections || [];
     const questions = data.questions_to_ask || [];
     lastQuestions = questions;
@@ -425,12 +493,12 @@
 
     els.flaggedCount.textContent = String(flagged.length);
     els.flaggedList.innerHTML = flagged.length
-      ? flagged.map(renderFinding).join("")
+      ? flagged.map((c) => RC.renderFinding(c)).join("")
       : '<div class="empty">No flagged clauses found — the clauses we checked look broadly reasonable.</div>';
 
     els.missingCount.textContent = String(missing.length);
     els.missingList.innerHTML = missing.length
-      ? missing.map(renderMissing).join("")
+      ? missing.map((m) => RC.renderMissing(m)).join("")
       : '<div class="empty">All expected protections appear to be present.</div>';
 
     if (questions.length) {
@@ -452,45 +520,6 @@
     return m ? m[1] : "—";
   }
 
-  function renderFinding(c) {
-    const sev = (c.severity || "low").toLowerCase();
-    const src =
-      c.source === "rule"
-        ? '<span class="badge src-rule">Rule</span>'
-        : '<span class="badge src-ai">AI suggestion</span>';
-    const evidence = c.evidence
-      ? '<div class="evidence">Based on: <b>&ldquo;' + escapeHtml(c.evidence) + "&rdquo;</b></div>"
-      : "";
-    const clause = c.clause
-      ? '<details><summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>View original clause</summary><blockquote>' +
-        escapeHtml(c.clause) +
-        "</blockquote></details>"
-      : "";
-
-    return (
-      '<article class="finding sev-' + sev + '">' +
-      '<div class="finding-top">' +
-      '<span class="finding-title">' + escapeHtml(titleCase(c.clause_type)) + "</span>" +
-      '<span class="badge sev-' + sev + '">' + escapeHtml(sev) + "</span>" +
-      src +
-      "</div>" +
-      '<p class="reason">' + escapeHtml(c.reason || "") + "</p>" +
-      evidence +
-      clause +
-      "</article>"
-    );
-  }
-
-  function renderMissing(m) {
-    return (
-      '<div class="missing-item">' +
-      '<div class="m-title">' + escapeHtml(m.label || titleCase(m.clause_type)) +
-      '<span class="m-tag">not addressed</span></div>' +
-      '<div class="m-why">' + escapeHtml(m.why || "") + "</div>" +
-      "</div>"
-    );
-  }
-
   /* ---------- run ---------- */
 
   async function run() {
@@ -502,12 +531,11 @@
       }
       setBusy(true);
       try {
-        const res = await fetch("/api/agreements/analyze", {
+        const data = await RC.apiFetch("/api/agreements/analyze", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text: text }),
         });
-        handleResult(await handleResponse(res));
+        handleResult(data, { text: text });
       } catch (err) {
         showError(err.message);
       } finally {
@@ -534,8 +562,11 @@
     try {
       const form = new FormData();
       form.append("file", validFile, validFile.name);
-      const res = await fetch("/api/agreements/analyze-upload", { method: "POST", body: form });
-      handleResult(await handleResponse(res));
+      const data = await RC.apiFetch("/api/agreements/analyze-upload", {
+        method: "POST",
+        body: form,
+      });
+      handleResult(data, {});
     } catch (err) {
       showError(err.message);
     } finally {
@@ -580,4 +611,21 @@
   renderEmptyState();
   setMode("paste");
   updateCharCount();
+
+  // Once the header knows who is signed in, offer to save a guest analysis that
+  // is still waiting in this tab (they ran it, then created an account).
+  RC.ready.then((user) => {
+    const pending = RC.pending.get();
+    if (!user || !pending) return;
+    renderSaveBanner({
+      title: "Save the analysis you just ran?",
+      text:
+        "You analysed an agreement before signing in. Add it to your account and " +
+        "it will be waiting for you next time.",
+      actions: [
+        { label: "Save it to my account", action: "save-pending", primary: true },
+        { label: "Discard", action: "discard-pending" },
+      ],
+    });
+  });
 })();

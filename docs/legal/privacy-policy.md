@@ -1,11 +1,12 @@
 # RentCheck Privacy Policy
 
-**Version 1.0 — last updated 20 October 2026**
+**Version 1.1 — last updated 21 October 2026**
 
 RentCheck is a tenancy-agreement analysis tool. You paste or upload a tenancy
 agreement and it returns flagged clauses, missing protections and questions to
-ask before you sign. This policy explains what personal data that involves, why
-we use it, who else sees it, and what you can ask us to do about it.
+ask before you sign. You can use it as a guest, or create an account to keep the
+analyses you run. This policy explains what personal data each of those involves,
+why we use it, who else sees it, and what you can ask us to do about it.
 
 We have tried to write this in plain language rather than legal padding. If
 anything is unclear, ask us — the contact details are at the end.
@@ -26,14 +27,22 @@ a law firm and we do not give legal advice — see our [Terms of Service](/terms
 
 ## 2. At a glance
 
+You can use RentCheck without an account. If you do, your document is analysed
+and **nothing is kept** — no document text, no result. If you are signed in, the
+analysis and the document text behind it are saved to your history until you
+delete them.
+
 | What we hold | Why | Who else sees it |
 | --- | --- | --- |
-| The text of your tenancy agreement (pasted, or extracted from your PDF, Word file or photo) | To produce your analysis | Rumpty AI Inference (selected parts only — see section 5), Rumpty Cloud (hosting and database) |
-| The analysis we generate for you: flagged clauses, missing protections, questions, risk score | To show you the result and keep it for you | Rumpty Cloud |
+| The text of the agreement you submit, **only when you are signed in** | To produce your analysis, and to reopen it later from your history | Rumpty AI Inference (selected parts only — see section 5), Rumpty Cloud (hosting and database) |
+| The analysis we generate — flagged clauses, missing protections, questions, risk score — **only when you are signed in** | To show you the result and keep it for you | Rumpty Cloud |
+| If you have an account: your **email address**, your **password hash**, and the **one-time codes** we send you | To sign you in, verify your email, and let you reset a forgotten password | Rumpty Cloud; and our email provider, Resend, to deliver the message |
+| A **session cookie** holding your signed-in state | To keep you logged in between pages | Nobody — it is set by us and never shared |
 | Server logs: IP address, timestamps, requested pages, error traces | To run the Service, debug failures and prevent abuse | Rumpty Cloud |
 
-We do not use cookies. We do not run analytics or advertising. We do not sell
-your data. We do not use your document to train anyone's AI model.
+We run no analytics and no advertising, and no third-party scripts load on the
+page. We do not sell your data. We do not use your document to train anyone's AI
+model.
 
 ## 3. What we collect
 
@@ -41,6 +50,16 @@ your data. We do not use your document to train anyone's AI model.
 
 This is the heart of it. When you paste text or upload a file, we take the text
 of the tenancy agreement and analyse it.
+
+**As a guest, nothing about your document is kept.** The result is returned to
+your browser and then forgotten: no copy of the text and no copy of the analysis
+is stored on our side. (To let you keep a result if you sign up straight
+afterwards, your own browser may briefly hold the text you typed — see
+section 3.2.)
+
+**When you are signed in, we keep the analysis and the document text behind it**,
+so you can reopen it from your history later. You can delete any saved analysis
+yourself from the history page, which removes the text for good.
 
 - We keep the **extracted text** of the document. If you upload a PDF, Word file
   or photo, we keep the text we pulled out of it.
@@ -65,15 +84,30 @@ a photo, a different kind of contract or an unreadable file, we tell you so and
 **we do not store it at all**. No record of a rejected upload is kept beyond the
 ordinary server logs described below.
 
-### 3.2 What we do not collect
+### 3.2 Accounts, and what we still do not collect
 
-- **No account.** There is no sign-up, no login, and we never ask for your name
-  or email address in order to use the Service.
+An account needs an email address and a password, and nothing else. We do not ask
+for your name, phone number, date of birth, or address.
+
+- **Passwords** are hashed with Argon2id before they are stored. We never store
+  the password itself and we cannot recover it. A forgotten password is reset
+  through a one-time code emailed to you, not by us reading anything out.
+- **One-time codes** are stored hashed as well, expire after 10 minutes, can be
+  used once, and are replaced when you ask for a new one.
+- **One session cookie**, named `rc_session`, holds your signed-in state. It is
+  set `httpOnly` (JavaScript on the page cannot read it), `Secure`, and
+  `SameSite=Lax`, and it contains only a signed user reference and an expiry — no
+  password, no document data. Signing out clears it.
+- **No analytics, no advertising identifiers, no third-party trackers.** No
+  external scripts load on the page at all.
 - **No payment details.** The Service is free and takes no payments.
-- **No cookies, no analytics, no advertising identifiers, no third-party
-  trackers.** The page loads no external scripts at all.
 - **No location data, contacts, or device identifiers** beyond what any web
   server sees in a standard request.
+- **If you analyse as a guest**, the text you typed may be held briefly in your
+  own browser's session storage, so that we can offer to save the result if you
+  then create an account. It stays on your device, disappears when you close the
+  tab, and is cleared the moment you save it or dismiss the offer. Uploaded files
+  are never held this way.
 
 ### 3.3 Technical data in logs
 
@@ -83,14 +117,18 @@ logged, **operational logs can also contain short excerpts of document text** �
 for example a clause the model was asked about, or its answer. Logs are used for
 debugging and security only.
 
+One thing that is never logged: **one-time codes and passwords**. Neither is
+written to a log, and neither is stored in a form anyone can read.
+
 ## 4. Why we are allowed to use it
 
 The Nigeria Data Protection Act 2023 ("NDPA") sets out the lawful bases for
 processing. We rely on:
 
 - **Performing the service you asked for** — analysing the document you submit
-  and returning your results. This is the main basis for the document text and
-  the analysis.
+  and returning your results, and, where you have an account, signing you in and
+  keeping your history. This is the main basis for the document text, the
+  analysis, and your account details.
 - **Our legitimate interests** — keeping the Service working and secure,
   diagnosing failures, and preventing abuse. We keep this as narrow as we can,
   and it never overrides your rights.
@@ -135,6 +173,7 @@ Two things follow from this that you should know:
 | --- | --- | --- |
 | Rumpty AI Inference (Rumpty Cloud) | Individual clause text together with the matching rental norm; or the first 1,800 characters, but only when the document type is ambiguous | To evaluate a clause, or to classify the document |
 | Rumpty Cloud | Our application and the managed PostgreSQL database, which holds your stored text and analysis | Hosting the Service and storing the data |
+| Resend | Your email address and the one-time code message | To deliver verification and password-reset emails |
 
 We do not sell, rent or trade personal data. We do not share it with advertisers
 or data brokers. We do not allow a provider to use your document for their own
@@ -155,26 +194,42 @@ details of where a particular transfer goes, ask us.
 
 ## 8. How long we keep it
 
-Your agreement text and its analysis are kept in our database **until you ask us
-to delete them**. There is currently no automatic expiry.
+**Guest analyses are not stored at all**, so there is nothing to keep.
 
-We would rather say that plainly than claim a retention period we do not
-enforce. It also means deletion is something you should ask for actively, and
-here is how.
+For an account:
 
-To have your data deleted, email **faizahmadadetola@gmail.com**. Because the
-results screen does not show an analysis ID and we have no accounts to look you
-up by, please give us something that lets us find the record — for example the
-date you ran the analysis, or the landlord's or agent's name or the property
-address as it appears in the agreement. We will delete the stored text and its
-analysis, and confirm when it is done.
+- **Saved analyses and their agreement text** are kept until you delete them.
+  You can delete any of them yourself from [your history](/history), and deletion
+  removes the agreement text permanently and immediately.
+- **Your account** — the email address and password hash — is kept while the
+  account exists. To close it, delete your saved analyses and email us to remove
+  the account itself.
+- **One-time codes** expire after 10 minutes, and are marked spent as soon as they
+  are used. They are never reused.
+- **Server logs** are kept only as long as they are needed for debugging and
+  security.
+
+There is no automatic expiry on saved analyses. We would rather say that plainly
+than claim a retention period we do not enforce — and it is the reason the delete
+button is in your hands rather than ours.
+
+To close your account, or to have anything else deleted, email
+**faizahmadadetola@gmail.com** from the address on the account.
 
 ## 9. How we protect it
 
 - **In transit** over HTTPS.
 - **At rest** in a managed PostgreSQL database on Rumpty Cloud.
 - **Uploads are handled in memory** and are not saved to disk as files.
-- **No passwords to steal**: there are no accounts on the Service.
+- **Passwords are hashed with Argon2id** and are never stored or logged in plain
+  text. Signed-in sessions use a signed, expiring cookie that page scripts cannot
+  read, and no sign-in token is kept in browser storage where a script could reach
+  it.
+- **One-time codes are hashed, single-use, short-lived and attempt-limited.**
+- **Every account can reach only its own records** — checked on the server for
+  every query, not merely hidden in the interface.
+- **Sign-in, sign-up and code requests are rate-limited** to slow down guessing
+  and abuse.
 - **Access is limited** to the people who operate and maintain the Service.
 
 No system is perfectly secure and we do not pretend otherwise. RentCheck is an
@@ -199,9 +254,12 @@ Under the NDPA you have the right to:
 To exercise any of these, email **faizahmadadetola@gmail.com**. We aim to respond
 within 30 days and will not charge you for a reasonable request.
 
-One honest limitation: because there are no accounts, we can only find your data
-if you help us identify it. A request that says only "delete my data" may not be
-something we can act on, and we will tell you if we need more from you.
+One honest note on access and erasure: if you have an account, the fastest route
+is to manage your own data — [your history](/history) lists what we hold against
+you and lets you rename or delete any of it directly. If you used RentCheck as a
+guest, nothing was stored, so there is nothing to retrieve or erase beyond
+ordinary server logs. For anything else, email us; if we need more from you to
+find a record, we will say so.
 
 ## 11. Automated decisions
 

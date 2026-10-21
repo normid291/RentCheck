@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create your account — RentCheck</title>
+  <meta name="description" content="Create a free RentCheck account to save your tenancy agreement analyses and come back to them later." />
+  <meta name="theme-color" content="#0e7a52" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230e7a52' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z'/%3E%3Cpath d='M9 12l2 2 4-4'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        </span>
+        RentCheck
+      </a>
+      <span class="nav-spacer"></span>
+      <div class="auth-slot" id="authSlot"></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="auth">
+      <div class="panel auth-card">
+        <!-- Step 1: the form -->
+        <div id="view-signup">
+          <h1>Create your account</h1>
+          <p class="auth-sub">
+            Free. Analyses you save are private to you, and you can delete any of
+            them at any time.
+          </p>
+
+          <form id="signupForm" novalidate>
+            <label class="field" for="email">
+              <span class="field-label">Email</span>
+              <input type="email" id="email" name="email" autocomplete="email"
+                     inputmode="email" required aria-describedby="signupError" />
+            </label>
+
+            <label class="field" for="password">
+              <span class="field-label">Password</span>
+              <input type="password" id="password" name="password"
+                     autocomplete="new-password" required minlength="8"
+                     aria-describedby="passwordHint signupError" />
+              <span class="field-hint" id="passwordHint">At least 8 characters.</span>
+            </label>
+
+            <label class="field" for="confirm">
+              <span class="field-label">Confirm password</span>
+              <input type="password" id="confirm" name="confirm"
+                     autocomplete="new-password" required aria-describedby="signupError" />
+            </label>
+
+            <p class="form-error" id="signupError" role="alert" hidden></p>
+
+            <button class="btn btn-primary auth-submit" id="signupBtn" type="submit">
+              <span class="btn-spinner" id="signupSpinner" aria-hidden="true" hidden></span>
+              <span id="signupLabel">Create account</span>
+            </button>
+          </form>
+
+          <p class="auth-alt">Already have an account? <a href="/login">Log in</a></p>
+          <p class="auth-legal">
+            By creating an account you agree to our
+            <a href="/terms">Terms of Service</a> and
+            <a href="/privacy">Privacy Policy</a>.
+          </p>
+        </div>
+
+        <!-- Step 2: the code -->
+        <div id="view-otp" hidden>
+          <h1>Check your email</h1>
+          <p class="auth-sub">
+            We sent a 6-digit code to <strong id="otpEmail"></strong>. It expires in
+            10 minutes.
+          </p>
+
+          <form id="otpForm" novalidate>
+            <label class="field" for="code">
+              <span class="field-label">6-digit code</span>
+              <input type="text" id="code" name="code" class="otp-input"
+                     inputmode="numeric" autocomplete="one-time-code"
+                     maxlength="6" pattern="[0-9]*" required
+                     aria-describedby="otpError" />
+            </label>
+
+            <p class="form-error" id="otpError" role="alert" hidden></p>
+
+            <button class="btn btn-primary auth-submit" id="verifyBtn" type="submit">
+              <span class="btn-spinner" id="verifySpinner" aria-hidden="true" hidden></span>
+              <span id="verifyLabel">Verify and continue</span>
+            </button>
+          </form>
+
+          <p class="auth-alt">
+            Didn't get it?
+            <button class="link-btn" id="resendBtn" type="button">Resend code</button>
+            <span class="resend-hint" id="resendHint" hidden></span>
+          </p>
+          <p class="auth-alt">
+            <button class="link-btn" id="changeEmail" type="button">Use a different email</button>
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="disclaimer">
+        <strong>Not legal advice.</strong> RentCheck provides general information about
+        common rental practices to help you read an agreement. It is not a substitute
+        for advice from a qualified lawyer.
+      </div>
+      <div class="footer-row">
+        <span>RentCheck — built for the Devcenter Hacktober sprint.</span>
+        <span class="footer-links">
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/common.js"></script>
+  <script src="/signup.js"></script>
+</body>
+</html>

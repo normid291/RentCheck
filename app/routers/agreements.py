@@ -3,7 +3,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models.db import Agreement, Analysis, SourceType
+from app.models.db import SourceType, User
+from app.services import analysis_store
+from app.services.auth import get_current_user
 from app.services.clause_splitter import split_into_clauses
 from app.services.document_classifier import (
     TENANCY_AGREEMENT,
@@ -23,22 +25,31 @@ class AgreementIn(BaseModel):
     text: str
 
 
-def _run_pipeline(text: str, source_type: SourceType, db: Session) -> dict:
-    """Shared core: classify -> split -> match -> AI-verify -> assemble -> persist.
+def _run_pipeline(
+    text: str,
+    source_type: SourceType,
+    db: Session,
+    user: User | None = None,
+) -> dict:
+    """Shared core: classify -> split -> match -> AI-verify -> assemble -> (save).
 
     Used by both the paste-text endpoint and the file-upload endpoint so the
     analysis path is identical no matter how the text arrived.
+
+    `user` decides whether the result is kept. A signed-in user gets the analysis
+    (and the text it came from) stored against their account; a guest gets the
+    same result and nothing is written. The response therefore carries `saved`,
+    which is what the front end uses to offer "keep this by creating an account".
+
+    Nothing is persisted until the run has fully succeeded, so a failure in the
+    middle leaves no half-written analysis and no orphaned agreement text.
     """
     # Gate first: is this even a tenancy agreement? Anything else is rejected
-    # with a clean 200 and is NOT persisted (so it never counts as an analysis).
+    # with a clean 200 and is NEVER saved, for guests and users alike (so it
+    # never counts as one of their analyses either).
     verdict = classify_document(text, source_type)
     if verdict["document_type"] != TENANCY_AGREEMENT:
         return _rejection_response(verdict)
-
-    agreement = Agreement(source_type=source_type, raw_text=text)
-    db.add(agreement)
-    db.commit()
-    db.refresh(agreement)
 
     clauses = split_into_clauses(text)
 
@@ -72,34 +83,45 @@ def _run_pipeline(text: str, source_type: SourceType, db: Session) -> dict:
 
     missing = find_missing_protections(present_types)
     questions = build_questions(flagged, missing)
-
-    analysis = Analysis(
-        agreement_id=agreement.id,
-        flagged_clauses=flagged,
-        missing_protections=missing,
-        questions_to_ask=questions,
-        risk_score=min(100, len(flagged) * 15 + len(missing) * 10),
-        summary_text=(
-            f"{len(flagged)} of {checked} checked clause(s) flagged, "
-            f"{len(missing)} expected protection(s) missing "
-            f"({len(clauses)} clauses found in total)."
-        ),
+    risk_score = min(100, len(flagged) * 15 + len(missing) * 10)
+    summary = (
+        f"{len(flagged)} of {checked} checked clause(s) flagged, "
+        f"{len(missing)} expected protection(s) missing "
+        f"({len(clauses)} clauses found in total)."
     )
-    db.add(analysis)
-    db.commit()
-    db.refresh(analysis)
 
-    return {
+    # Built from local values, not from a saved row, so guests get exactly the
+    # same response without anything being written.
+    result = {
         "status": "ok",
         "document_type": TENANCY_AGREEMENT,
-        "agreement_id": str(agreement.id),
-        "analysis_id": str(analysis.id),
-        "flagged_clauses": analysis.flagged_clauses,
-        "missing_protections": analysis.missing_protections,
-        "questions_to_ask": analysis.questions_to_ask,
-        "summary": analysis.summary_text,
-        "risk_score": analysis.risk_score,
+        "flagged_clauses": flagged,
+        "missing_protections": missing,
+        "questions_to_ask": questions,
+        "summary": summary,
+        "risk_score": risk_score,
+        "saved": False,
+        "analysis_id": None,
     }
+
+    if user is not None:
+        analysis = analysis_store.persist(
+            db,
+            user,
+            text=text,
+            source_type=source_type,
+            flagged_clauses=flagged,
+            missing_protections=missing,
+            questions_to_ask=questions,
+            risk_score=risk_score,
+            summary_text=summary,
+        )
+        result["saved"] = True
+        result["analysis_id"] = str(analysis.id)
+        result["title"] = analysis.title
+        result["recommendation"] = analysis.recommendation
+
+    return result
 
 
 def _rejection_response(verdict: dict) -> dict:
@@ -189,26 +211,35 @@ def _as_noun_phrase(reason: str) -> str:
 
 
 @router.post("/agreements/analyze")
-def analyze_agreement(payload: AgreementIn, db: Session = Depends(get_db)):
+def analyze_agreement(
+    payload: AgreementIn,
+    db: Session = Depends(get_db),
+    user: User | None = Depends(get_current_user),
+):
     """
     Plain text in, structured analysis out.
     Pipeline: split into clauses -> match each against clause_reference ->
     send only the matched, narrow context to the AI model -> assemble result.
     Then deterministically derive missing protections and questions to ask.
+
+    Signed in? The result is saved to the caller's history. Guest? Same result,
+    nothing stored — the response's `saved` flag says which.
     """
-    return _run_pipeline(payload.text, SourceType.text, db)
+    return _run_pipeline(payload.text, SourceType.text, db, user)
 
 
 @router.post("/agreements/analyze-upload")
 async def analyze_upload(
-    file: UploadFile = File(...), db: Session = Depends(get_db)
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: User | None = Depends(get_current_user),
 ):
     """
     PDF / Word (.docx) / image / text file in, same structured analysis out.
 
     The file is turned into text by app/services/extractor.py (pypdf for PDFs,
     python-docx for Word documents, Tesseract for images), then run through the
-    exact same pipeline as paste.
+    exact same pipeline as paste. The file itself is never written to disk.
     """
     data = await file.read()
 
@@ -226,7 +257,7 @@ async def analyze_upload(
         return _notice_response(UNREADABLE, 0.6, "no readable text")
 
     source_type = _source_type_for(file.content_type or "", file.filename or "")
-    return _run_pipeline(text, source_type, db)
+    return _run_pipeline(text, source_type, db, user)
 
 
 def _source_type_for(content_type: str, filename: str) -> SourceType:

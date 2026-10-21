@@ -77,6 +77,7 @@ SHELL = """<!DOCTYPE html>
         <a href="/terms">Terms</a>
         <a href="/">Analyse an agreement</a>
       </nav>
+      <div class="auth-slot" id="authSlot"></div>
     </div>
   </header>
 
@@ -102,6 +103,7 @@ __BODY__
       </div>
     </div>
   </footer>
+  <script src="/common.js"></script>
 </body>
 </html>
 """

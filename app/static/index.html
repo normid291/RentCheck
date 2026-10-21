@@ -20,6 +20,7 @@
       </a>
       <span class="nav-spacer"></span>
       <span class="nav-tag">Built for Nigerian renters</span>
+      <div class="auth-slot" id="authSlot"></div>
     </div>
   </header>
 
@@ -192,6 +193,18 @@
       </div>
     </section>
 
+    <!-- Shown after a guest analysis (offer to keep it) or after a saved one
+         (confirmation). Populated by app.js. -->
+    <section class="save-banner" id="saveBanner" hidden>
+      <div class="panel save-card">
+        <div class="save-body">
+          <strong id="saveTitle"></strong>
+          <p id="saveText"></p>
+        </div>
+        <div class="save-actions" id="saveActions"></div>
+      </div>
+    </section>
+
     <section class="how">
       <h2>How RentCheck reads your agreement</h2>
       <div class="how-grid">
@@ -231,6 +244,7 @@
     </div>
   </footer>
 
+  <script src="/common.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>

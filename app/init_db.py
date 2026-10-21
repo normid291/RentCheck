@@ -8,12 +8,15 @@ without the operator having to remember a separate step.
 
 `Base.metadata.create_all()` is idempotent: it creates missing tables but never
 alters existing ones, so we also add any columns that exist in the models but
-are missing from an older database.
+are missing from an older database. Constraints and indexes that no amount of
+column-adding will produce are handled by the recorded steps in
+app/migrations.py.
 """
 from sqlalchemy import Enum, inspect, text
 from sqlalchemy.schema import CreateColumn
 
 from app.database import engine
+from app.migrations import run_migrations
 from app.models.db import Base
 
 
@@ -131,6 +134,7 @@ def ensure_schema() -> None:
     create_tables()
     add_missing_enum_values()
     add_missing_columns()
+    run_migrations()
     added, updated = seed_clause_reference()
     print(f"[schema] clause_reference synced ({added} added, {updated} updated).")
 

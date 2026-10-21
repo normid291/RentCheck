@@ -28,6 +28,20 @@ from app.routers.agreements import _run_pipeline
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "explainer_data.json")
 
+# Used when the database has no stored agreement to pick from. Guest analyses
+# are not stored (only signed-in ones are), so a clean install has no rows.
+FALLBACK = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "fixtures", "real", "ng_deed_text.txt"
+)
+
+
+def fallback_text() -> str | None:
+    try:
+        with open(FALLBACK, encoding="utf-8") as fh:
+            return fh.read()
+    except OSError:
+        return None
+
 # Human labels for the clause types the pipeline emits.
 CLAUSE_LABELS = {
     "taxes_and_outgoings": "Taxes & outgoings",
@@ -99,35 +113,54 @@ def pick_agreement(db):
 def main() -> int:
     db = SessionLocal()
     try:
+        # Prefer a real agreement someone has already analysed. Since guest
+        # analyses are no longer stored (only signed-in ones are), a fresh
+        # install has nothing to pick from — hence the fixture fallback.
         picked = pick_agreement(db)
-        if not picked:
-            print("No suitable agreement found in the database.")
-            return 1
-        a, stored = picked
-        print(f"[data] chosen agreement {a.id} (source={a.source_type.value}, "
-              f"{len((a.raw_text or '').split())} words, stored risk={stored.risk_score})")
+        stored_result = None
+
+        if picked:
+            a, stored = picked
+            source_text, source_type = a.raw_text, a.source_type
+            print(f"[data] chosen agreement {a.id} (source={source_type.value}, "
+                  f"{len((source_text or '').split())} words, stored risk={stored.risk_score})")
+            stored_result = {
+                "risk_score": stored.risk_score,
+                "summary": stored.summary_text,
+                "flagged_clauses": stored.flagged_clauses or [],
+                "missing_protections": stored.missing_protections or [],
+                "questions_to_ask": stored.questions_to_ask or [],
+            }
+        else:
+            source_text = fallback_text()
+            if not source_text:
+                print("No suitable agreement in the database, and the fallback "
+                      f"fixture is missing ({FALLBACK}).")
+                return 1
+            source_type = SourceType.text
+            print("[data] no stored agreement in the database; using the fallback "
+                  f"fixture {os.path.basename(FALLBACK)}")
 
         # Run it through the REAL pipeline (same code path the API uses).
         replay = "--no-run" not in sys.argv
         fresh = None
         if replay:
             print("[data] running through the real analysis pipeline ...")
-            fresh = _run_pipeline(a.raw_text, SourceType.text, db)
+            fresh = _run_pipeline(source_text, source_type, db)
             if fresh.get("status") != "ok":
                 fresh = None
 
         # The small model is flaky, so a re-run can surface fewer AI flags than
         # the stored run. Both are genuine pipeline output; keep whichever real
         # result is richer so the explainer shows the fullest true analysis.
-        stored_result = {
-            "risk_score": stored.risk_score,
-            "summary": stored.summary_text,
-            "flagged_clauses": stored.flagged_clauses or [],
-            "missing_protections": stored.missing_protections or [],
-            "questions_to_ask": stored.questions_to_ask or [],
-        }
         result, provenance = stored_result, "stored analysis (database)"
-        if fresh and len(fresh.get("flagged_clauses") or []) >= len(stored_result["flagged_clauses"]):
+        if stored_result is None or (
+            fresh
+            and len(fresh.get("flagged_clauses") or []) >= len(stored_result["flagged_clauses"])
+        ):
+            if not fresh:
+                print("[data] the pipeline did not return a usable analysis.")
+                return 1
             result, provenance = fresh, "re-run through the pipeline"
         print(f"[data] using {provenance}: "
               f"risk={result.get('risk_score')} flags={len(result.get('flagged_clauses') or [])}")

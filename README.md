@@ -4,6 +4,10 @@ AI-powered tenancy agreement analyzer for Nigerian renters. Paste or upload a
 tenancy agreement and get back flagged clauses, missing protections, and
 questions to ask before signing — grounded in common Nigerian rental norms.
 
+No account is needed to run an analysis. Sign up (email plus a one-time code)
+and your analyses are saved to a private history you can rename or delete at any
+time.
+
 Built for the Devcenter Hacktober sprint, deployed on Rumpty Cloud.
 
 ## Why it's built this way
@@ -36,6 +40,7 @@ are actually good at.
 - FastAPI (Python) backend
 - PostgreSQL (Rumpty Managed Database)
 - Rumpty AI Inference (OpenAI-compatible endpoint)
+- Resend for transactional email (sign-in and password-reset codes)
 - Plain HTML/JS frontend (no framework)
 - Deployed via Rumpty App Deployments (GitHub-connected)
 
@@ -47,9 +52,15 @@ pip install -r requirements.txt
 
 # 2. Copy and fill in environment variables
 cp .env.example .env
-# edit .env with your local Postgres URL and Rumpty AI Inference credentials
+# edit .env with your local Postgres URL and Rumpty AI Inference credentials.
+# For local work you also want:
+#   SESSION_SECRET=<any long random string>   signs the session cookie
+#   SESSION_COOKIE_SECURE=false               plain-http dev: the browser refuses
+#                                             to send a Secure-only cookie
+#   EMAIL_PROVIDER=console                    prints sign-in codes to the server
+#                                             log instead of sending email
 
-# 3. Create the schema and seed data (also runs automatically on startup)
+# 3. Create the schema, run migrations and seed data (also runs on startup)
 python -m app.init_db
 
 # 4. Run the server
@@ -59,8 +70,27 @@ uvicorn app.main:app --reload
 Visit `http://localhost:8000` to use the app.
 
 `python -m app.init_db` creates any missing tables, adds any columns missing
-from an older schema, and seeds `clause_reference`. The same routine runs on
-app startup, so a fresh database is usable without extra steps.
+from an older schema, applies the recorded migrations in `app/migrations.py`,
+and seeds `clause_reference`. The same routine runs on app startup, so a fresh
+database is usable without extra steps.
+
+### Schema changes
+
+New tables are created from the models by `create_all()`. Anything `create_all`
+cannot do to a table that already exists — adding a constraint or an index — is
+written as an ordered, idempotent step in `app/migrations.py`, recorded in a
+`schema_migrations` table so it runs once and is never repeated:
+
+```python
+MIGRATIONS: list[tuple[str, object]] = [
+    ("0001_user_ownership", m0001_user_ownership),
+]
+```
+
+Add a function and append it to the list; there is no separate migrate command
+to remember. (`Procfile` starts uvicorn with no release phase, which is why this
+runs on startup rather than through Alembic. The steps are small and
+self-contained, so moving to Alembic later is mechanical.)
 
 ## Deployment (Rumpty Cloud)
 
@@ -71,6 +101,21 @@ app startup, so a fresh database is usable without extra steps.
 3. Set environment variables in the deployment config:
    - `DATABASE_URL` — the connection string for the Postgres instance the app
      should use (use the internal one when the app and DB are both on Rumpty)
+   - `SESSION_SECRET` — a long random string; signs the session cookie. Without
+     it a random per-process key is generated, which signs everyone out on every
+     restart (and a loud warning is printed). **Set this in production.**
+   - `EMAIL_PROVIDER=resend`, `RESEND_API_KEY`, `EMAIL_FROM` — transactional
+     email for sign-in codes. `EMAIL_FROM` must be on a domain verified with
+     Resend, in the form `RentCheck <no-reply@yourdomain.com>`. Without a
+     provider, sign-up and password reset fail cleanly with a message telling
+     the user the code could not be sent — no code is ever written to a log.
+   - `APP_ENV=production` — refuses the development console email provider
+     outright.
+   - `SESSION_COOKIE_SECURE` — leave unset in production (the default, `true`,
+     is what you want once the app is served over HTTPS).
+   - `ALLOWED_ORIGINS` — optional, comma-separated. The API is same-origin only
+     by default; add origins only if you deliberately serve the frontend from
+     somewhere else.
    - `RUMPTY_AI_BASE_URL`, `RUMPTY_AI_KEY`, `RUMPTY_AI_MODEL` — from the AI Inference tab
 4. The schema and seed data are created automatically on startup, so a manual
    `init_db` step is no longer required. To confirm the app can reach its
@@ -83,10 +128,13 @@ Failures return structured JSON (never a bare "Internal Server Error"):
 
 | Status | When |
 | ------ | ---- |
-| 400 | Empty file, unsupported type, or a PDF/image with no readable text |
+| 400 | Empty file, unsupported type, or a PDF/image with no readable text; also a bad email address or a too-short password |
+| 401 | No session, or the session expired (sign-in required) |
+| 403 | The password was right but the email is not verified yet (`{"detail":{"code":"unverified"}}`) |
 | 413 | Upload larger than 15 MB |
+| 429 | Rate limit hit on sign-up, log in, or a code request |
 | 500 | Database error while saving the analysis (check `DATABASE_URL` + `/health/db`) |
-| 502 | Upstream AI Inference unavailable |
+| 502 | Upstream AI Inference unavailable, or a sign-in code could not be sent |
 
 Full stack traces are always logged server-side.
 
@@ -203,14 +251,45 @@ python tests/make_explainer_video.py --voice en-GB-SoniaNeural --rate -2%  # alt
 python tests/make_explainer_video.py --no-music  # narration only
 ```
 
+## Testing accounts and history
+
+`tests/test_accounts.py` drives the real app through FastAPI's `TestClient`
+against whatever `DATABASE_URL` points at. It covers the whole flow and the rules
+around it:
+
+- a guest analysis succeeds and **stores nothing**;
+- sign-up emails a code and answers identically whether the address was free,
+  unverified or already registered;
+- a wrong code and an unknown address return byte-for-byte the same error;
+- the right code verifies the account and signs the user in;
+- a signed-in analysis is saved, listed, opened, renamed and deleted — and
+  deleting it removes the agreement text from the database;
+- another account gets a `404` for all four operations on it;
+- passwords are stored as argon2id, never in plain text;
+- log out, log in, the unverified-account block, forgot/reset password;
+- OTP single use, the 5-wrong-attempts cap, and the 60-second resend cooldown.
+
+Email is stubbed in memory and the per-clause AI call is stubbed with a fixed
+verdict, so the test is fast, offline and deterministic. Clause splitting,
+clause matching, flagging, authentication, sessions and persistence all run for
+real. It cleans up every account it creates.
+
+```bash
+python tests/test_accounts.py
+```
+
 ## Project structure
 
 ```
 app/
   main.py                    - FastAPI app entrypoint
   database.py                - DB connection/session
-  models/db.py                - SQLAlchemy models
-  routers/agreements.py       - API endpoints
+  models/db.py                - SQLAlchemy models (User, OtpCode, Analysis, ...)
+  migrations.py               - Ordered, idempotent schema steps (see "Schema changes")
+  init_db.py                  - create tables + columns + migrations + seed
+  routers/agreements.py       - Analyse endpoints (persist only when signed in)
+  routers/auth.py             - Sign up, verify, resend, log in/out, forgot/reset
+  routers/history.py          - List, open, rename, delete your own analyses
   services/clause_splitter.py - Deterministic clause splitting
   services/clause_matcher.py  - Deterministic clause-to-norm matching
   services/document_classifier.py - Is this a tenancy agreement? (gate before analysis)
@@ -218,13 +297,24 @@ app/
   services/protections.py     - Deterministic missing-protections + questions
   services/red_flags.py       - Deterministic high-confidence red-flag rules
   services/extractor.py       - PDF/Word/image/text upload -> plain text (pypdf, python-docx, OCR)
+  services/auth.py            - argon2id hashing, signed session cookie, dependencies
+  services/otp.py             - One-time codes: issue, verify, attempts, cooldown
+  services/email.py           - Resend + console providers, OTP message
+  services/ratelimit.py       - In-memory sliding-window rate limiter
+  services/analysis_store.py  - Ownership-scoped save/list/open/rename/delete
   seed_clause_reference.py    - Seed data for Nigerian rental norms
+  static/common.js            - Shared RC: apiFetch (cold-start retry), header
+                                session, result renderers, guest pending store
   static/index.html           - Frontend markup
   static/styles.css           - Frontend styles
-  static/app.js               - Frontend logic
+  static/app.js               - Analyser logic + guest "keep this" flow
+  static/signup.html/.js      - Create account + enter code
+  static/login.html/.js       - Log in, forgot password, verify, reset
+  static/history.html/.js     - Saved analyses: list, detail, rename, delete
   static/privacy.html         - Privacy Policy page (generated — see docs/legal)
   static/terms.html           - Terms of Service page (generated)
 tests/
+  test_accounts.py             - End-to-end accounts + history test
   test_document_type.py        - End-to-end gate tests over real + generated fixtures
   make_generated_fixtures.py   - Build derived scans / generated fixtures
   fetch_real_fixtures.py       - Re-download the real fixtures (network)
@@ -238,6 +328,13 @@ scripts/
 ## Current scope
 
 - **Paste text** or **upload a file** (PDF, Word `.docx`, image, or `.txt`) → analysis.
+- **No account required.** A guest gets the full analysis; nothing about the
+  document is stored, and the result is offered a "keep this" sign-up prompt
+  afterwards.
+- **Accounts** (email + password + a 6-digit code) with a private **history**:
+  analyses run while signed in are saved automatically, listed newest first, and
+  can be renamed or deleted — deleting removes the agreement text too. Only a
+  signed-in owner can reach their own records.
 - A document-type gate runs first: non-tenancy inputs (receipts, photos, other
   contracts) and unreadable files are rejected with a friendly notice instead of
   being analysed (see below).
@@ -299,4 +396,6 @@ and flags that neither document has been reviewed by a lawyer yet.
 
 🚧 In active development — Devcenter Hacktober sprint, Oct 1-31 2026.
 Weeks 1–3 complete: flagged clauses, missing protections + questions, and
-PDF/image/text upload.
+PDF/image/text upload. Accounts, one-time-code sign-in and per-user analysis
+history are now in place, with the guest flow unchanged: analyse without an
+account, save it once you have one.

@@ -1,4 +1,5 @@
 import logging
+import os
 import traceback
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -11,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.routers import agreements
+from app.routers import agreements, auth, history
 
 logging.basicConfig(
     level=logging.INFO,
@@ -46,14 +47,27 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="RentCheck", version="0.1.0", lifespan=lifespan)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # tighten before final submission
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# CORS is off by default: the front end is served from this same origin, so it
+# needs nothing, and allow_origins=["*"] alongside cookie sessions would invite
+# cross-site requests. Set ALLOWED_ORIGINS (comma separated) only if a separate
+# origin genuinely has to call this API.
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in (os.environ.get("ALLOWED_ORIGINS") or "").split(",")
+    if origin.strip()
+]
+if ALLOWED_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=ALLOWED_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type"],
+    )
 
 app.include_router(agreements.router, prefix="/api", tags=["agreements"])
+app.include_router(auth.router, prefix="/api", tags=["auth"])
+app.include_router(history.router, prefix="/api", tags=["history"])
 
 
 @app.get("/health")
@@ -157,6 +171,23 @@ def privacy_policy():
 @app.get("/terms", include_in_schema=False)
 def terms_of_service():
     return FileResponse(BASE_DIR / "static" / "terms.html")
+
+
+# Account pages. Same reasoning as the legal pages: registered explicitly so
+# /login, /signup and /history resolve without needing the ".html".
+@app.get("/login", include_in_schema=False)
+def login_page():
+    return FileResponse(BASE_DIR / "static" / "login.html")
+
+
+@app.get("/signup", include_in_schema=False)
+def signup_page():
+    return FileResponse(BASE_DIR / "static" / "signup.html")
+
+
+@app.get("/history", include_in_schema=False)
+def history_page():
+    return FileResponse(BASE_DIR / "static" / "history.html")
 
 
 # Serve the frontend (index.html + any static assets) at /. Mounted last so it

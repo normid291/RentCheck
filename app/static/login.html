@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log in — RentCheck</title>
+  <meta name="description" content="Log in to RentCheck to see the tenancy agreements you have analysed." />
+  <meta name="theme-color" content="#0e7a52" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230e7a52' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z'/%3E%3Cpath d='M9 12l2 2 4-4'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        </span>
+        RentCheck
+      </a>
+      <span class="nav-spacer"></span>
+      <div class="auth-slot" id="authSlot"></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="auth">
+      <div class="panel auth-card">
+        <!-- Log in -->
+        <div id="view-login">
+          <h1>Log in</h1>
+          <p class="auth-sub">See the tenancy agreements you have analysed.</p>
+
+          <form id="loginForm" novalidate>
+            <label class="field" for="email">
+              <span class="field-label">Email</span>
+              <input type="email" id="email" name="email" autocomplete="email"
+                     inputmode="email" required aria-describedby="loginError" />
+            </label>
+
+            <label class="field" for="password">
+              <span class="field-label">Password</span>
+              <input type="password" id="password" name="password"
+                     autocomplete="current-password" required aria-describedby="loginError" />
+            </label>
+
+            <p class="form-error" id="loginError" role="alert" hidden></p>
+
+            <button class="btn btn-primary auth-submit" id="loginBtn" type="submit">
+              <span class="btn-spinner" id="loginSpinner" aria-hidden="true" hidden></span>
+              <span id="loginLabel">Log in</span>
+            </button>
+          </form>
+
+          <!-- Shown only when the server says the account is not verified yet. -->
+          <p class="verify-prompt" id="verifyPrompt" hidden>
+            <button class="link-btn" id="sendVerifyBtn" type="button">Send me a verification code</button>
+          </p>
+
+          <p class="auth-alt">
+            <button class="link-btn" id="forgotBtn" type="button">Forgot password?</button>
+          </p>
+          <p class="auth-alt">New to RentCheck? <a href="/signup">Create an account</a></p>
+        </div>
+
+        <!-- Forgot: ask for the email -->
+        <div id="view-forgot" hidden>
+          <h1>Reset your password</h1>
+          <p class="auth-sub">
+            Enter your email and we'll send you a 6-digit code to set a new password.
+          </p>
+
+          <form id="forgotForm" novalidate>
+            <label class="field" for="forgotEmail">
+              <span class="field-label">Email</span>
+              <input type="email" id="forgotEmail" name="forgotEmail" autocomplete="email"
+                     inputmode="email" required aria-describedby="forgotError" />
+            </label>
+
+            <p class="form-error" id="forgotError" role="alert" hidden></p>
+
+            <button class="btn btn-primary auth-submit" id="forgotBtn2" type="submit">
+              <span class="btn-spinner" id="forgotSpinner" aria-hidden="true" hidden></span>
+              <span id="forgotLabel">Send reset code</span>
+            </button>
+          </form>
+
+          <p class="auth-alt"><button class="link-btn" id="backToLogin" type="button">Back to log in</button></p>
+        </div>
+
+        <!-- Code entry. Used for two things: finishing an unverified login, and
+             completing a password reset (which also asks for the new password). -->
+        <div id="view-code" hidden>
+          <h1 id="codeTitle">Enter your code</h1>
+          <p class="auth-sub">We sent a 6-digit code to <strong id="codeEmail"></strong>.</p>
+
+          <form id="codeForm" novalidate>
+            <label class="field" for="code">
+              <span class="field-label">6-digit code</span>
+              <input type="text" id="code" name="code" class="otp-input"
+                     inputmode="numeric" autocomplete="one-time-code"
+                     maxlength="6" pattern="[0-9]*" required aria-describedby="codeError" />
+            </label>
+
+            <div id="newPasswordWrap" hidden>
+              <label class="field" for="newPassword">
+                <span class="field-label">New password</span>
+                <input type="password" id="newPassword" name="newPassword"
+                       autocomplete="new-password" minlength="8"
+                       aria-describedby="passwordHint codeError" />
+                <span class="field-hint" id="passwordHint">At least 8 characters.</span>
+              </label>
+              <label class="field" for="newConfirm">
+                <span class="field-label">Confirm new password</span>
+                <input type="password" id="newConfirm" name="newConfirm"
+                       autocomplete="new-password" aria-describedby="codeError" />
+              </label>
+            </div>
+
+            <p class="form-error" id="codeError" role="alert" hidden></p>
+
+            <button class="btn btn-primary auth-submit" id="codeBtn" type="submit">
+              <span class="btn-spinner" id="codeSpinner" aria-hidden="true" hidden></span>
+              <span id="codeLabel">Continue</span>
+            </button>
+          </form>
+
+          <p class="auth-alt">
+            Didn't get it?
+            <button class="link-btn" id="resendBtn" type="button">Resend code</button>
+            <span class="resend-hint" id="resendHint" hidden></span>
+          </p>
+          <p class="auth-alt"><button class="link-btn" id="codeBack" type="button">Start over</button></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="disclaimer">
+        <strong>Not legal advice.</strong> RentCheck provides general information about
+        common rental practices to help you read an agreement. It is not a substitute
+        for advice from a qualified lawyer.
+      </div>
+      <div class="footer-row">
+        <span>RentCheck — built for the Devcenter Hacktober sprint.</span>
+        <span class="footer-links">
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/common.js"></script>
+  <script src="/login.js"></script>
+</body>
+</html>

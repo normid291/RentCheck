@@ -168,13 +168,17 @@ def run_manifest(base: str) -> tuple[bool, list[dict]]:
         )
     after = agreements_count(base)
     if before is not None and after is not None:
-        expected_accepts = sum(1 for e in fixtures if e["expected"] == "accept")
         delta = after - before
-        persisted_ok = delta == expected_accepts
+        # Anonymous callers are never persisted any more. A guest analysis is
+        # returned to the browser and forgotten; only a signed-in account stores
+        # anything (covered by tests/test_accounts.py). So an anonymous sweep of
+        # the fixtures must leave the tables exactly as it found them —
+        # accepted fixtures included.
+        persisted_ok = delta == 0
         print(
-            f"\nPersistence check: agreements {before} -> {after} (delta {delta}); "
-            f"{expected_accepts} accepted fixture(s) expected. "
-            f"{'OK' if persisted_ok else 'MISMATCH (rejects may have been saved!)'}"
+            f"\nPersistence check: agreements {before} -> {after} (delta {delta}). "
+            "Nothing is stored for an anonymous caller, so the delta must be 0. "
+            f"{'OK' if persisted_ok else 'MISMATCH (a guest analysis was stored!)'}"
         )
         ok = ok and persisted_ok
     return ok, rows
