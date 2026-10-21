@@ -159,6 +159,29 @@ def main() -> int:
         check("the handoff cookie is the one we expect",
               "tenura_oauth=" in response.headers.get("set-cookie", ""))
 
+        print("\n[3b] The callback URL is built for the host the visitor used")
+        from types import SimpleNamespace
+
+        def uri_for(host):
+            return google_auth.redirect_uri_for(
+                SimpleNamespace(headers={"host": host}, url=SimpleNamespace(netloc=host))
+            )
+
+        # Production is behind a TLS terminator, so the app sees plain http and
+        # must not believe it: Google only accepts http for localhost.
+        check("a public host is always https",
+              uri_for("www.tenura.online") == "https://www.tenura.online/api/auth/google/callback",
+              uri_for("www.tenura.online"))
+        check("a platform hostname is https too",
+              uri_for("rentcheck.rumptycloud.app").startswith("https://rentcheck.rumptycloud.app/"))
+        check("localhost stays http",
+              uri_for("127.0.0.1:8000") == "http://127.0.0.1:8000/api/auth/google/callback",
+              uri_for("127.0.0.1:8000"))
+        google_auth.REDIRECT_URI = "https://pinned.example/api/auth/google/callback"
+        check("a pinned URI wins outright",
+              uri_for("anything.example") == "https://pinned.example/api/auth/google/callback")
+        google_auth.REDIRECT_URI = ""
+
         print("\n[4] A callback that is not ours is refused")
         state = start_and_state()
         bad = client.get("/api/auth/google/callback?code=x&state=wrong", follow_redirects=False)

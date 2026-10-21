@@ -72,15 +72,30 @@ def is_configured() -> bool:
     return bool(CLIENT_ID and CLIENT_SECRET)
 
 
+def _is_local(host: str) -> bool:
+    name = (host or "").strip().lower()
+    return name.startswith(("localhost", "127.0.0.1", "0.0.0.0", "[::1]", "::1"))
+
+
 def redirect_uri_for(request) -> str:
     """Where Google should send the browser back to.
 
     Derived from the live request unless the operator pinned one, so the URI
-    matches whichever hostname the user actually arrived on.
+    matches whichever hostname the visitor actually arrived on.
+
+    The scheme does not come from `request.url`, because the app runs behind
+    RumptyCloud's TLS-terminating proxy and therefore sees a plain-http request
+    even when the browser used https. Google only accepts an http redirect URI
+    for localhost, so anything we are not serving locally is https. That is safe
+    even if the proxy's forwarding headers are missing, and it cannot be wrong in
+    the other direction: a non-local http deployment would have broken `Secure`
+    session cookies long before it reached here.
     """
     if REDIRECT_URI:
         return REDIRECT_URI
-    return str(request.base_url).rstrip("/") + "/api/auth/google/callback"
+    host = request.headers.get("host") or request.url.netloc
+    scheme = "http" if _is_local(host) else "https"
+    return f"{scheme}://{host}/api/auth/google/callback"
 
 
 # --------------------------------------------------------------------------- #
