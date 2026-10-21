@@ -1,6 +1,6 @@
 # Tenura Terms of Service
 
-**Version 1.2 — last updated 21 October 2026**
+**Version 1.3 — last updated 21 October 2026**
 
 These Terms govern your use of Tenura. By using the Service you agree to
 them. If you do not agree, please do not use it.
@@ -153,10 +153,12 @@ or of the analysis we produce for you.
 ## 11. Third-party services
 
 We depend on third parties to run the Service, in particular **Rumpty Cloud**
-for hosting and database, and **Rumpty AI Inference** for AI analysis. Their
-availability and behaviour affect ours. We choose them with care, but we are not
-responsible for their acts or omissions, and their terms may also apply to the
-parts of the Service they provide.
+for hosting and database, **Rumpty AI Inference** for AI analysis, and **Resend**
+for transactional email. If you choose to sign in with Google, that step is
+handled by **Google**, and Google's own terms and privacy policy apply to it.
+Our providers' availability and behaviour affect ours. We choose them with care,
+but we are not responsible for their acts or omissions, and their terms may also
+apply to the parts of the Service they provide.
 
 ## 12. Suspension and termination
 

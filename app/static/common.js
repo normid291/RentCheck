@@ -212,6 +212,7 @@
   /* ---------- header session state ---------- */
 
   var currentUser = null;
+  var googleReady = false;
 
   function renderAuthSlot() {
     var slot = document.getElementById("authSlot");
@@ -237,14 +238,37 @@
     return apiFetch("/api/auth/me")
       .then(function (data) {
         currentUser = data && data.user ? data.user : null;
+        googleReady = !!(data && data.google);
         renderAuthSlot();
         return currentUser;
       })
       .catch(function () {
         // A header that cannot load must not break the page; show signed-out.
         currentUser = null;
+        googleReady = false;
         renderAuthSlot();
         return null;
+      });
+  }
+
+  /* Whether the server has Google sign-in configured. Read from /api/auth/me, so
+   * a button is never shown on a deployment that cannot honour it. */
+  function googleEnabled() {
+    return googleReady;
+  }
+
+  /* Hand the browser to Google. This is a full-page navigation, so the retry
+   * logic in apiFetch cannot cover it — which is why we ping the server first.
+   * Waking it now, while the user is still here, means the callback has a warm
+   * container to land on. */
+  function startGoogleSignIn() {
+    return apiFetch("/api/auth/me")
+      .catch(function () {
+        /* Even if the warm-up fails, the redirect is still worth trying. */
+      })
+      .then(function () {
+        window.location.href =
+          "/api/auth/google/start?next=" + encodeURIComponent(safeNext("/"));
       });
   }
 
@@ -381,6 +405,8 @@
     user: function () {
       return currentUser;
     },
+    googleEnabled: googleEnabled,
+    startGoogleSignIn: startGoogleSignIn,
     renderFinding: renderFinding,
     renderMissing: renderMissing,
     sortFindings: sortFindings,

@@ -8,7 +8,8 @@ Tables:
   analyses          - the result of one run, optionally owned by a user
   clause_reference  - curated seed data of Nigerian rental norms (the backbone of
                       the analysis pipeline)
-  users             - accounts, with argon2 password hashes
+  users             - accounts, with argon2 password hashes (NULL when the
+                      account was created through Google sign-in)
   otp_codes         - hashed, single-use email codes for verification and reset
 
 Ownership notes:
@@ -28,6 +29,7 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -66,13 +68,27 @@ class User(Base):
     # Stored normalised: lowercased and trimmed, so lookups are exact and two
     # accounts cannot differ only by case.
     email = Column(String(320), nullable=False, unique=True, index=True)
-    password_hash = Column(Text, nullable=False)
+    # NULL for an account that only ever signed in with Google. Such an account
+    # has no password to compare against, so password login refuses it — which
+    # is why the column is nullable rather than holding an unguessable hash that
+    # would only ever be a lie in the database.
+    password_hash = Column(Text, nullable=True)
+    # Google's stable account id (`sub`). Kept so a returning Google user is
+    # matched by identity rather than by email, which can be renamed. NULL for
+    # accounts that have never used Google sign-in.
+    google_sub = Column(String(255), nullable=True)
     is_verified = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     verified_at = Column(DateTime, nullable=True)
 
     analyses = relationship("Analysis", back_populates="user")
     otp_codes = relationship("OtpCode", back_populates="user")
+
+    # Unique index rather than a column-level unique: it is created explicitly
+    # here so the model and the migration in app/migrations.py agree on the name,
+    # and so a fresh database and an upgraded one end up identical. Postgres
+    # treats NULLs as distinct, so many accounts may have no google_sub.
+    __table_args__ = (Index("uq_users_google_sub", "google_sub", unique=True),)
 
 
 class OtpCode(Base):

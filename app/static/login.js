@@ -28,6 +28,9 @@
     sendVerifyBtn: $("sendVerifyBtn"),
     forgotBtn: $("forgotBtn"),
 
+    googleWrap: $("googleWrap"),
+    googleBtn: $("googleBtn"),
+
     forgotForm: $("forgotForm"),
     forgotEmail: $("forgotEmail"),
     forgotError: $("forgotError"),
@@ -292,6 +295,26 @@
     clearInterval(cooldownTimer);
     els.resendHint.hidden = true;
     showView("login");
+  });
+
+  /* ---------- Google ---------- */
+
+  Tenura.ready.then(function () {
+    if (els.googleWrap && els.googleBtn && Tenura.googleEnabled()) {
+      els.googleWrap.hidden = false;
+      els.googleBtn.addEventListener("click", function () {
+        els.googleBtn.disabled = true;
+        Tenura.startGoogleSignIn();
+      });
+    }
+    // A callback that could not be trusted, or that Google refused, comes back
+    // here. The reason is deliberately not spelled out to the visitor.
+    if (Tenura.param("error") === "google") {
+      showError(
+        els.loginError,
+        "We couldn't complete that Google sign-in. Please try again."
+      );
+    }
   });
 
   els.email.focus();

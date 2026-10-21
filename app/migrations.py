@@ -91,9 +91,46 @@ def m0001_user_ownership(conn: Connection) -> list[str]:
     return notes
 
 
+def m0002_google_signin(conn: Connection) -> list[str]:
+    """Let an account exist without a password, and record its Google identity.
+
+    An account created by signing in with Google has no password to hash, so the
+    column has to allow NULL. `add_missing_columns()` adds the new `google_sub`
+    column but knows nothing about the unique index that stops two accounts
+    claiming one Google identity, so that is created here.
+    """
+    notes: list[str] = []
+
+    if not _has_table(conn, "users"):
+        return notes
+
+    columns = {col["name"]: col for col in inspect(conn).get_columns("users")}
+
+    if "password_hash" in columns and not columns["password_hash"].get("nullable", True):
+        conn.execute(
+            text("ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL")
+        )
+        notes.append("password_hash now allows NULL")
+
+    if "google_sub" not in columns:
+        conn.execute(text("ALTER TABLE users ADD COLUMN google_sub VARCHAR(255)"))
+        notes.append("added column google_sub")
+
+    if "uq_users_google_sub" not in _index_names(conn, "users"):
+        conn.execute(
+            text(
+                "CREATE UNIQUE INDEX uq_users_google_sub ON users (google_sub)"
+            )
+        )
+        notes.append("added unique index uq_users_google_sub")
+
+    return notes
+
+
 # Order matters: run top to bottom, only the unapplied ones.
 MIGRATIONS: list[tuple[str, object]] = [
     ("0001_user_ownership", m0001_user_ownership),
+    ("0002_google_signin", m0002_google_signin),
 ]
 
 

@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.routers import agreements, auth, history
+from app.routers import agreements, auth, google_auth, history
 
 logging.basicConfig(
     level=logging.INFO,
@@ -67,6 +67,7 @@ if ALLOWED_ORIGINS:
 
 app.include_router(agreements.router, prefix="/api", tags=["agreements"])
 app.include_router(auth.router, prefix="/api", tags=["auth"])
+app.include_router(google_auth.router, prefix="/api", tags=["auth"])
 app.include_router(history.router, prefix="/api", tags=["history"])
 
 

@@ -111,6 +111,10 @@ self-contained, so moving to Alembic later is mechanical.)
      the user the code could not be sent — no code is ever written to a log.
    - `APP_ENV=production` — refuses the development console email provider
      outright.
+   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` — optional; turn on
+     "Continue with Google" on the login and sign-up pages. See
+     [Sign in with Google](#sign-in-with-google) below. If they are unset the
+     button is not shown at all, so leaving them out is safe.
    - `SESSION_COOKIE_SECURE` — leave unset in production (the default, `true`,
      is what you want once the app is served over HTTPS).
    - `ALLOWED_ORIGINS` — optional, comma-separated. The API is same-origin only
@@ -121,6 +125,47 @@ self-contained, so moving to Alembic later is mechanical.)
    `init_db` step is no longer required. To confirm the app can reach its
    database, call `GET /health/db` — it returns `200 {"status":"ok"...}` when the
    DB is reachable and initialised, or `503` with the actual error otherwise.
+
+### Sign in with Google
+
+Optional. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` and the login and
+sign-up pages grow a "Continue with Google" button; leave them out and the
+button is not rendered at all and `/api/auth/google/start` answers `404`.
+
+This uses the **server-side redirect** flow, not Google's JavaScript button. The
+browser is sent to `accounts.google.com`, and Google returns it to
+`/api/auth/google/callback` with a one-time code that *our server* exchanges for
+the user's identity. Done this way, no Google script ever runs in our page and
+no Google cookie is set on our domain — which is what keeps the privacy policy's
+"no external scripts load on the page at all" true.
+
+In the Google Cloud console, create an OAuth 2.0 client of type **Web
+application** and add, as an *Authorized redirect URI*:
+
+```
+https://www.tenura.online/api/auth/google/callback
+```
+
+(A *JavaScript origin* is not used by this flow.) The URI is derived from the
+hostname the visitor arrived on, so **each hostname the app is served from needs
+its own entry** — both `www.tenura.online` and the `*.rumptycloud.app` address.
+Alternatively pin one with `GOOGLE_REDIRECT_URI`, which is only safe if every
+hostname points at that same value.
+
+What the code guarantees:
+
+- an account created this way has **no password** (`users.password_hash` is
+  `NULL`), and password login refuses it with the usual generic message until the
+  user sets one through "Forgot password";
+- signing in with Google on an address that already has an email/password
+  account **links** the two and marks it verified, because Google has already
+  proved the address — the existing password keeps working;
+- an account is matched by Google's stable account id first and by verified
+  email second; Google must report `email_verified`, so a token claiming an
+  unverified address is refused;
+- CSRF is covered by a signed, httpOnly, ten-minute `state` cookie and the code
+  exchange uses PKCE, so a callback that is not the one we started is refused
+  with the same generic "please try again" message as every other failure.
 
 ### API error responses
 
@@ -278,6 +323,33 @@ real. It cleans up every account it creates.
 python tests/test_accounts.py
 ```
 
+## Testing Google sign-in
+
+`tests/test_google_signin.py` covers "Continue with Google" the same way. Google
+is the only thing stubbed (`fetch_identity`); the state cookie, the callback's
+checks, account creation and linking, and the session all run for real. The
+token-claim rules are tested directly against `identity_from_id_token` with
+hand-built JWTs, so nothing touches the network.
+
+- a token with the wrong audience, issuer, expiry, or an unverified email is
+  refused;
+- `/api/auth/me` reports whether Google sign-in is available, and `/start` is a
+  `404` when it is not;
+- `/start` redirects to Google with `state` and PKCE `S256`, and sets an httpOnly
+  handoff cookie;
+- a callback with a wrong, missing, or reused-by-another-client state is refused
+  with the generic error, and hands out no session;
+- a new Google sign-in creates a verified account with **no password**, and
+  password login then refuses it;
+- signing in again with the same Google account reuses that account;
+- Google sign-in on an existing email/password account links it, verifies it, and
+  leaves the password working;
+- a second Google account cannot claim an address already linked to another.
+
+```bash
+python tests/test_google_signin.py
+```
+
 ## Project structure
 
 ```
@@ -289,6 +361,7 @@ app/
   init_db.py                  - create tables + columns + migrations + seed
   routers/agreements.py       - Analyse endpoints (persist only when signed in)
   routers/auth.py             - Sign up, verify, resend, log in/out, forgot/reset
+  routers/google_auth.py      - "Continue with Google": /auth/google/start + /callback
   routers/history.py          - List, open, rename, delete your own analyses
   services/clause_splitter.py - Deterministic clause splitting
   services/clause_matcher.py  - Deterministic clause-to-norm matching
@@ -298,6 +371,7 @@ app/
   services/red_flags.py       - Deterministic high-confidence red-flag rules
   services/extractor.py       - PDF/Word/image/text upload -> plain text (pypdf, python-docx, OCR)
   services/auth.py            - argon2id hashing, signed session cookie, dependencies
+  services/google_auth.py     - Google OAuth redirect flow, ID-token claim checks
   services/otp.py             - One-time codes: issue, verify, attempts, cooldown
   services/email.py           - Resend + console providers, OTP message
   services/ratelimit.py       - In-memory sliding-window rate limiter
@@ -315,6 +389,7 @@ app/
   static/terms.html           - Terms of Service page (generated)
 tests/
   test_accounts.py             - End-to-end accounts + history test
+  test_google_signin.py        - End-to-end "Continue with Google" test
   test_document_type.py        - End-to-end gate tests over real + generated fixtures
   make_generated_fixtures.py   - Build derived scans / generated fixtures
   fetch_real_fixtures.py       - Re-download the real fixtures (network)

@@ -1,7 +1,9 @@
 """Accounts: password hashing, signed session cookies, and auth dependencies.
 
 Sessions are a signed, expiring cookie rather than a token in localStorage:
-  - the value is `user_id.expires.HMAC-SHA256(...)` — stdlib only, no extra table
+  - the value is `base64url(payload).expires.HMAC-SHA256(...)` — stdlib only, no
+    extra table, and the same signing serves the short-lived OAuth handoff
+    cookie (see the OAuth section below)
   - the cookie is httpOnly (JavaScript cannot read it, so XSS cannot exfiltrate
     it), Secure, and SameSite=Lax (so a cross-site form post does not carry it)
   - nothing is ever returned in a JSON body for the client to store
@@ -12,8 +14,11 @@ is set in production and we say so loudly when it is missing.
 """
 from __future__ import annotations
 
+import base64
+import binascii
 import hashlib
 import hmac
+import json
 import os
 import re
 import secrets
@@ -117,7 +122,13 @@ def hash_secret(value: str) -> str:
     return _ph.hash(value)
 
 
-def verify_password(stored_hash: str, password: str) -> bool:
+def verify_password(stored_hash: str | None, password: str) -> bool:
+    if not stored_hash:
+        # An account created through Google sign-in has no password at all, so
+        # there is nothing to compare against: every password is wrong. (Without
+        # this guard the hasher would raise on None, which is why it is here and
+        # not merely tidy.)
+        return False
     try:
         _ph.verify(stored_hash, password)
         return True
@@ -167,6 +178,47 @@ def create_user(db: Session, email: str, password: str) -> User:
     return user
 
 
+def get_user_by_google_sub(db: Session, sub: str) -> User | None:
+    """The account bound to a Google account id, if any."""
+    if not sub:
+        return None
+    return db.query(User).filter(User.google_sub == sub).one_or_none()
+
+
+def create_user_with_google(db: Session, email: str, sub: str) -> User:
+    """An account created by signing in with Google.
+
+    It has no password — Google is the only way in until the user sets one
+    through "forgot password". Google has already proved the address belongs to
+    them, so the account starts verified; making them run the email code
+    afterwards would prove the same thing twice.
+    """
+    user = User(
+        email=normalise_email(email),
+        password_hash=None,
+        is_verified=True,
+        google_sub=sub,
+        verified_at=datetime.utcnow(),
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def link_google_account(db: Session, user: User, sub: str) -> None:
+    """Attach a Google identity to an existing account, and verify it.
+
+    Only reached once Google has told us the address is verified, so marking the
+    account verified is justified — it is the same proof the emailed code gives.
+    """
+    user.google_sub = sub
+    if not user.is_verified:
+        user.is_verified = True
+    user.verified_at = datetime.utcnow()
+    db.commit()
+
+
 def set_password(db: Session, user: User, password: str) -> None:
     user.password_hash = hash_password(password)
     db.commit()
@@ -180,25 +232,33 @@ def mark_verified(db: Session, user: User) -> None:
 
 
 # --------------------------------------------------------------------------- #
-# session tokens
+# signed, expiring values
 # --------------------------------------------------------------------------- #
-def make_session_token(user_id, ttl_seconds: int = SESSION_TTL_SECONDS) -> str:
+def sign_token(payload: bytes, ttl_seconds: int) -> str:
+    """Base64url the payload and sign it together with an expiry.
+
+    One implementation, shared by the session cookie and the short-lived cookie
+    that carries OAuth state across the redirect to Google, so there is exactly
+    one place where the signing and the constant-time comparison have to be
+    right. The token is `payload.expires.HMAC-SHA256(payload.expires)`.
+    """
+    body = base64.urlsafe_b64encode(payload).decode("ascii").rstrip("=")
     expires = int(time.time()) + ttl_seconds
-    payload = f"{user_id}.{expires}"
-    signature = hmac.new(SESSION_SECRET, payload.encode(), hashlib.sha256).hexdigest()
-    return f"{payload}.{signature}"
+    message = f"{body}.{expires}"
+    signature = hmac.new(SESSION_SECRET, message.encode(), hashlib.sha256).hexdigest()
+    return f"{message}.{signature}"
 
 
-def read_session_token(token: str) -> str | None:
-    """Return the user id from a valid, unexpired token, else None."""
+def read_token(token: str) -> bytes | None:
+    """The payload of a valid, unexpired, untampered token, else None."""
     if not token:
         return None
     parts = token.split(".")
     if len(parts) != 3:
         return None
-    user_id, expires, signature = parts
+    body, expires, signature = parts
     expected = hmac.new(
-        SESSION_SECRET, f"{user_id}.{expires}".encode(), hashlib.sha256
+        SESSION_SECRET, f"{body}.{expires}".encode(), hashlib.sha256
     ).hexdigest()
     if not hmac.compare_digest(signature, expected):
         return None
@@ -207,7 +267,28 @@ def read_session_token(token: str) -> str | None:
             return None
     except ValueError:
         return None
-    return user_id
+    try:
+        return base64.urlsafe_b64decode(body + "=" * (-len(body) % 4))
+    except (ValueError, binascii.Error):
+        return None
+
+
+# --------------------------------------------------------------------------- #
+# session tokens
+# --------------------------------------------------------------------------- #
+def make_session_token(user_id, ttl_seconds: int = SESSION_TTL_SECONDS) -> str:
+    return sign_token(str(user_id).encode("ascii"), ttl_seconds)
+
+
+def read_session_token(token: str) -> str | None:
+    """Return the user id from a valid, unexpired token, else None."""
+    payload = read_token(token or "")
+    if payload is None:
+        return None
+    try:
+        return payload.decode("ascii")
+    except UnicodeDecodeError:
+        return None
 
 
 def set_session_cookie(response: Response, user: User) -> None:
@@ -225,6 +306,54 @@ def set_session_cookie(response: Response, user: User) -> None:
 def clear_session_cookie(response: Response) -> None:
     response.delete_cookie(
         key=SESSION_COOKIE,
+        httponly=True,
+        secure=COOKIE_SECURE,
+        samesite="lax",
+        path="/",
+    )
+
+
+# --------------------------------------------------------------------------- #
+# OAuth handoff cookie
+# --------------------------------------------------------------------------- #
+# Carries the `state` and PKCE `verifier` between the redirect to Google and the
+# callback that comes back. Signed with the same secret as the session, lives
+# only minutes, and is httpOnly so no page script can read it.
+#
+# SameSite=Lax, deliberately not Strict: the callback is a top-level GET
+# navigation arriving from accounts.google.com, and a Strict cookie is not sent
+# on a cross-site navigation, so the callback would never find its own state.
+OAUTH_STATE_COOKIE = "tenura_oauth"
+OAUTH_STATE_TTL_SECONDS = 10 * 60
+
+
+def set_oauth_state_cookie(response: Response, value: dict) -> None:
+    payload = json.dumps(value, separators=(",", ":")).encode("utf-8")
+    response.set_cookie(
+        key=OAUTH_STATE_COOKIE,
+        value=sign_token(payload, OAUTH_STATE_TTL_SECONDS),
+        max_age=OAUTH_STATE_TTL_SECONDS,
+        httponly=True,
+        secure=COOKIE_SECURE,
+        samesite="lax",
+        path="/",
+    )
+
+
+def read_oauth_state_cookie(token: str | None) -> dict | None:
+    payload = read_token(token or "")
+    if payload is None:
+        return None
+    try:
+        value = json.loads(payload.decode("utf-8"))
+    except (ValueError, UnicodeDecodeError):
+        return None
+    return value if isinstance(value, dict) else None
+
+
+def clear_oauth_state_cookie(response: Response) -> None:
+    response.delete_cookie(
+        key=OAUTH_STATE_COOKIE,
         httponly=True,
         secure=COOKIE_SECURE,
         samesite="lax",

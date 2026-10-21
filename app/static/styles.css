@@ -537,6 +537,22 @@ textarea#agreementText:focus { outline: none; border-color: var(--brand); box-sh
 .auth-submit { width: 100%; justify-content: center; }
 .auth-alt { margin: 16px 0 0; font-size: 0.9rem; color: var(--muted); }
 .auth-legal { margin: 20px 0 0; font-size: 0.78rem; color: var(--muted); }
+
+/* "Continue with Google". White with a border, per Google's neutral button
+ * style: it must not take the brand colour, or it stops reading as Google's. */
+.auth-google { margin: 0; }
+.btn-google {
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line-strong); font-weight: 650;
+}
+.btn-google:hover { border-color: var(--muted); background: var(--surface-2); }
+.btn-google:disabled:hover { border-color: var(--line-strong); background: var(--surface); }
+.google-mark { display: inline-flex; flex: none; }
+.auth-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 16px 0 18px; color: var(--muted); font-size: 0.8rem;
+}
+.auth-divider::before, .auth-divider::after { content: ""; height: 1px; flex: 1; background: var(--line); }
 .resend-hint { margin-left: 6px; font-size: 0.85rem; color: var(--muted); }
 .verify-prompt { margin: 14px 0 0; }
 

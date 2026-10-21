@@ -38,6 +38,10 @@ items:
 - **Closing an account is still manual.** Deleting a saved analysis is
   self-service from `/history`, but closing the account itself means emailing us
   (privacy §8). If you add an account-delete endpoint, update §8 and §10.
+- **Google sign-in is on, and it is disclosed.** The privacy policy names Google
+  as a recipient (§6) and the handoff cookie (§3.2), and the terms name it as a
+  third party (§11). If you turn it off, you can trim those; if you add another
+  sign-in provider, it needs the same treatment.
 - **Consider whether a Data Protection Officer is required.** The NDPA requires
   one in some circumstances; a project this size may not, but it is worth
   checking.
@@ -58,9 +62,11 @@ changes. The claims most likely to go stale:
   `Agreement.raw_text` in `app/models/db.py`, written from
   `app/routers/agreements.py` only when a run is authenticated. Guest analyses
   are not persisted at all, so the policy is simpler for them.
-- **"One session cookie, no analytics, no third-party scripts"** (privacy
-  §3.2): `tenura_session` is the only cookie, set in `app/services/auth.py`.
-  This holds because `app/static/index.html` loads nothing external. Keep it
-  that way, or soften the sentence.
+- **"No analytics, no third-party scripts"** (privacy §3.2): this holds because
+  `app/static/index.html` loads nothing external. **"Continue with Google" does
+  not break it** — it is a server-side redirect to Google's own page, not
+  Google's script in ours (see `app/services/google_auth.py`). The only cookies
+  are `tenura_session` (set in `app/services/auth.py`) and the short-lived
+  `tenura_oauth` handoff cookie. Keep it that way, or soften the sentence.
 - **"Uploads are never written to disk"** (privacy §3.1, §9): uploads are read
   into memory in `app/routers/agreements.py` and passed as bytes.

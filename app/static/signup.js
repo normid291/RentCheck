@@ -35,6 +35,9 @@
     resendBtn: $("resendBtn"),
     resendHint: $("resendHint"),
     changeEmail: $("changeEmail"),
+
+    googleWrap: $("googleWrap"),
+    googleBtn: $("googleBtn"),
   };
 
   var email = "";
@@ -199,6 +202,18 @@
     els.viewSignup.hidden = false;
     showError(els.error, null);
     els.email.focus();
+  });
+
+  /* ---------- Google ---------- */
+
+  Tenura.ready.then(function () {
+    if (els.googleWrap && els.googleBtn && Tenura.googleEnabled()) {
+      els.googleWrap.hidden = false;
+      els.googleBtn.addEventListener("click", function () {
+        els.googleBtn.disabled = true;
+        Tenura.startGoogleSignIn();
+      });
+    }
   });
 
   els.email.focus();

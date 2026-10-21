@@ -1,6 +1,6 @@
 # Tenura Privacy Policy
 
-**Version 1.3 — last updated 21 October 2026**
+**Version 1.4 — last updated 21 October 2026**
 
 Tenura is a tenancy-agreement analysis tool. You paste or upload a tenancy
 agreement and it returns flagged clauses, missing protections and questions to
@@ -37,12 +37,14 @@ delete them.
 | The text of the agreement you submit, **only when you are signed in** | To produce your analysis, and to reopen it later from your history | Rumpty AI Inference (selected parts only — see section 5), Rumpty Cloud (hosting and database) |
 | The analysis we generate — flagged clauses, missing protections, questions, risk score — **only when you are signed in** | To show you the result and keep it for you | Rumpty Cloud |
 | If you have an account: your **email address**, your **password hash**, and the **one-time codes** we send you | To sign you in, verify your email, and let you reset a forgotten password | Rumpty Cloud; and our email provider, Resend, to deliver the message |
+| If you sign in with Google: your email address and the **account identifier Google sends us** — no password, because there is none | To recognise you on later visits and keep your history with you | Google, which performs the sign-in; Rumpty Cloud |
 | A **session cookie** holding your signed-in state | To keep you logged in between pages | Nobody — it is set by us and never shared |
 | Server logs: IP address, timestamps, requested pages, error traces | To run the Service, debug failures and prevent abuse | Rumpty Cloud |
 
 We run no analytics and no advertising, and no third-party scripts load on the
-page. We do not sell your data. We do not use your document to train anyone's AI
-model.
+page — including when you sign in with Google, which we do by sending you to
+Google's own page rather than by loading Google's script into ours. We do not
+sell your data. We do not use your document to train anyone's AI model.
 
 ## 3. What we collect
 
@@ -86,18 +88,27 @@ ordinary server logs described below.
 
 ### 3.2 Accounts, and what we still do not collect
 
-An account needs an email address and a password, and nothing else. We do not ask
-for your name, phone number, date of birth, or address.
+An account needs an email address and a way to sign in — a password, or your
+Google account — and nothing else. We do not ask for your name, phone number,
+date of birth, or address.
 
 - **Passwords** are hashed with Argon2id before they are stored. We never store
   the password itself and we cannot recover it. A forgotten password is reset
   through a one-time code emailed to you, not by us reading anything out.
 - **One-time codes** are stored hashed as well, expire after 10 minutes, can be
   used once, and are replaced when you ask for a new one.
-- **One session cookie**, named `tenura_session`, holds your signed-in state. It is
+- **A session cookie**, named `tenura_session`, holds your signed-in state. It is
   set `httpOnly` (JavaScript on the page cannot read it), `Secure`, and
   `SameSite=Lax`, and it contains only a signed user reference and an expiry — no
   password, no document data. Signing out clears it.
+- **If you sign in with Google**, we receive your email address and a Google
+  account identifier, and nothing else — no password is ever created for you. The
+  sign-in happens on Google's own page: our page does not load Google's script
+  and Google sets no cookie on our site. For the few minutes the sign-in takes we
+  set one further short-lived cookie, `tenura_oauth`, which carries the
+  anti-forgery value Google must echo back; it holds no personal data, cannot be
+  read by page scripts, and expires after ten minutes. Google can, of course, see
+  that you signed in to Tenura, under its own privacy policy.
 - **No analytics, no advertising identifiers, no third-party trackers.** No
   external scripts load on the page at all.
 - **No payment details.** The Service is free and takes no payments.
@@ -174,6 +185,7 @@ Two things follow from this that you should know:
 | Rumpty AI Inference (Rumpty Cloud) | Individual clause text together with the matching rental norm; or the first 1,800 characters, but only when the document type is ambiguous | To evaluate a clause, or to classify the document |
 | Rumpty Cloud | Our application and the managed PostgreSQL database, which holds your stored text and analysis | Hosting the Service and storing the data |
 | Resend | Your email address and the one-time code message | To deliver verification and password-reset emails |
+| Google | Your Google sign-in, handled on Google's own page; Google then tells us your verified email address and account identifier | To let you sign in with your Google account, only if you choose to |
 
 We do not sell, rent or trade personal data. We do not share it with advertisers
 or data brokers. We do not allow a provider to use your document for their own
@@ -201,9 +213,10 @@ For an account:
 - **Saved analyses and their agreement text** are kept until you delete them.
   You can delete any of them yourself from [your history](/history), and deletion
   removes the agreement text permanently and immediately.
-- **Your account** — the email address and password hash — is kept while the
-  account exists. To close it, delete your saved analyses and email us to remove
-  the account itself.
+- **Your account** — the email address, the password hash (if you set a password;
+  an account created with Google has none) and the Google account identifier (if
+  you signed in with Google) — is kept while the account exists. To close it,
+  delete your saved analyses and email us to remove the account itself.
 - **One-time codes** expire after 10 minutes, and are marked spent as soon as they
   are used. They are never reused.
 - **Server logs** are kept only as long as they are needed for debugging and

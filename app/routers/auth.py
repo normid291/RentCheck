@@ -27,6 +27,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.db import OtpPurpose, User
 from app.services import email as email_service
+from app.services import google_auth
 from app.services import otp
 from app.services.auth import (
     clear_session_cookie,
@@ -360,8 +361,14 @@ def me(user: User | None = Depends(get_current_user)):
 
     Always 200 with `user: null` when signed out, so the header can render its
     logged-out state without a 401 in the browser console on every page load.
+
+    `google` says whether "Continue with Google" is offered on this deployment,
+    so the login and sign-up pages can show the button only when it would work.
     """
-    return {"user": user_payload(user) if user else None}
+    return {
+        "user": user_payload(user) if user else None,
+        "google": google_auth.is_configured(),
+    }
 
 
 # --------------------------------------------------------------------------- #
