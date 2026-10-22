@@ -67,11 +67,14 @@ Exact line lengths get re-timed against the real VO before the beat sheet is loc
   the only "3D" is a CSS 3D tilt on the results card.
 - **Reusable components**: `Camera`, `WordReveal`, `Caption`, `Card`, `Cursor`,
   `Ring`, `StatPill`, `Toast`, `Stepper`, `GlowBg`, `LogoMark`.
-- **Brand assets pulled from the app itself**: mark = the exact inline SVG in
-  `app/static/index.html` (shield + check, stroke 2.2, round caps); palette from
-  `app/static/styles.css` (`--brand #0e7a52`, `--brand-dark #0a5c3e`,
+- **Brand assets**: the app now ships the real Tenura lockup
+  (`app/static/tenura-logo.png` / `tenura-mark.png`) and a blue/violet brand
+  palette (`--brand #2f5cf6`, `--brand-dark #1e3fc9`, `--brand-2 #6a35f0`,
   `--high #c0392b`, `--medium #b9770a`, `--low #2f6fb0`, `--rule #6d47d9`,
-  ink `#10201a`, muted `#5c6f66`, line `#e2eae5`).
+  ink `#0f172a`, muted `#64748b`, line `#e6eaf2`). The video source in `video/`
+  still uses the retired green shield (`LogoMark` in `video/src/components/Ui.tsx`,
+  `BRAND.green` in `video/src/theme.ts`) and must be re-rendered against the new
+  logo and palette.
 - **Voice**: `edge-tts` `en-US-AndrewMultilingualNeural` at `+6%`. ElevenLabs was
   the intent, but no premium TTS key exists in the project — the Rumpty endpoint
   returns HTTP 403 — so edge-tts ships. Re-checked with faster-whisper for wrong words.

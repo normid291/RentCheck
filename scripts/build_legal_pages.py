@@ -22,14 +22,6 @@ ROOT = os.path.dirname(HERE)
 LEGAL_DIR = os.path.join(ROOT, "docs", "legal")
 STATIC_DIR = os.path.join(ROOT, "app", "static")
 
-# Same mark as app/static/index.html, so the pages share a favicon.
-ICON = (
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'"
-    " fill='none' stroke='%230e7a52' stroke-width='2.2' stroke-linecap='round'"
-    " stroke-linejoin='round'%3E%3Cpath d='M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z'/%3E"
-    "%3Cpath d='M9 12l2 2 4-4'/%3E%3C/svg%3E"
-)
-
 PAGES = [
     {
         "md": "privacy-policy.md",
@@ -58,18 +50,16 @@ SHELL = """<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>__TITLE__ — Tenura</title>
   <meta name="description" content="__DESC__" />
-  <meta name="theme-color" content="#0e7a52" />
-  <link rel="icon" href="__ICON__" />
+  <meta name="theme-color" content="#2f5cf6" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
   <header class="nav">
     <div class="wrap nav-inner">
       <a class="brand" href="/">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
-        </span>
-        Tenura
+        <img class="brand-logo" src="/tenura-logo.png" alt="Tenura" width="119" height="30" />
       </a>
       <span class="nav-spacer"></span>
       <nav class="nav-links">
@@ -257,7 +247,6 @@ def build(page: dict) -> str:
     out = SHELL
     out = out.replace("__TITLE__", html.escape(page["title"], quote=True))
     out = out.replace("__DESC__", html.escape(page["desc"], quote=True))
-    out = out.replace("__ICON__", ICON)
     out = out.replace("__BODY__", body)
 
     out_path = os.path.join(STATIC_DIR, page["out"])
