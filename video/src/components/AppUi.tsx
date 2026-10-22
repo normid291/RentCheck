@@ -69,7 +69,7 @@ export const UploadPanel: React.FC<{
         >
           {!clicked ? (
             <>
-              <svg width={54} height={54} viewBox="0 0 24 24" fill="none" stroke={BRAND.green} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+              <svg width={54} height={54} viewBox="0 0 24 24" fill="none" stroke={BRAND.blue} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 16V4" />
                 <path d="M7 9l5-5 5 5" />
                 <path d="M4 20h16" />
@@ -80,22 +80,22 @@ export const UploadPanel: React.FC<{
           ) : (
             <div style={{width: "100%", padding: "0 40px", boxSizing: "border-box"}}>
               <div style={{display: "flex", alignItems: "center", gap: 18}}>
-                <span style={{width: 58, height: 58, borderRadius: 14, background: BRAND.greenSoft, display: "grid", placeItems: "center"}}>
-                  <IconFile size={30} color={BRAND.green} />
+                <span style={{width: 58, height: 58, borderRadius: 14, background: BRAND.blueSoft, display: "grid", placeItems: "center"}}>
+                  <IconFile size={30} color={BRAND.blue} />
                 </span>
                 <div style={{flex: 1}}>
                   <div style={{fontSize: 27, fontWeight: 700, color: INK.ink}}>Deed_of_Lease.pdf</div>
                   <div style={{fontSize: 20, color: INK.muted, fontWeight: 500}}>412 KB · 523 words</div>
                 </div>
                 {frame >= ev("gateOk") ? (
-                  <Pill label="TENANCY AGREEMENT" fg={BRAND.green} bg={BRAND.greenSoft} size={18} />
+                  <Pill label="TENANCY AGREEMENT" fg={BRAND.blue} bg={BRAND.blueSoft} size={18} />
                 ) : frame >= ev("rowGate") ? (
                   <Pill label="CHECKING…" fg={SEV.medium.fg} bg={SEV.medium.bg} size={18} />
                 ) : null}
               </div>
               {/* progress */}
               <div style={{marginTop: 26, height: 10, borderRadius: 6, background: INK.line, overflow: "hidden"}}>
-                <div style={{width: `${progress * 100}%`, height: "100%", background: BRAND.green, borderRadius: 6}} />
+                <div style={{width: `${progress * 100}%`, height: "100%", background: BRAND.blue, borderRadius: 6}} />
               </div>
             </div>
           )}
@@ -106,7 +106,7 @@ export const UploadPanel: React.FC<{
           {rows.map((r) => {
             const s = rowState(frame, r.a, r.d);
             const on = s !== "idle";
-            const tone = s === "done" ? BRAND.green : s === "busy" ? SEV.medium.fg : INK.lineStrong;
+            const tone = s === "done" ? BRAND.blue : s === "busy" ? SEV.medium.fg : INK.lineStrong;
             return (
               <div
                 key={r.t}
@@ -116,8 +116,8 @@ export const UploadPanel: React.FC<{
                   gap: 20,
                   padding: "21px 24px",
                   borderRadius: 16,
-                  background: s === "done" ? BRAND.greenSoft : INK.surface2,
-                  border: `1px solid ${s === "done" ? "rgba(14,122,82,0.22)" : INK.line}`,
+                  background: s === "done" ? BRAND.blueSoft : INK.surface2,
+                  border: `1px solid ${s === "done" ? "rgba(47,92,246,0.22)" : INK.line}`,
                   opacity: interpolate(on ? 1 : 0.55, [0, 1], [0.55, 1]),
                 }}
               >
@@ -128,7 +128,7 @@ export const UploadPanel: React.FC<{
                     borderRadius: 999,
                     display: "grid",
                     placeItems: "center",
-                    background: s === "done" ? BRAND.green : s === "busy" ? SEV.medium.bg : INK.line,
+                    background: s === "done" ? BRAND.blue : s === "busy" ? SEV.medium.bg : INK.line,
                     color: "#fff",
                     fontSize: 19,
                     fontWeight: 800,
@@ -137,7 +137,7 @@ export const UploadPanel: React.FC<{
                   {s === "done" ? <IconCheck size={22} color="#fff" sw={3} /> : s === "busy" ? "•••" : ""}
                 </span>
                 <div style={{flex: 1, fontSize: 26, fontWeight: 600, color: INK.ink}}>{r.t}</div>
-                <div style={{fontSize: 22, fontWeight: 600, color: s === "done" ? BRAND.green : INK.muted}}>
+                <div style={{fontSize: 22, fontWeight: 600, color: s === "done" ? BRAND.blue : INK.muted}}>
                   {s === "done" ? r.ok : s === "busy" ? "Working…" : "Waiting"}
                 </div>
                 <div style={{width: 4}} />
@@ -167,7 +167,7 @@ export const ResultsPanel: React.FC<{
 }> = ({ev, frame, p}) => {
   const score = countUp(frame, ev("ring"), 100, A.risk_score);
   const high = A.risk_key === "high";
-  const ringColor = high ? SEV.high.fg : A.risk_key === "medium" ? SEV.medium.fg : BRAND.green;
+  const ringColor = high ? SEV.high.fg : A.risk_key === "medium" ? SEV.medium.fg : BRAND.blue;
   const tiles = [
     {n: A.counts.flagged, l: "Flagged clauses", icon: <IconFlag size={26} color={SEV.high.fg} />, at: ev("tile1")},
     {n: A.counts.missing, l: "Missing protections", icon: <IconLock size={26} color={SEV.medium.fg} />, at: ev("tile2")},
@@ -360,7 +360,7 @@ export const ClauseCard: React.FC<{
           <div style={{marginTop: 12, fontSize: 37, fontWeight: 600, color: INK.soft, lineHeight: 1.34}}>
             <span
               style={{
-                backgroundImage: "linear-gradient(90deg, rgba(14,122,82,0.22), rgba(14,122,82,0.22))",
+                backgroundImage: "linear-gradient(90deg, rgba(47,92,246,0.22), rgba(47,92,246,0.22))",
                 backgroundRepeat: "no-repeat",
                 backgroundSize: `${hl * 100}% 100%`,
                 WebkitBoxDecorationBreak: "clone",
@@ -419,7 +419,7 @@ export const QuestionsPanel: React.FC<{
       <div style={{padding: "42px 52px"}}>
         <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
           <Label>Questions to ask</Label>
-          <Pill label={`${A.counts.questions} QUESTIONS`} fg={BRAND.green} bg={BRAND.greenSoft} size={18} />
+          <Pill label={`${A.counts.questions} QUESTIONS`} fg={BRAND.blue} bg={BRAND.blueSoft} size={18} />
         </div>
         <div style={{marginTop: 22, display: "flex", flexDirection: "column", gap: 12}}>
           {qs.map((q, i) => {
@@ -440,9 +440,9 @@ export const QuestionsPanel: React.FC<{
                   alignItems: "flex-start",
                   padding: "18px 22px",
                   borderRadius: 16,
-                  background: open ? BRAND.greenSoft : "#fff",
-                  border: `1px solid ${open ? "rgba(14,122,82,0.35)" : INK.line}`,
-                  boxShadow: open ? `0 10px 30px rgba(14,122,82,${0.10 * o})` : "none",
+                  background: open ? BRAND.blueSoft : "#fff",
+                  border: `1px solid ${open ? "rgba(47,92,246,0.35)" : INK.line}`,
+                  boxShadow: open ? `0 10px 30px rgba(47,92,246,${0.10 * o})` : "none",
                   opacity: p2,
                   transform: `translateY(${(1 - p2) * 14}px)`,
                 }}
@@ -455,7 +455,7 @@ export const QuestionsPanel: React.FC<{
                     flex: "0 0 auto",
                     display: "grid",
                     placeItems: "center",
-                    background: open ? BRAND.green : INK.line,
+                    background: open ? BRAND.blue : INK.line,
                     color: open ? "#fff" : INK.muted,
                     fontSize: 17,
                     fontWeight: 800,
@@ -470,7 +470,7 @@ export const QuestionsPanel: React.FC<{
                       fontSize: 18,
                       fontWeight: 700,
                       letterSpacing: 1.2,
-                      color: BRAND.green,
+                      color: BRAND.blue,
                       opacity: o,
                       paddingTop: 8,
                     }}

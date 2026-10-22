@@ -3,17 +3,18 @@
 A Remotion project that renders the Tenura promo. The delivered cut is
 tracked at `artifacts/tenura-promo.mp4`.
 
-> The tracked cut, and the voiceover baked into it, still say "RentCheck": they
-> were rendered before the product was renamed. Every string in this project is
-> already Tenura, so a re-render is all that is needed. Run `build_vo.py` first
-> to regenerate the VO and `public/timeline.json`, then
-> `npx remotion render Tenura`. The audio under `public/` is gitignored and is
-> rewritten by that step.
+> The film is on the current Tenura brand: the real mark and lockup
+> (`public/tenura-mark.png`, `public/tenura-lockup-dark.png`, copied from
+> `app/static/`) and the app's blue/violet palette, which `src/theme.ts` mirrors
+> so the film and the product can never drift apart. Regenerate the world with
+> `make_stage.py` and the narration with `build_vo.py` after any brand change —
+> the palette is duplicated in `scripts/make_stage.py` because that plate is
+> pre-baked.
 
 | | |
 | --- | --- |
-| **Output** | 1920×1080, 60 fps, 61.92 s, H.264 High crf 17, AAC 48 kHz stereo |
-| **Loudness** | −14.1 LUFS integrated, −2.0 dBFS peak |
+| **Output** | 1920×1080, 60 fps, 61.63 s, H.264 High crf 17, AAC 48 kHz stereo |
+| **Loudness** | −14.2 LUFS integrated, −2.0 dBFS peak |
 | **Brief / script / beat sheet** | `docs/video/tenura-plan.md` |
 | **Reference study (measured timings)** | `docs/video/technique-guide.md` |
 | **Engine** | Remotion 4.0.537 + React 19 + TypeScript |
@@ -27,10 +28,10 @@ the mix — so picture and sound can never drift apart. Nothing else hard-codes 
 time; if a beat's length changes, `build_vo.py` rewrites the file and
 re-anchors the authored event times into the new layout (`remap_events`).
 
-The whole background world — base wash, mint pool, warm pool, vignette and film
-grain — is baked into a single `public/stage.png`. That one change is what took
-the render from ~0.5–1 s a frame to ~0.1 s; the live frame only composites that
-plate plus the animated dust.
+The whole background world — base wash, brand-blue pool, violet pool, vignette
+and film grain — is baked into a single `public/stage.png`. That one change is
+what took the render from ~0.5–1 s a frame to ~0.1 s; the live frame only
+composites that plate plus the animated dust.
 
 The UI in the film is not a screenshot. It is the real app redrawn in code as
 cards (`src/components/AppUi.tsx`), driven by real values from

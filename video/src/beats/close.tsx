@@ -70,7 +70,7 @@ export const B10Proof: React.FC<P> = ({beat, ev}) => {
           fontFamily: "Inter, sans-serif",
         }}
       >
-        <div style={{fontSize: 28, fontWeight: 800, letterSpacing: 4, color: STAGE.mint, opacity: pop(frame, 6, 16)}}>
+        <div style={{fontSize: 28, fontWeight: 800, letterSpacing: 4, color: STAGE.accent, opacity: pop(frame, 6, 16)}}>
           WHAT THE CHECK FOUND
         </div>
       </div>

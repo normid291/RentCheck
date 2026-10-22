@@ -48,14 +48,14 @@ const FadeOut: React.FC<{total: number}> = ({total}) => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  return <AbsoluteFill style={{background: "#04110c", opacity: o}} />;
+  return <AbsoluteFill style={{background: "#050814", opacity: o}} />;
 };
 
 export const Film: React.FC<{timeline: Timeline}> = ({timeline}) => {
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "#05130d",
+        backgroundColor: "#060a1a",
         fontFamily: "Inter, sans-serif",
         WebkitFontSmoothing: "antialiased",
         textRendering: "optimizeLegibility",

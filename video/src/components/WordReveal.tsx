@@ -29,7 +29,7 @@ export const WordReveal: React.FC<{
   size = 96,
   weight = 700,
   color = "#ffffff",
-  accent = "#5fe0a8",
+  accent = "#8fb0ff",
   accentWords = [],
   italicWords = [],
   italic = false,
@@ -103,7 +103,7 @@ const Word: React.FC<{
         filter: blur > 0.05 ? `blur(${blur}px)` : undefined,
         color: accent ? accentColor : undefined,
         fontStyle: italic ? "italic" : undefined,
-        textShadow: accent && glow > 0 ? `0 0 ${26 * glow}px rgba(95,224,168,${0.55 * glow})` : undefined,
+        textShadow: accent && glow > 0 ? `0 0 ${26 * glow}px rgba(143,176,255,${0.55 * glow})` : undefined,
       }}
     >
       {w}

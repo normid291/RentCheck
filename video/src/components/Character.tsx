@@ -14,8 +14,8 @@ export const Ada: React.FC<{
 }> = ({size = 1, mood = "idle", frame, p = 1, tone = "light"}) => {
   const bob = Math.sin(frame / 60 * Math.PI * 2 * 0.5) * 3.2;
   const blink = frame % 216 > 208;
-  const top = tone === "light" ? "#e8f4ee" : "#f0dfc6";
-  const topShade = tone === "light" ? "#cfe6dc" : "#dbc7a8";
+  const top = tone === "light" ? "#eef2fe" : "#f0dfc6";
+  const topShade = tone === "light" ? "#dbe3fb" : "#dbc7a8";
   const skin = "#e8c6a8";
   const skinShade = "#d3a985";
   const hair = "#2a2020";
@@ -60,7 +60,7 @@ export const Ada: React.FC<{
         />
         <path d="M120 150 C132 150 142 154 148 160 L132 178 L120 168 L108 178 L92 160 C98 154 108 150 120 150 Z" fill={topShade} />
         {/* collar accent, brand green */}
-        <path d="M104 152 L120 172 L136 152" stroke="#0e7a52" strokeWidth={5} fill="none" strokeLinecap="round" />
+        <path d="M104 152 L120 172 L136 152" stroke="#2f5cf6" strokeWidth={5} fill="none" strokeLinecap="round" />
 
         {/* neck */}
         <rect x={108} y={116} width={24} height={40} rx={11} fill={skinShade} />
@@ -157,7 +157,7 @@ export const Deed: React.FC<{
           style={{
             height: Math.max(3, h * 0.013),
             width: `${[100, 92, 97, 84, 96, 90, 99, 88, 95, 91, 97, 93, 89, 98, 94, 86][i % 16]}%`,
-            background: mark ? mark.color : sweeping ? "#0e7a52" : "#d8d6cf",
+            background: mark ? mark.color : sweeping ? "#2f5cf6" : "#d8d6cf",
             opacity: mark ? 0.35 + 0.65 * mark.p : sweeping ? sweepOp : 1,
             transform: mark ? `scaleY(${1 + 0.6 * mark.p})` : lit ? "scaleY(1.5)" : undefined,
             transformOrigin: "left center",
@@ -180,7 +180,7 @@ export const Plant: React.FC<{size?: number; x?: number; y?: number; p?: number}
     <svg width={150 * size} height={190 * size} viewBox="0 0 150 190">
       <path d="M75 120 C40 96 34 56 44 30 C70 54 76 92 75 120 Z" fill="#1f8f63" />
       <path d="M75 120 C110 96 116 56 106 30 C80 54 74 92 75 120 Z" fill="#25a675" />
-      <path d="M75 122 C75 90 75 60 75 26" stroke="#0e7a52" strokeWidth={4} fill="none" />
+      <path d="M75 122 C75 90 75 60 75 26" stroke="#2f5cf6" strokeWidth={4} fill="none" />
       <path d="M40 118 h70 l-8 56 a8 8 0 0 1 -8 7 h-38 a8 8 0 0 1 -8 -7 Z" fill="#c9a27a" />
       <rect x={34} y={110} width={82} height={16} rx={8} fill="#d9b48c" />
     </svg>

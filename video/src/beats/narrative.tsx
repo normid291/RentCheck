@@ -198,7 +198,7 @@ export const B03Pain: React.FC<P> = ({beat, ev}) => {
               fontSize: 26,
             }}
           >
-            <span style={{width: 11, height: 11, borderRadius: 99, background: STAGE.mint}} />
+            <span style={{width: 11, height: 11, borderRadius: 99, background: STAGE.accent}} />
             {c.text}
           </div>
         );
@@ -234,7 +234,7 @@ export const B04Turn: React.FC<P> = ({beat, ev}) => {
           at={8}
           size={TYPE.turn}
           accentWords={["jargon"]}
-          accent="#5fe0a8"
+          accent="#8fb0ff"
           style={{justifyContent: "center"}}
         />
       </div>
@@ -246,7 +246,7 @@ export const B04Turn: React.FC<P> = ({beat, ev}) => {
             size={TYPE.turn}
             accentWords={["clear"]}
             italicWords={["clear"]}
-            accent="#5fe0a8"
+            accent="#8fb0ff"
             style={{justifyContent: "center"}}
           />
         </div>
@@ -319,7 +319,7 @@ export const B05Reveal: React.FC<P> = ({beat, ev}) => {
           marginLeft: -350,
           marginTop: -350,
           borderRadius: 999,
-          background: "radial-gradient(circle, rgba(255,255,255,0.72) 0%, rgba(150,242,196,0.38) 26%, rgba(120,220,175,0.13) 54%, rgba(0,0,0,0) 80%)",
+          background: "radial-gradient(circle, rgba(255,255,255,0.72) 0%, rgba(150,180,255,0.38) 26%, rgba(120,150,235,0.13) 54%, rgba(0,0,0,0) 80%)",
           opacity: bloom * 0.95,
           transform: `scale(${0.25 + bloom * 1.05})`,
         }}
@@ -340,7 +340,7 @@ export const B05Reveal: React.FC<P> = ({beat, ev}) => {
           placeItems: "center",
           opacity: mark,
           transform: `scale(${0.6 + mark * 0.4})`,
-          boxShadow: `0 0 120px rgba(95,224,168,${0.55 * mark})`,
+          boxShadow: `0 0 120px rgba(143,176,255,${0.55 * mark})`,
         }}
       >
         <LogoMark size={150} color="#ffffff" sw={2} />
@@ -367,9 +367,9 @@ export const B05Reveal: React.FC<P> = ({beat, ev}) => {
               style={{
                 padding: "14px 28px",
                 borderRadius: 999,
-                border: "1px solid rgba(95,224,168,0.4)",
-                background: "rgba(95,224,168,0.10)",
-                color: STAGE.mint,
+                border: "1px solid rgba(120,150,255,0.45)",
+                background: "rgba(47,92,246,0.14)",
+                color: STAGE.accent,
                 fontSize: 21,
                 fontWeight: 800,
                 letterSpacing: 2.2,

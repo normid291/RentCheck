@@ -51,7 +51,7 @@ export const Captions: React.FC<{timeline: Timeline}> = ({timeline}) => {
           gap: "0.34em",
           padding: "15px 34px 17px",
           borderRadius: 999,
-          background: "rgba(4,17,12,0.76)",
+          background: "rgba(5,8,20,0.78)",
           border: "1px solid rgba(238,244,240,0.10)",
           boxShadow: "0 18px 50px rgba(0,0,0,0.45)",
           color: STAGE.ink,
@@ -94,8 +94,8 @@ const CaptionWord: React.FC<{w: W}> = ({w}) => {
         display: "inline-block",
         opacity: o,
         transform: `translateY(${y}px)`,
-        color: key ? STAGE.mint : undefined,
-        textShadow: key && glow > 0 ? `0 0 ${20 * glow}px rgba(95,224,168,${0.5 * glow})` : undefined,
+        color: key ? STAGE.accent : undefined,
+        textShadow: key && glow > 0 ? `0 0 ${20 * glow}px rgba(143,176,255,${0.5 * glow})` : undefined,
       }}
     >
       {w.w}

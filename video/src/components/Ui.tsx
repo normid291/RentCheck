@@ -1,50 +1,30 @@
 import React from "react";
-import {interpolate} from "remotion";
+import {Img, interpolate, staticFile} from "remotion";
 import {EASE, FPS} from "../lib";
 import {BRAND, INK, SEV, STAGE, TYPE} from "../theme";
 
 /* ------------------------------------------------------------------ brand */
 
-/** The exact mark from app/static/index.html (shield + check, round caps). */
-export const LogoMark: React.FC<{size?: number; color?: string; sw?: number}> = ({
-  size = 64,
-  color = BRAND.green,
-  sw = 2.2,
-}) => (
-  <svg
-    viewBox="0 0 24 24"
-    width={size}
-    height={size}
-    fill="none"
-    stroke={color}
-    strokeWidth={sw}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z" />
-    <path d="M9 12l2 2 4-4" />
-  </svg>
+/** The real Tenura mark (app/static/tenura-mark.png), rendered exactly as shipped. */
+const MARK = staticFile("tenura-mark.png");
+/** The lockup adapted for the dark stage: the mark plus the wordmark in white. */
+const LOCKUP_DARK = staticFile("tenura-lockup-dark.png");
+
+export const LogoMark: React.FC<{size?: number; color?: string; sw?: number}> = ({size = 64}) => (
+  <Img
+    src={MARK}
+    style={{
+      width: size,
+      height: size,
+      objectFit: "contain",
+      objectPosition: "center",
+      display: "block",
+    }}
+  />
 );
 
-export const Wordmark: React.FC<{size?: number; color?: string; markColor?: string}> = ({
-  size = 46,
-  color = "#ffffff",
-  markColor,
-}) => (
-  <div style={{display: "flex", alignItems: "center", gap: size * 0.34}}>
-    <LogoMark size={size * 1.16} color={markColor ?? BRAND.green} />
-    <span
-      style={{
-        fontSize: size,
-        fontWeight: 700,
-        letterSpacing: -1.2,
-        color,
-        fontFamily: "Inter, sans-serif",
-      }}
-    >
-      Tenura
-    </span>
-  </div>
+export const Wordmark: React.FC<{size?: number; color?: string; markColor?: string}> = ({size = 46}) => (
+  <Img src={LOCKUP_DARK} style={{height: size, width: "auto", display: "block"}} />
 );
 
 /* ------------------------------------------------------------------ cards */
@@ -76,10 +56,10 @@ export const Card: React.FC<{
         transform: `scale(${s})`,
         transformOrigin: "50% 50%",
         opacity,
-        background: light ? INK.surface : "rgba(10,32,22,0.72)",
+        background: light ? INK.surface : "rgba(9,13,32,0.72)",
         border: `1px solid ${light ? INK.line : "rgba(238,244,240,0.10)"}`,
         boxShadow: light
-          ? `0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.6) inset, 0 0 46px rgba(30,160,110,${0.14 * glow})`
+          ? `0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.6) inset, 0 0 46px rgba(47,110,255,${0.16 * glow})`
           : `0 24px 60px rgba(0,0,0,0.5)`,
         backdropFilter: light ? undefined : "blur(14px)",
         padding: 0,
@@ -151,7 +131,7 @@ export const SeverityPill: React.FC<{sev: "high" | "medium" | "low"; size?: numb
 
 export const IconCheck: React.FC<{size?: number; color?: string; sw?: number}> = ({
   size = 24,
-  color = BRAND.green,
+  color = BRAND.blue,
   sw = 2.4,
 }) => (
   <svg
@@ -258,7 +238,7 @@ export const RingGauge: React.FC<{
   color?: string;
   track?: string;
   p?: number;
-}> = ({value, size = 260, stroke = 22, color = BRAND.green, track = INK.line, p = 1}) => {
+}> = ({value, size = 260, stroke = 22, color = BRAND.blue, track = INK.line, p = 1}) => {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const shown = value * p;
@@ -304,7 +284,7 @@ export const Cursor: React.FC<{
       <path
         d="M3 2l18 12.5-7.6 1.3 4.3 8.6-4.2 2.1-4.3-8.6-5.2 5.6z"
         fill="#ffffff"
-        stroke="rgba(4,17,12,0.55)"
+        stroke="rgba(5,8,20,0.55)"
         strokeWidth={1.4}
       />
     </svg>
@@ -375,9 +355,9 @@ export const Stepper: React.FC<{
               padding: "9px 18px",
               borderRadius: 999,
               border: `1px solid ${
-                now ? "rgba(95,224,168,0.60)" : "rgba(238,244,240,0.20)"
+                now ? "rgba(47,92,246,0.60)" : "rgba(238,241,248,0.20)"
               }`,
-              background: now ? "rgba(95,224,168,0.14)" : "rgba(255,255,255,0.07)",
+              background: now ? "rgba(47,92,246,0.16)" : "rgba(255,255,255,0.07)",
             }}
           >
             <span
@@ -387,7 +367,7 @@ export const Stepper: React.FC<{
                 borderRadius: 999,
                 display: "grid",
                 placeItems: "center",
-                background: done || now ? BRAND.green : "rgba(238,244,240,0.12)",
+                background: done || now ? BRAND.blue : "rgba(238,244,240,0.12)",
               }}
             >
               {done ? (
@@ -401,7 +381,7 @@ export const Stepper: React.FC<{
                 fontSize: 19,
                 fontWeight: 700,
                 letterSpacing: 1.2,
-                color: now ? STAGE.mint : "rgba(238,244,240,0.74)",
+                color: now ? STAGE.accent : "rgba(238,244,240,0.74)",
               }}
             >
               {s}
@@ -433,7 +413,7 @@ export const Toast: React.FC<{
   });
   const o = p * e;
   const dy = (1 - e) * 18 + y0;
-  const col = tone === "good" ? BRAND.green : tone === "warn" ? SEV.medium.fg : SEV.low.fg;
+  const col = tone === "good" ? BRAND.blue : tone === "warn" ? SEV.medium.fg : SEV.low.fg;
   return (
     <div
       style={{

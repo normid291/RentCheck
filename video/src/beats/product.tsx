@@ -1,14 +1,17 @@
 import React from "react";
-import {interpolate, useCurrentFrame} from "remotion";
+import {Img, interpolate, staticFile, useCurrentFrame} from "remotion";
 import type {Beat} from "../lib";
 import {EASE, FPS, pop, run} from "../lib";
 import {BRAND, STAGE} from "../theme";
 import {Camera} from "../components/Camera";
 import {Ada} from "../components/Character";
 import {ClauseCard, ResultsPanel, UploadPanel} from "../components/AppUi";
-import {Hand, LogoMark, Stepper} from "../components/Ui";
+import {Hand, Stepper} from "../components/Ui";
 
 type P = {beat: Beat; ev: (id: string) => number};
+
+/** the lockup, wordmark in white for the dark stage */
+const LOCKUP_DARK = staticFile("tenura-lockup-dark.png");
 
 const STEPS = ["UPLOAD", "CHECK", "ANALYSE", "REPORT"];
 
@@ -122,18 +125,13 @@ export const B11Close: React.FC<P> = ({beat, ev}) => {
           marginLeft: -310,
           marginTop: -310,
           borderRadius: 999,
-          background: "radial-gradient(circle, rgba(140,240,190,0.30) 0%, rgba(0,0,0,0) 68%)",
+          background: "radial-gradient(circle, rgba(120,150,255,0.32) 0%, rgba(0,0,0,0) 68%)",
           opacity: bloom,
           transform: `scale(${0.5 + bloom * 0.7})`,
         }}
       />
       <div style={{position: "absolute", left: 0, right: 0, top: 96, display: "flex", justifyContent: "center", opacity: mark}}>
-        <div style={{display: "flex", alignItems: "center", gap: 20}}>
-          <LogoMark size={78} color={STAGE.mint} />
-          <span style={{fontFamily: "Inter, sans-serif", fontSize: 66, fontWeight: 800, letterSpacing: -2, color: "#ffffff"}}>
-            Tenura
-          </span>
-        </div>
+        <Img src={LOCKUP_DARK} style={{height: 96, width: "auto", display: "block"}} />
       </div>
 
       <div style={{position: "absolute", left: 0, right: 0, top: 268, textAlign: "center"}}>
@@ -159,7 +157,7 @@ export const B11Close: React.FC<P> = ({beat, ev}) => {
             fontSize: 62,
             fontWeight: 700,
             letterSpacing: -1.5,
-            color: STAGE.mint,
+            color: STAGE.accent,
             fontStyle: "italic",
             transform: `translateY(${(1 - line2) * 16}px)`,
             display: "inline-block",
@@ -189,12 +187,12 @@ export const B11Close: React.FC<P> = ({beat, ev}) => {
             gap: 14,
             padding: "24px 44px",
             borderRadius: 999,
-            background: BRAND.green,
+            background: `linear-gradient(135deg, ${BRAND.blue}, ${BRAND.violet})`,
             color: "#ffffff",
             fontFamily: "Inter, sans-serif",
             fontSize: 32,
             fontWeight: 700,
-            boxShadow: `0 26px 70px rgba(14,122,82,0.55), 0 0 ${40 * hover}px rgba(95,224,168,0.5)`,
+            boxShadow: `0 26px 70px rgba(47,92,246,0.55), 0 0 ${40 * hover}px rgba(143,176,255,0.5)`,
             transform: `scale(${1 - 0.04 * hover})`,
           }}
         >

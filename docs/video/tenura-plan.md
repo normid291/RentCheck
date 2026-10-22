@@ -14,7 +14,7 @@ Plan for the Tenura promo film, built to match `docs/video/technique-guide.md`
 | **Key message / change for the customer** | "You no longer have to guess what the document means. Risky clauses are flagged by severity with the exact wording, missing protections are named, and you get the questions to ask before you sign." |
 | **Length / format** | 16:9, 1920×1080, 60 fps, **~63 s** (reference is 86 s; 9:16 recomposed version on request) |
 | **Voiceover** | Yes — professional, warm, trustworthy, ~147 wpm with ~0.6 s phrase pauses (measured from the reference) |
-| **Look** | Dark **brand-green** stage (one continuous gradient world, grain + dust), with the **real app UI redrawn in code as light cards** — the hero element filling the frame and being pushed into |
+| **Look** | Dark **brand-blue** stage (one continuous gradient world — blue pool low, violet high — grain + dust), with the **real app UI redrawn in code as light cards** — the hero element filling the frame and being pushed into |
 | **Characters** | Flat-illustration tenant (and agent) as *hosts*, small at the frame edge, entering from below — consistent with the reference |
 | **Music / SFX** | Synthesised in numpy: a slow pad over I–V–vi–IV in A major, a soft sub, a rhodes-like motif and convolution reverb. No cues — the picture carries the beats. Mastered to −14 LUFS / −2 dBTP |
 
@@ -33,7 +33,7 @@ Words in **bold** are the italic accent words.
 | 2 Meet | *Meet Ada. She found a flat, paid the agent, and got a ten-page deed.* | "Meet Ada." · "She found a flat." · "and got a ten-page deed." |
 | 3 Pain | *Every clause is in legal English. Nobody explains it. And when something goes wrong, she only finds out after she has signed.* | doc fanned into clause cards; chips "Too much legalese" · "Nothing explained" · "Problems go unnoticed" |
 | 4 Turn | *Ada doesn't need more jargon. She needs **one clear answer**.* | **Not more jargon.** → **One clear answer.** |
-| 5 Reveal | *Meet Tenura.* | shield-check mark bloom + TENURA; pills "Upload." · "Understand." · "Know what to ask." |
+| 5 Reveal | *Meet Tenura.* | the real Tenura mark blooms in the light circle + TENURA; pills "Upload." · "Understand." · "Know what to ask." |
 | 6 Upload | *First, upload. Tenura checks it is a tenancy agreement, reads every clause, and scores the risk.* | upload panel → scan rows "Is this a tenancy agreement? ✓" · "Reading the document…" · "Scoring 10 clauses…" |
 | 7 Report | *You get one clear risk score, the clauses that are risky, and the protections that are missing.* | real results screen: ring counts to **100 / High risk**, tiles **4 flagged** · **4 missing protections** · **8 questions**, "4 of 7 checked" |
 | 8 Clause | *Every flag shows the exact wording, and explains it in plain English.* | clause card **Subletting — HIGH**, real quote "such consent not to be unreasonably withheld" highlighted, plain-English reason under it |
@@ -67,14 +67,16 @@ Exact line lengths get re-timed against the real VO before the beat sheet is loc
   the only "3D" is a CSS 3D tilt on the results card.
 - **Reusable components**: `Camera`, `WordReveal`, `Caption`, `Card`, `Cursor`,
   `Ring`, `StatPill`, `Toast`, `Stepper`, `GlowBg`, `LogoMark`.
-- **Brand assets**: the app now ships the real Tenura lockup
+- **Brand assets**: the app ships the real Tenura lockup
   (`app/static/tenura-logo.png` / `tenura-mark.png`) and a blue/violet brand
   palette (`--brand #2f5cf6`, `--brand-dark #1e3fc9`, `--brand-2 #6a35f0`,
   `--high #c0392b`, `--medium #b9770a`, `--low #2f6fb0`, `--rule #6d47d9`,
-  ink `#0f172a`, muted `#64748b`, line `#e6eaf2`). The video source in `video/`
-  still uses the retired green shield (`LogoMark` in `video/src/components/Ui.tsx`,
-  `BRAND.green` in `video/src/theme.ts`) and must be re-rendered against the new
-  logo and palette.
+  ink `#0f172a`, muted `#64748b`, line `#e6eaf2`). The film now matches: `video/`
+  imports the real mark (`public/tenura-mark.png`) and a white-wordmark lockup
+  adapted for the dark stage (`public/tenura-lockup-dark.png`), and `src/theme.ts`
+  mirrors the app's blue/violet tokens. The mark is shown as an image, never
+  redrawn; the stage palette is duplicated in `scripts/make_stage.py` because the
+  background plate is pre-baked.
 - **Voice**: `edge-tts` `en-US-AndrewMultilingualNeural` at `+6%`. ElevenLabs was
   the intent, but no premium TTS key exists in the project — the Rumpty endpoint
   returns HTTP 403 — so edge-tts ships. Re-checked with faster-whisper for wrong words.
@@ -85,7 +87,7 @@ Exact line lengths get re-timed against the real VO before the beat sheet is loc
 
 ## 5. Assets needed / decisions
 
-1. **Logo** — confirm the shield-check SVG in `app/static/index.html` is the final mark (and whether a proper logo/wordmark file exists).
+1. **Logo** — resolved: the real lockup landed (`app/static/tenura-logo.png` + `tenura-mark.png`); the film imports the mark and a white-wordmark dark lockup.
 2. **Font** — the app uses the system stack. Inter (open licence) for the film, or keep Segoe UI to match the app exactly?
 3. **Data** — confirm the real anonymised fixture (`tests/fixtures/explainer_data.json`) can be shown as-is.
 4. **Voice** — ElevenLabs key for the final, or is `edge-tts` good enough?

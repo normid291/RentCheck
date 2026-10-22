@@ -5,20 +5,21 @@
  */
 
 export const BRAND = {
-  green: "#0e7a52",
-  greenDark: "#0a5c3e",
-  greenSoft: "#e8f4ee",
-  greenRing: "rgba(14,122,82,0.16)",
+  blue: "#2f5cf6",
+  blueDark: "#1e3fc9",
+  blueSoft: "#eef2fe",
+  blueRing: "rgba(47,92,246,0.18)",
+  violet: "#6a35f0",
 };
 
 export const INK = {
-  ink: "#10201a",
-  soft: "#33463d",
-  muted: "#5c6f66",
-  line: "#e2eae5",
-  lineStrong: "#cfdcd4",
+  ink: "#0f172a",
+  soft: "#334155",
+  muted: "#64748b",
+  line: "#e6eaf2",
+  lineStrong: "#d4dae6",
   surface: "#ffffff",
-  surface2: "#fafcfb",
+  surface2: "#fafbfe",
 };
 
 export const SEV = {
@@ -29,19 +30,19 @@ export const SEV = {
   ai: { fg: "#6b7280", bg: "#f1f2f4" },
 };
 
-/** The dark stage: one continuous brand-green world. */
+/** The dark stage: one continuous brand-blue world, blue pool low, violet high. */
 export const STAGE = {
-  base: "#061710",
-  mid: "#0a2c1f",
-  lift: "#0f4530",
-  bloom: "rgba(30,170,118,0.34)",
-  bloomWarm: "rgba(14,122,82,0.24)",
-  ink: "#eef4f0",
-  muted: "rgba(238,244,240,0.62)",
-  faint: "rgba(238,244,240,0.34)",
-  line: "rgba(238,244,240,0.14)",
+  base: "#070a1c",
+  mid: "#0b1136",
+  lift: "#1a2470",
+  bloom: "rgba(47,110,255,0.36)",
+  bloomWarm: "rgba(120,60,255,0.26)",
+  ink: "#eef1f8",
+  muted: "rgba(238,241,248,0.62)",
+  faint: "rgba(238,241,248,0.34)",
+  line: "rgba(238,241,248,0.14)",
   glass: "rgba(255,255,255,0.06)",
-  mint: "#5fe0a8",
+  accent: "#8fb0ff",
 };
 
 export const TYPE = {

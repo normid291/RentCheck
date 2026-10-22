@@ -1,4 +1,4 @@
-"""Bake the whole brand-green world (gradients + blooms + vignette + grain) into
+"""Bake the whole brand-blue world (gradients + blooms + vignette + grain) into
 one 1920x1080 PNG.
 
 Why: rendering 4 full-screen radial gradients plus an overlay-blend grain layer
@@ -15,9 +15,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "public", "stage.png")
 
 # palette, straight from src/theme.ts
-BASE = (0x06, 0x17, 0x10)
-MID = (0x0A, 0x2C, 0x1F)
-LIFT = (0x0F, 0x45, 0x30)
+BASE = (0x07, 0x0A, 0x1C)
+MID = (0x0B, 0x11, 0x36)
+LIFT = (0x1A, 0x24, 0x70)
 
 
 def hexf(c):
@@ -62,12 +62,12 @@ def glow(rgb, peak, centre, rx, ry, falloff, opacity):
     return hexf(rgb), a[:, :, None]
 
 
-# 2. cool mint pool: radial-gradient(58% 44% at 50% 74%, rgba(30,170,118,.34) .. 78%)
-c, a = glow((30, 170, 118), 0.34, (0.50 * W, 0.74 * H), 0.58 * W, 0.44 * H, 0.78, 0.90)
+# 2. cool brand-blue pool: radial-gradient(58% 44% at 50% 74%, rgba(47,110,255,.36) .. 78%)
+c, a = glow((47, 110, 255), 0.36, (0.50 * W, 0.74 * H), 0.58 * W, 0.44 * H, 0.78, 0.90)
 img = img * (1 - a) + c * a
 
-# 3. warm pool: radial-gradient(38% 30% at 78% 26%, rgba(14,122,82,.24) .. 80%)
-c, a = glow((14, 122, 82), 0.24, (0.78 * W, 0.26 * H), 0.38 * W, 0.30 * H, 0.80, 0.80)
+# 3. violet pool: radial-gradient(38% 30% at 78% 26%, rgba(120,60,255,.26) .. 80%)
+c, a = glow((120, 60, 255), 0.26, (0.78 * W, 0.26 * H), 0.38 * W, 0.30 * H, 0.80, 0.80)
 img = img * (1 - a) + c * a
 
 # 4. film grain, overlay-blended at 9% (matches mixBlendMode: overlay)
