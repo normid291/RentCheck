@@ -1,0 +1,17 @@
+# Normalize line endings across platforms.
+# Files are stored in the repository with LF and checked out with LF, so the
+# working tree stays byte-identical whether this repo is opened on Linux, macOS
+# or Windows. Without this, a Windows checkout (core.autocrlf=true) rewrites
+# every text file to CRLF and shows up as thousands of lines of phantom diffs.
+* text=auto eol=lf
+
+# Binary assets — never text-normalized.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.bmp  binary
+*.tiff binary
+*.pdf  binary
+*.docx binary
+*.mp4  binary
