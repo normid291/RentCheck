@@ -106,6 +106,12 @@ def user_payload(user: User) -> dict:
         "email": user.email,
         "is_verified": bool(user.is_verified),
         "created_at": user.created_at.isoformat() if user.created_at else None,
+        # Read-only flags describing how the account signs in, so the Profile
+        # page can show the right sections (and hide the password section for a
+        # Google-only account). Neither reveals anything beyond what the signed-in
+        # owner already knows about their own account.
+        "has_password": bool(user.password_hash),
+        "google_linked": bool(user.google_sub),
     }
 
 

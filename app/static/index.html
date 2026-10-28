@@ -113,6 +113,7 @@
           <strong id="loadingTitle">Analysing your agreement…</strong>
           <span id="loadingSub">This can take a moment while each clause is checked.</span>
           <div class="step-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="loading-bar" aria-hidden="true"><span></span></div>
         </div>
       </div>
     </section>
@@ -166,6 +167,12 @@
           <h2>Flagged clauses</h2>
           <span class="count" id="flaggedCount">0</span>
           <span class="sub">Terms that may work against you</span>
+        </div>
+        <div class="filter-row" id="flaggedFilters" role="group" aria-label="Filter flagged clauses by severity" hidden>
+          <button class="chip is-active" data-sev="all" type="button" aria-pressed="true">All</button>
+          <button class="chip" data-sev="high" type="button" aria-pressed="false">High</button>
+          <button class="chip" data-sev="medium" type="button" aria-pressed="false">Medium</button>
+          <button class="chip" data-sev="low" type="button" aria-pressed="false">Low</button>
         </div>
         <div id="flaggedList"></div>
       </div>

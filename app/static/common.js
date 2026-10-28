@@ -214,23 +214,223 @@
   var currentUser = null;
   var googleReady = false;
 
+  /* ---------- identity helpers ---------- */
+
+  function emailLocalPart(email) {
+    return String(email || "").split("@")[0] || "";
+  }
+
+  /* A friendly display name. The app never asked for one, and Google's `name`
+   * claim is not stored server-side, so we fall back to the email's local part,
+   * tidied into words. `user.name` is honoured if a deployment ever supplies it. */
+  function displayName(user) {
+    if (!user) return "";
+    if (user.name && String(user.name).trim()) return String(user.name).trim();
+    var local = emailLocalPart(user.email);
+    if (!local) return "Your account";
+    return local
+      .replace(/[._-]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/\b\w/g, function (c) {
+        return c.toUpperCase();
+      });
+  }
+
+  function initials(user) {
+    var source = displayName(user);
+    var parts = source.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+    if (source.length >= 2) return source.slice(0, 2).toUpperCase();
+    return (source.charAt(0) || "?").toUpperCase();
+  }
+
+  /* An avatar. `user.picture` is used when present (a deployment may expose a
+   * Google photo URL), otherwise a tinted initials chip. */
+  function avatarHtml(user, extraClass) {
+    var cls = "avatar" + (extraClass ? " " + extraClass : "");
+    if (user && user.picture) {
+      return (
+        '<span class="' + cls + '" aria-hidden="true">' +
+        '<img src="' + escapeHtml(user.picture) + '" alt="" loading="lazy" referrerpolicy="no-referrer" />' +
+        "</span>"
+      );
+    }
+    return (
+      '<span class="' + cls + '" aria-hidden="true">' + escapeHtml(initials(user)) + "</span>"
+    );
+  }
+
+  /* ---------- header account dropdown ---------- */
+
+  var acctController = null;
+
+  var CHEVRON =
+    '<svg class="acct-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+    'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M6 9l6 6 6-6"/></svg>';
+
   function renderAuthSlot() {
     var slot = document.getElementById("authSlot");
     if (!slot) return;
 
+    if (acctController) {
+      acctController.destroy();
+      acctController = null;
+    }
+
     if (currentUser) {
       var email = currentUser.email || "";
       slot.innerHTML =
-        '<a class="auth-link" href="/history">History</a>' +
-        '<span class="auth-user" title="' + escapeHtml(email) + '">' + escapeHtml(email) + "</span>" +
-        '<button class="auth-link auth-btn" type="button" id="logoutBtn">Log out</button>';
-      var btn = document.getElementById("logoutBtn");
-      if (btn) btn.addEventListener("click", logout);
+        '<div class="acct">' +
+        '<button class="acct-btn" id="acctBtn" type="button" aria-haspopup="menu" ' +
+        'aria-expanded="false" aria-controls="acctMenu" aria-label="Account menu for ' +
+        escapeHtml(email) + '">' +
+        avatarHtml(currentUser) +
+        '<span class="acct-name">' + escapeHtml(displayName(currentUser)) + "</span>" +
+        CHEVRON +
+        "</button>" +
+        '<div class="acct-menu" id="acctMenu" role="menu" aria-label="Account" hidden>' +
+        '<div class="acct-menu-head">' +
+        avatarHtml(currentUser, "avatar-lg") +
+        '<span class="acct-menu-id">' +
+        '<strong class="acct-menu-name">' + escapeHtml(displayName(currentUser)) + "</strong>" +
+        '<span class="acct-menu-email" title="' + escapeHtml(email) + '">' +
+        escapeHtml(email) + "</span>" +
+        "</span>" +
+        "</div>" +
+        '<a class="acct-item" role="menuitem" href="/profile">Profile</a>' +
+        '<a class="acct-item" role="menuitem" href="/history">History</a>' +
+        '<button class="acct-item acct-item-danger" role="menuitem" id="logoutBtn" type="button">' +
+        "Log out</button>" +
+        "</div></div>";
     } else {
       slot.innerHTML =
-        '<a class="auth-link" href="/login">Log in</a>' +
-        '<a class="auth-link auth-cta" href="/signup">Sign up</a>';
+        '<div class="acct">' +
+        '<button class="acct-btn acct-btn-cta" id="acctBtn" type="button" aria-haspopup="menu" ' +
+        'aria-expanded="false" aria-controls="acctMenu">' +
+        '<span class="acct-name">Log in / Sign up</span>' +
+        CHEVRON +
+        "</button>" +
+        '<div class="acct-menu" id="acctMenu" role="menu" aria-label="Account" hidden>' +
+        '<a class="acct-item" role="menuitem" href="/login">Log in</a>' +
+        '<a class="acct-item" role="menuitem" href="/signup">Sign up</a>' +
+        "</div></div>";
     }
+
+    var btn = document.getElementById("acctBtn");
+    var menu = document.getElementById("acctMenu");
+    if (btn && menu) acctController = mountAccountMenu(btn, menu);
+
+    var logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) logoutBtn.addEventListener("click", logout);
+  }
+
+  function closeAccountMenu() {
+    if (acctController) acctController.close(false);
+  }
+
+  /* A small, self-contained menu controller: click or keys open it, arrow keys
+   * move between items, Escape closes and returns focus to the button, and a
+   * click (or Tab) anywhere else dismisses it. */
+  function mountAccountMenu(btn, menu) {
+    var items = [];
+    var open = false;
+
+    function refreshItems() {
+      items = Array.prototype.slice.call(menu.querySelectorAll('[role="menuitem"]'));
+    }
+
+    function setOpen(next) {
+      open = next;
+      menu.hidden = !next;
+      btn.setAttribute("aria-expanded", next ? "true" : "false");
+      btn.classList.toggle("is-open", next);
+      if (next) refreshItems();
+    }
+
+    function focusItem(index) {
+      if (!items.length) return;
+      var i = ((index % items.length) + items.length) % items.length;
+      items[i].focus();
+    }
+
+    function close(returnFocus) {
+      if (!open) return;
+      setOpen(false);
+      if (returnFocus) btn.focus();
+    }
+
+    function onButtonClick(event) {
+      event.preventDefault();
+      if (open) {
+        close(false);
+      } else {
+        setOpen(true);
+        focusItem(0);
+      }
+    }
+
+    function onButtonKeydown(event) {
+      if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        if (!open) setOpen(true);
+        focusItem(0);
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        if (!open) setOpen(true);
+        focusItem(items.length - 1);
+      }
+    }
+
+    function onMenuKeydown(event) {
+      var current = items.indexOf(document.activeElement);
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        focusItem(current + 1);
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        focusItem(current - 1);
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        focusItem(0);
+      } else if (event.key === "End") {
+        event.preventDefault();
+        focusItem(items.length - 1);
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        close(true);
+      } else if (event.key === "Tab") {
+        close(false);
+      }
+    }
+
+    function onDocumentClick(event) {
+      if (!menu.contains(event.target) && !btn.contains(event.target)) close(false);
+    }
+
+    function onDocumentKeydown(event) {
+      if (event.key === "Escape" && open) close(true);
+    }
+
+    btn.addEventListener("click", onButtonClick);
+    btn.addEventListener("keydown", onButtonKeydown);
+    menu.addEventListener("keydown", onMenuKeydown);
+    document.addEventListener("click", onDocumentClick);
+    document.addEventListener("keydown", onDocumentKeydown);
+
+    return {
+      close: close,
+      destroy: function () {
+        btn.removeEventListener("click", onButtonClick);
+        btn.removeEventListener("keydown", onButtonKeydown);
+        menu.removeEventListener("keydown", onMenuKeydown);
+        document.removeEventListener("click", onDocumentClick);
+        document.removeEventListener("keydown", onDocumentKeydown);
+      },
+    };
   }
 
   function mountHeader() {
@@ -405,6 +605,10 @@
     user: function () {
       return currentUser;
     },
+    displayName: displayName,
+    initials: initials,
+    avatarHtml: avatarHtml,
+    closeAccountMenu: closeAccountMenu,
     googleEnabled: googleEnabled,
     startGoogleSignIn: startGoogleSignIn,
     renderFinding: renderFinding,

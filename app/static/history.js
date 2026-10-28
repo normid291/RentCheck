@@ -81,10 +81,17 @@
     if (!analyses.length) {
       els.listContainer.innerHTML =
         '<div class="panel empty-state">' +
-        "<h2>Nothing saved yet</h2>" +
-        "<p>Analyse a tenancy agreement while you are signed in and it will " +
-        "appear here.</p>" +
-        '<a class="btn btn-primary" href="/">Analyse an agreement</a>' +
+        '<span class="empty-icon" aria-hidden="true">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>' +
+        "</span>" +
+        "<h2>No analyses yet</h2>" +
+        "<p>Upload your first tenancy agreement and Tenura will flag the risky " +
+        "clauses, call out the protections that are missing, and give you the " +
+        "questions to ask before you sign.</p>" +
+        '<a class="btn btn-primary" href="/">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>' +
+        "Upload your first agreement</a>" +
         "</div>";
       return;
     }
@@ -92,13 +99,24 @@
     els.listContainer.innerHTML = analyses
       .map(function (a) {
         var risk = Tenura.riskFor(a.risk_score);
+        var flagged = Number(a.flagged_count) || 0;
+        var missing = Number(a.missing_count) || 0;
         return (
           '<a class="history-item" href="#id=' + esc(a.id) + '">' +
           '<span class="hi-main">' +
           '<span class="hi-title">' + esc(a.title) + "</span>" +
-          '<span class="hi-meta">' + esc(Tenura.formatDate(a.created_at)) + " · " +
-          a.flagged_count + " flagged · " + a.missing_count + " missing</span>" +
+          '<span class="hi-meta">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' +
+          esc(Tenura.formatDate(a.created_at)) + "</span>" +
           '<span class="hi-reco">' + esc(a.recommendation) + "</span>" +
+          '<span class="hi-badges">' +
+          '<span class="count-badge' + (flagged ? " is-flagged" : " is-clear") + '">' +
+          (flagged ? flagged + (flagged === 1 ? " flagged clause" : " flagged clauses") : "No flagged clauses") +
+          "</span>" +
+          '<span class="count-badge' + (missing ? " is-missing" : " is-clear") + '">' +
+          (missing ? missing + " missing" + (missing === 1 ? " protection" : " protections") : "All protections present") +
+          "</span>" +
+          "</span>" +
           "</span>" +
           '<span class="hi-risk ' + risk.cls + '">' +
           '<span class="risk-dot"></span>' +
@@ -111,9 +129,19 @@
       .join("");
   }
 
+  function skeletonList(count) {
+    var card =
+      '<div class="panel history-skeleton" aria-hidden="true">' +
+      '<span class="sk sk-line" style="width: 42%"></span>' +
+      '<span class="sk sk-line" style="width: 26%; margin-top: 12px"></span>' +
+      '<span class="sk sk-line" style="width: 68%; margin-top: 12px"></span>' +
+      "</div>";
+    return new Array(count || 3).join(card) + card;
+  }
+
   function loadList() {
-    els.loading.hidden = false;
-    els.listContainer.innerHTML = "";
+    els.loading.hidden = true;
+    els.listContainer.innerHTML = skeletonList(3);
     return api("/api/analyses")
       .then(function (data) {
         renderList((data && data.analyses) || []);
@@ -125,9 +153,6 @@
           '<button class="btn btn-primary" id="retryLoad" type="button">Try again</button></div>';
         var retry = $("retryLoad");
         if (retry) retry.addEventListener("click", loadList);
-      })
-      .then(function () {
-        els.loading.hidden = true;
       });
   }
 

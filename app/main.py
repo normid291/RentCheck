@@ -191,6 +191,11 @@ def history_page():
     return FileResponse(BASE_DIR / "static" / "history.html")
 
 
+@app.get("/profile", include_in_schema=False)
+def profile_page():
+    return FileResponse(BASE_DIR / "static" / "profile.html")
+
+
 # Serve the frontend (index.html + any static assets) at /. Mounted last so it
 # does not shadow the API routes. Path is resolved relative to this file so it
 # works regardless of the process working directory.

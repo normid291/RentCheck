@@ -32,6 +32,7 @@
     btnSpinner: $("btnSpinner"),
 
     loading: $("loading"),
+    loadingTitle: $("loadingTitle"),
     loadingSub: $("loadingSub"),
     error: $("error"),
     errorMsg: $("errorMsg"),
@@ -54,6 +55,7 @@
     statCheckedVal: $("statCheckedVal"),
     flaggedList: $("flaggedList"),
     flaggedCount: $("flaggedCount"),
+    flaggedFilters: $("flaggedFilters"),
     missingList: $("missingList"),
     missingCount: $("missingCount"),
     questionsList: $("questionsList"),
@@ -90,6 +92,8 @@
   let busy = false;
   let validFile = null;
   let lastQuestions = [];
+  let lastFlagged = [];
+  let severityFilter = "all";
 
   /* ---------- helpers ---------- */
   /* escapeHtml / titleCase / riskFor live in common.js, so a saved analysis
@@ -282,9 +286,9 @@
   ];
   let loadingTimer = null;
 
-  function startLoadingSteps() {
+  function startLoadingSteps(initial) {
     let i = 0;
-    els.loadingSub.textContent = LOADING_STEPS[0];
+    els.loadingSub.textContent = initial || LOADING_STEPS[0];
     clearInterval(loadingTimer);
     loadingTimer = setInterval(() => {
       i = (i + 1) % LOADING_STEPS.length;
@@ -307,7 +311,12 @@
       els.btnIcon.hidden = true;
       els.btnSpinner.hidden = false;
       els.analyzeBtnLabel.textContent = "Analysing…";
-      startLoadingSteps();
+      if (els.loadingTitle) {
+        els.loadingTitle.textContent =
+          mode === "upload" ? "Uploading and analysing…" : "Analysing your agreement…";
+      }
+      els.loading.classList.toggle("is-upload", mode === "upload");
+      startLoadingSteps(mode === "upload" ? "Uploading your file securely…" : LOADING_STEPS[0]);
     } else {
       els.btnIcon.hidden = false;
       els.btnSpinner.hidden = true;
@@ -491,10 +500,15 @@
     els.statMissing.className = "stat " + (missing.length === 0 ? "is-low" : "is-medium");
     els.statCheckedVal.textContent = String(extractChecked(data.summary));
 
+    lastFlagged = flagged;
     els.flaggedCount.textContent = String(flagged.length);
-    els.flaggedList.innerHTML = flagged.length
-      ? flagged.map((c) => Tenura.renderFinding(c)).join("")
-      : '<div class="empty">No flagged clauses found — the clauses we checked look broadly reasonable.</div>';
+    const distinctSeverities = new Set(
+      flagged.map((c) => (c.severity || "low").toLowerCase())
+    );
+    if (els.flaggedFilters) {
+      els.flaggedFilters.hidden = distinctSeverities.size < 2;
+    }
+    setSeverityFilter("all");
 
     els.missingCount.textContent = String(missing.length);
     els.missingList.innerHTML = missing.length
@@ -513,6 +527,40 @@
 
     els.results.hidden = false;
     els.results.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function renderFlagged() {
+    if (!lastFlagged.length) {
+      els.flaggedList.innerHTML =
+        '<div class="empty">No flagged clauses found — the clauses we checked look broadly reasonable.</div>';
+      return;
+    }
+    const shown =
+      severityFilter === "all"
+        ? lastFlagged
+        : lastFlagged.filter((c) => (c.severity || "low").toLowerCase() === severityFilter);
+    els.flaggedList.innerHTML = shown.length
+      ? shown.map((c) => Tenura.renderFinding(c)).join("")
+      : '<div class="empty">No clauses were flagged at ' + escapeHtml(severityFilter) + " severity.</div>";
+  }
+
+  function setSeverityFilter(next) {
+    severityFilter = next;
+    if (els.flaggedFilters) {
+      els.flaggedFilters.querySelectorAll(".chip").forEach((chip) => {
+        const active = chip.dataset.sev === next;
+        chip.classList.toggle("is-active", active);
+        chip.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+    }
+    renderFlagged();
+  }
+
+  if (els.flaggedFilters) {
+    els.flaggedFilters.addEventListener("click", (e) => {
+      const chip = e.target.closest(".chip");
+      if (chip && chip.dataset.sev) setSeverityFilter(chip.dataset.sev);
+    });
   }
 
   function extractChecked(summary) {
