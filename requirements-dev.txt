@@ -4,3 +4,8 @@
 playwright
 imageio-ffmpeg
 edge-tts
+
+# Test client for tests/test_accounts.py and tests/test_google_signin.py.
+# starlette's TestClient requires httpx2 (it only falls back to the legacy
+# httpx package, which it warns is deprecated).
+httpx2
