@@ -68,6 +68,15 @@ class GoogleAuthError(Exception):
     """Something in the Google round trip did not hold up."""
 
 
+class GoogleUnavailableError(GoogleAuthError):
+    """Google could not be reached at all (network/timeout).
+
+    A subclass so the callback can tell "we could not talk to Google" (retry,
+    show a connection-flavoured message) apart from "Google answered and said
+    no" (a stale or forged callback).
+    """
+
+
 def is_configured() -> bool:
     return bool(CLIENT_ID and CLIENT_SECRET)
 
@@ -203,7 +212,7 @@ def exchange_code(code: str, redirect_uri: str, code_verifier: str) -> dict:
             timeout=REQUEST_TIMEOUT,
         )
     except requests.RequestException as exc:
-        raise GoogleAuthError(f"could not reach Google: {exc}") from exc
+        raise GoogleUnavailableError(f"could not reach Google: {exc}") from exc
 
     if response.status_code != 200:
         raise GoogleAuthError(

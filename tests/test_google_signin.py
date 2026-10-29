@@ -23,7 +23,9 @@ import uuid
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi.testclient import TestClient
+from sqlalchemy.exc import IntegrityError
 
+from app.services import auth as auth_service
 from app.services import google_auth
 from app.services.ratelimit import limiter
 
@@ -98,11 +100,16 @@ def main() -> int:
     created: list[str] = []
     client = TestClient(app, base_url="https://testserver")
 
-    def start_and_state(next_path: str = "") -> str:
+    def start_and_state(next_path: str = "", from_path: str = "") -> str:
         """Hit /start and pull the state out of the Location it returns."""
         url = "/api/auth/google/start"
+        query = []
         if next_path:
-            url += "?next=" + next_path
+            query.append("next=" + next_path)
+        if from_path:
+            query.append("from=" + from_path)
+        if query:
+            url += "?" + "&".join(query)
         response = client.get(url, follow_redirects=False)
         assert response.status_code == 303, response.text
         location = response.headers["location"]
@@ -195,9 +202,42 @@ def main() -> int:
         check("a callback with no handoff cookie is refused too",
               no_cookie.status_code == 303 and no_cookie.headers["location"].startswith("/login?error=google"))
 
-        check("a Google-side failure ('access_denied') is refused",
-              client.get("/api/auth/google/callback?error=access_denied&state=" + start_and_state(),
-                         follow_redirects=False).headers["location"].startswith("/login?error=google"))
+        print("\n[4b] Cancelling at Google is quiet, and returns to the page you started from")
+        denied = client.get(
+            "/api/auth/google/callback?error=access_denied&state=" + start_and_state(),
+            follow_redirects=False,
+        )
+        check("cancelling signs you back to the log-in page with NO error banner",
+              denied.status_code == 303 and denied.headers["location"] == "/login",
+              denied.headers.get("location", ""))
+        check("and no session was set", "tenura_session=" not in denied.headers.get("set-cookie", ""))
+
+        denied_signup = client.get(
+            "/api/auth/google/callback?error=access_denied&state="
+            + start_and_state(from_path="/signup"),
+            follow_redirects=False,
+        )
+        check("cancelling from the sign-up page returns there, not to log in",
+              denied_signup.headers["location"] == "/signup",
+              denied_signup.headers.get("location", ""))
+
+        check("a forged origin is ignored and falls back to /login",
+              client.get(
+                  "/api/auth/google/callback?error=access_denied&state="
+                  + start_and_state(from_path="//evil.example"),
+                  follow_redirects=False,
+              ).headers["location"]
+              == "/login")
+
+        print("\n[4c] A real Google-side error still surfaces, but specifically")
+        google_err = client.get(
+            "/api/auth/google/callback?error=server_error&state="
+            + start_and_state(from_path="/signup"),
+            follow_redirects=False,
+        )
+        check("a non-cancellation Google error carries a code, on the page you used",
+              google_err.headers["location"] == "/signup?error=google",
+              google_err.headers.get("location", ""))
 
         print("\n[5] A real callback creates the account and signs the user in")
         fresh = f"tenura-google-{uuid.uuid4().hex[:10]}@example.com"
@@ -226,6 +266,26 @@ def main() -> int:
         check("password login is refused, and says nothing",
               client.post("/api/auth/login",
                           json={"email": fresh, "password": PASSWORD}).status_code == 401)
+
+        print("\n[5b] The very same flow runs from the Sign up page")
+        fresh2 = f"tenura-google-signup-{uuid.uuid4().hex[:10]}@example.com"
+        created.append(fresh2)
+        identities["code-signup"] = {
+            "sub": f"google-{uuid.uuid4().hex[:8]}", "email": fresh2, "name": "Signup Person"
+        }
+        state = start_and_state("/", from_path="/signup")
+        landed2 = client.get(
+            f"/api/auth/google/callback?code=code-signup&state={state}", follow_redirects=False
+        )
+        check("a brand-new account from the sign-up page is created and signed in",
+              landed2.status_code == 303
+              and client.get("/api/auth/me").json()["user"]["email"] == fresh2,
+              landed2.headers.get("location", ""))
+        db = SessionLocal()
+        check("with exactly one row, and no password",
+              db.query(User).filter(User.email == fresh2).count() == 1
+              and db.query(User).filter(User.email == fresh2).one().password_hash is None)
+        db.close()
 
         print("\n[6] Signing in again with the same Google account reuses it")
         client.post("/api/auth/logout")
@@ -275,8 +335,9 @@ def main() -> int:
         stolen = client.get(
             f"/api/auth/google/callback?code=code-thief&state={state}", follow_redirects=False
         )
-        check("it is refused with the generic failure",
-              stolen.headers["location"].startswith("/login?error=google"), stolen.headers.get("location", ""))
+        check("it is refused with the specific conflict message",
+              stolen.headers["location"] == "/login?error=google_conflict",
+              stolen.headers.get("location", ""))
         check("and no session was handed out", "tenura_session=" not in stolen.headers.get("set-cookie", ""))
 
         print("\n[9] A callback that fails at Google is refused cleanly")
@@ -285,6 +346,59 @@ def main() -> int:
         check("an unusable code redirects to the login page with an error",
               failed.headers["location"].startswith("/login?error=google"), failed.headers.get("location", ""))
         check("and no session was set", "tenura_session=" not in failed.headers.get("set-cookie", ""))
+
+        print("\n[9b] Being unable to reach Google says so, specifically")
+        fake_fetch = google_auth.fetch_identity
+
+        def unreachable(code, redirect_uri, code_verifier):
+            raise google_auth.GoogleUnavailableError("connection refused")
+
+        google_auth.fetch_identity = unreachable
+        state = start_and_state()
+        offline = client.get(
+            f"/api/auth/google/callback?code=offline&state={state}", follow_redirects=False
+        )
+        google_auth.fetch_identity = fake_fetch
+        check("a network failure carries the 'could not reach Google' code",
+              offline.headers["location"] == "/login?error=google_unavailable",
+              offline.headers.get("location", ""))
+        check("and no session was set", "tenura_session=" not in offline.headers.get("set-cookie", ""))
+
+        print("\n[10b] A double-click cannot create two accounts")
+        race_email = f"tenura-google-race-{uuid.uuid4().hex[:8]}@example.com"
+        created.append(race_email)
+        race_sub = f"google-race-{uuid.uuid4().hex[:8]}"
+        real_create = auth_service.create_user_with_google
+
+        def create_then_lose(db_, email, sub):
+            # The "winning" callback commits the row, then ours trips the unique
+            # email index, exactly as two simultaneous callbacks would.
+            real_create(db_, email, sub)
+            raise IntegrityError("duplicate key value violates unique constraint", None, None)
+
+        auth_service.create_user_with_google = create_then_lose
+        db = SessionLocal()
+        try:
+            race_user, race_created = auth_service.resolve_google_user(db, race_email, race_sub)
+        finally:
+            auth_service.create_user_with_google = real_create
+            db.close()
+        check("the losing insert recovers to the winner's row, not a 500",
+              race_created is False and race_user.email == race_email)
+        db = SessionLocal()
+        check("exactly one account exists for the raced address",
+              db.query(User).filter(User.email == race_email).count() == 1)
+        db.close()
+
+        print("\n[11] An email/password account and Google never duplicate")
+        # (covered end-to-end in [7]; re-asserted here through the single resolver)
+        db = SessionLocal()
+        try:
+            resolved = auth_service.get_user_by_email(db, linked)
+            check("the linked account still resolves to one row",
+                  resolved is not None and resolved.google_sub == identities["code-link"]["sub"])
+        finally:
+            db.close()
 
     finally:
         google_auth.fetch_identity = real_fetch

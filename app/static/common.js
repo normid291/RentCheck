@@ -499,6 +499,29 @@
     return googleReady;
   }
 
+  /* The specific message for a Google failure, keyed by the short code the
+   * callback puts in ?error=. Shared by /login and /signup so the two pages can
+   * never show different things for the same failure. An unknown or absent code
+   * is empty: no banner (a plain cancellation carries no code at all). */
+  var GOOGLE_ERRORS = {
+    google: "We couldn't complete that Google sign-in. Please try again.",
+    google_unavailable:
+      "We couldn't reach Google just now. Please check your connection and try again.",
+    google_conflict:
+      "That email is already linked to a different Google account. Please sign in the way you did before.",
+  };
+
+  function googleError() {
+    return GOOGLE_ERRORS[param("error")] || "";
+  }
+
+  /* Which page hosts the button the visitor pressed, so the callback can return
+   * them to it. Anything other than the sign-up page is treated as log-in. */
+  function googleOrigin() {
+    var path = String(window.location.pathname || "").replace(/\/+$/, "");
+    return path === "/signup" ? "/signup" : "/login";
+  }
+
   /* Hand the browser to Google. This is a full-page navigation, so the retry
    * logic in apiFetch cannot cover it — which is why we ping the server first.
    * Waking it now, while the user is still here, means the callback has a warm
@@ -510,7 +533,10 @@
       })
       .then(function () {
         window.location.href =
-          "/api/auth/google/start?next=" + encodeURIComponent(safeNext("/"));
+          "/api/auth/google/start?from=" +
+          encodeURIComponent(googleOrigin()) +
+          "&next=" +
+          encodeURIComponent(safeNext("/"));
       });
   }
 
@@ -667,6 +693,7 @@
     avatarHtml: avatarHtml,
     closeAccountMenu: closeAccountMenu,
     googleEnabled: googleEnabled,
+    googleError: googleError,
     startGoogleSignIn: startGoogleSignIn,
     renderFinding: renderFinding,
     renderMissing: renderMissing,

@@ -214,6 +214,12 @@
         Tenura.startGoogleSignIn();
       });
     }
+    // Same handler, same message as the log-in page: a failure comes back with
+    // a specific code, a cancellation comes back with none.
+    var googleMessage = Tenura.googleError();
+    if (googleMessage && els.error) {
+      showError(els.error, googleMessage);
+    }
   });
 
   els.email.focus();

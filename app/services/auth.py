@@ -30,6 +30,7 @@ from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError, VerifyMismatchError
 from fastapi import Depends, HTTPException, Request, Response, status
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -217,6 +218,62 @@ def link_google_account(db: Session, user: User, sub: str) -> None:
         user.is_verified = True
     user.verified_at = datetime.utcnow()
     db.commit()
+
+
+class GoogleAccountConflict(Exception):
+    """The verified address already belongs to a different Google account.
+
+    The one Google outcome we refuse rather than resolve: linking would hand one
+    person's history (and session) to whoever controls the other Google account.
+    """
+
+
+def resolve_google_user(db: Session, email: str, sub: str) -> tuple[User, bool]:
+    """Find the account a Google identity belongs to, creating it if new.
+
+    This is the single "find or create" the whole Google flow runs through, so
+    the Log in and Sign up buttons can never diverge. The account is decided by
+    Google's stable `sub` first and the verified email second:
+
+      - a returning Google user is matched by `sub` and logged in
+      - a brand-new identity gets an account with no password
+      - an identity whose email already has a password account is LINKED to it
+        (Google has verified the address, so this is the owner proving it is
+        theirs), leaving the password working
+
+    Returns `(user, created)` where `created` is True only for a brand-new
+    account. Raises `GoogleAccountConflict` when the address is already bound to
+    a different Google account.
+
+    Safe under a double-click or two simultaneous callbacks: the unique email
+    index rejects the losing insert, and we fall back to reading the row the
+    winner wrote instead of surfacing a 500.
+    """
+    user = get_user_by_google_sub(db, sub)
+    if user is not None:
+        return user, False
+
+    existing = get_user_by_email(db, email)
+    if existing is not None:
+        if existing.google_sub and existing.google_sub != sub:
+            raise GoogleAccountConflict()
+        link_google_account(db, existing, sub)
+        return existing, False
+
+    try:
+        return create_user_with_google(db, email, sub), True
+    except IntegrityError:
+        # Lost a race with a concurrent callback for the same identity: the row
+        # now exists, so read it rather than failing the sign-in.
+        db.rollback()
+        user = get_user_by_google_sub(db, sub) or get_user_by_email(db, email)
+        if user is None:
+            raise
+        if user.google_sub and user.google_sub != sub:
+            raise GoogleAccountConflict() from None
+        if not user.google_sub:
+            link_google_account(db, user, sub)
+        return user, False
 
 
 def set_password(db: Session, user: User, password: str) -> None:

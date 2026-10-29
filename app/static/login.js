@@ -307,13 +307,12 @@
         Tenura.startGoogleSignIn();
       });
     }
-    // A callback that could not be trusted, or that Google refused, comes back
-    // here. The reason is deliberately not spelled out to the visitor.
-    if (Tenura.param("error") === "google") {
-      showError(
-        els.loginError,
-        "We couldn't complete that Google sign-in. Please try again."
-      );
+    // A real failure comes back here with a specific code. A cancellation does
+    // not: it returns with no code, so nothing is shown and the person can just
+    // try again.
+    var googleMessage = Tenura.googleError();
+    if (googleMessage) {
+      showError(els.loginError, googleMessage);
     }
   });
 
