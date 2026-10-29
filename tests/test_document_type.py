@@ -1,6 +1,7 @@
 """
-End-to-end test of Tenura's document-type gate ("is this a tenancy
-agreement?") using REAL sample documents plus generated gap-fillers.
+End-to-end test of Tenura's document-type AND jurisdiction gates ("is this a
+tenancy agreement, and is it Nigerian?") using REAL sample documents plus
+generated gap-fillers.
 
 It starts the real FastAPI app (uvicorn) and sends every fixture through the
 real HTTP endpoints:
@@ -9,7 +10,10 @@ real HTTP endpoints:
     POST /api/agreements/analyze-upload  (PDF / .docx / image / .txt)
 
 and compares the outcome with the expectation recorded in
-``tests/fixtures/manifest.json``.
+``tests/fixtures/manifest.json``. Each fixture lists the set of acceptable
+outcomes (accept / out_of_scope / needs_jurisdiction / reject) and its intended
+scope (NG / foreign / not-a-tenancy). The suite also asserts the product
+invariant globally: a foreign tenancy is NEVER analysed with Nigerian norms.
 
 It then checks the failure paths (corrupt PDF, AI timeout, missing API key) all
 return clean JSON rather than a bare 500.
@@ -17,6 +21,11 @@ return clean JSON rather than a bare 500.
 Usage (from the repo root, with the app's normal environment/.env available):
 
     python tests/test_document_type.py
+
+OCR of a scanned PDF genuinely takes minutes, so the per-request timeout is
+generous and overridable:
+
+    E2E_TIMEOUT=1200 python tests/test_document_type.py
 
 Regenerate the derived/generated fixtures first if needed:
 
@@ -41,6 +50,11 @@ ROOT = os.path.dirname(HERE)
 FIXTURES = os.path.join(HERE, "fixtures")
 MANIFEST = os.path.join(FIXTURES, "manifest.json")
 BASE_PORT = 8150
+
+# Per-request HTTP timeout. OCR of a scanned PDF legitimately takes minutes
+# (Tesseract runs at roughly ~40s per page), so this is generous and override:
+#     E2E_TIMEOUT=1200 python tests/test_document_type.py
+TIMEOUT = int(os.environ.get("E2E_TIMEOUT", "900"))
 
 # Small, obviously-a-lease text used for the failure-path tests (kept short so
 # the AI-timeout test does not hammer many clauses).
@@ -112,13 +126,13 @@ def send(base: str, entry: dict) -> tuple[int, dict]:
     name = os.path.basename(entry["file"])
     if entry["transport"] == "paste":
         text = open(path, encoding="utf-8", errors="ignore").read()
-        r = requests.post(f"{base}/api/agreements/analyze", json={"text": text}, timeout=300)
+        r = requests.post(f"{base}/api/agreements/analyze", json={"text": text}, timeout=TIMEOUT)
     else:
         data = open(path, "rb").read()
         r = requests.post(
             f"{base}/api/agreements/analyze-upload",
             files={"file": (name, data, content_type_for(name))},
-            timeout=300,
+            timeout=TIMEOUT,
         )
     try:
         body = r.json()
@@ -128,11 +142,28 @@ def send(base: str, entry: dict) -> tuple[int, dict]:
 
 
 def outcome_of(body: dict) -> str:
-    """Map an API response to accept/reject for the gate."""
+    """Map an API response to a gate outcome.
+
+    - accept             status=ok: recognised as a tenancy AND analysed.
+    - out_of_scope       recognised as a tenancy, refused as non-Nigerian.
+    - needs_jurisdiction recognised as a tenancy, country unknown -> asked.
+    - reject             not a tenancy (or unreadable).
+    """
     status = body.get("status")
     if status == "ok":
         return "accept"
+    if status == "out_of_scope":
+        return "out_of_scope"
+    if status == "needs_jurisdiction":
+        return "needs_jurisdiction"
     return "reject"
+
+
+def _expected_set(entry: dict) -> set[str]:
+    expected = entry["expected"]
+    if isinstance(expected, str):
+        return {expected}
+    return set(expected)
 
 
 def agreements_count(base: str) -> int | None:
@@ -153,19 +184,32 @@ def run_manifest(base: str) -> tuple[bool, list[dict]]:
     for entry in fixtures:
         http, body = send(base, entry)
         actual = outcome_of(body)
-        passed = actual == entry["expected"]
+        expected = _expected_set(entry)
+        passed = actual in expected
         ok = ok and passed
         rows.append(
             {
                 "file": entry["file"],
                 "source": entry.get("source", ""),
-                "expected": entry["expected"],
+                "scope": entry.get("scope"),
+                "expected": expected,
                 "actual": actual,
-                "detail": body.get("document_type") or body.get("detail") or "",
+                "detail": body.get("document_type") or body.get("detail") or body.get("jurisdiction") or "",
                 "http": http,
                 "pass": passed,
             }
         )
+
+    # Product invariant, independent of the per-fixture sets: a tenancy from
+    # another country must NEVER be analysed with Nigerian norms. This is the
+    # whole point of the jurisdiction gate, so it is checked globally too.
+    foreign_accepted = [
+        r["file"] for r in rows if r["scope"] == "foreign" and r["actual"] == "accept"
+    ]
+    if foreign_accepted:
+        ok = False
+        print(f"\nINVARIANT VIOLATION: foreign tenancy analysed as Nigerian: {foreign_accepted}")
+
     after = agreements_count(base)
     if before is not None and after is not None:
         delta = after - before
@@ -186,12 +230,14 @@ def run_manifest(base: str) -> tuple[bool, list[dict]]:
 
 def print_table(rows: list[dict]) -> None:
     w = max((len(r["file"]) for r in rows), default=10)
-    print(f"\n{'fixture'.ljust(w)}  {'expected':8}  {'actual':8}  {'http':4}  result")
-    print("-" * (w + 34))
+    print(f"\n{'fixture'.ljust(w)}  {'scope':8}  {'actual':18}  {'http':4}  {'expected':26}  result")
+    print("-" * (w + 72))
     for r in rows:
+        scope = r["scope"] or "-"
+        expected = "/".join(sorted(r["expected"]))
         print(
-            f"{r['file'].ljust(w)}  {r['expected']:8}  {r['actual']:8}  "
-            f"{str(r['http']):4}  {'PASS' if r['pass'] else 'FAIL'}"
+            f"{r['file'].ljust(w)}  {scope:8}  {r['actual']:18}  "
+            f"{str(r['http']):4}  {expected:26}  {'PASS' if r['pass'] else 'FAIL'}"
         )
 
 

@@ -1,87 +1,99 @@
 {
-  "_comment": "Fixtures for the document-type gate test. 'transport' is how the fixture is sent to the API: 'upload' (multipart file, type inferred from extension) or 'paste' (POST JSON {text}). 'expected' is the outcome the classifier must reach: 'accept' means the file is analysed (status=ok); 'reject' means it is turned away without being analysed (status=not_a_tenancy_agreement or unreadable).",
+  "_comment": "Fixtures for the document-type + jurisdiction gate test. 'transport' is how the fixture is sent to the API: 'upload' (multipart file, type inferred from extension) or 'paste' (POST JSON {text}). 'expected' is the set of API outcomes that count as a pass. Outcomes are: 'accept' (status=ok, analysed), 'out_of_scope' (recognised as a tenancy but refused as non-Nigerian), 'needs_jurisdiction' (recognised as a tenancy but the country could not be told, so the user is asked), 'reject' (not a tenancy, or unreadable). 'scope' is the intended weather: 'NG' (Nigerian tenancy), 'foreign' (a tenancy from another country), or null (not a tenancy). The invariant the suite enforces: a 'foreign' fixture is NEVER 'accept' (never judged with Nigerian norms), and a null-scope fixture is only ever 'reject'.",
   "fixtures": [
     {
       "file": "real/ng_deed_of_lease.pdf",
       "transport": "upload",
-      "expected": "accept",
+      "expected": ["accept", "needs_jurisdiction"],
+      "scope": "NG",
       "category": "nigerian_deed_of_lease",
       "source": "https://nigerianlawguru.com/wp-content/uploads/2024/06/DEED-OF-LEASE.pdf"
     },
     {
       "file": "real/ng_yearly_tenancy_adoghe.pdf",
       "transport": "upload",
-      "expected": "accept",
+      "expected": ["accept", "needs_jurisdiction"],
+      "scope": "NG",
       "category": "nigerian_yearly_tenancy",
       "source": "https://ngfrepository.org.ng:8443/jspui/bitstream/123456789/2332/1/THE%20AGREEMENT%20BTW%20CHIEF%20ALEX%20ADOGHE%20AND%20NGF.pdf"
     },
     {
       "file": "real/uk_ast_nla.pdf",
       "transport": "upload",
-      "expected": "accept",
+      "expected": ["out_of_scope", "needs_jurisdiction"],
+      "scope": "foreign",
       "category": "uk_assured_shorthold_tenancy",
       "source": "https://burnley.gov.uk/wp-content/uploads/2022/01/NLA-Assured-Shorthold-Tenancy-Agreement.pdf"
     },
     {
       "file": "real/uk_ast_crisis.pdf",
       "transport": "upload",
-      "expected": "accept",
+      "expected": ["out_of_scope", "needs_jurisdiction"],
+      "scope": "foreign",
       "category": "uk_assured_shorthold_tenancy",
       "source": "https://www.crisis.org.uk/media/237919/sample-tenancy-agreement-and-s21.pdf"
     },
     {
       "file": "real/uk_licence_to_occupy.pdf",
       "transport": "upload",
-      "expected": "accept",
+      "expected": ["out_of_scope", "needs_jurisdiction"],
+      "scope": "foreign",
       "category": "uk_licence_to_occupy",
       "source": "https://magdalenroadstudios.squarespace.com/s/Sample-Studio-Licence-to-Occupy.pdf"
     },
     {
       "file": "real/in_leave_and_license.pdf",
       "transport": "upload",
-      "expected": "accept",
+      "expected": ["out_of_scope", "needs_jurisdiction"],
+      "scope": "foreign",
       "category": "leave_and_license",
       "source": "https://pkgoyalandassociates.com/forms/2277.pdf"
     },
     {
       "file": "real/us_simple_lease_esign.pdf",
       "transport": "upload",
-      "expected": "accept",
+      "expected": ["out_of_scope", "needs_jurisdiction"],
+      "scope": "foreign",
       "category": "us_residential_lease",
       "source": "https://esign.com/wp-content/uploads/Simple-1-Page-Residential-Lease-Agreement.pdf"
     },
     {
       "file": "real/fr_bail_service_public.pdf",
       "transport": "upload",
-      "expected": "accept",
+      "expected": ["out_of_scope", "needs_jurisdiction"],
+      "scope": "foreign",
       "category": "french_bail",
       "source": "https://www.service-public.pf/dhv/wp-content/uploads/sites/56/2022/05/Modele-contrat-de-location-.pdf"
     },
     {
       "file": "real/ng_deed_scan.png",
       "transport": "upload",
-      "expected": "accept",
+      "expected": ["accept", "needs_jurisdiction"],
+      "scope": "NG",
       "category": "image_scan_of_real_lease",
       "source": "derived from nigerianlawguru DEED-OF-LEASE.pdf (rendered page -> PNG)"
     },
     {
       "file": "real/us_simple_lease_scanned.pdf",
       "transport": "upload",
-      "expected": "accept",
+      "expected": ["out_of_scope", "needs_jurisdiction"],
+      "scope": "foreign",
       "category": "scanned_pdf_ocr_of_real_lease",
       "source": "derived from esign Simple-1-Page-Residential-Lease-Agreement.pdf (image-only PDF)"
     },
     {
       "file": "real/ng_deed_real.docx",
       "transport": "upload",
-      "expected": "accept",
+      "expected": ["accept", "needs_jurisdiction"],
+      "scope": "NG",
       "category": "docx_of_real_lease",
       "source": "derived from nigerianlawguru DEED-OF-LEASE.pdf (real text in a .docx)"
     },
     {
       "file": "real/ng_deed_text.txt",
       "transport": "paste",
-      "expected": "accept",
+      "expected": ["accept", "needs_jurisdiction"],
+      "scope": "NG",
       "category": "pasted_real_lease_text",
       "source": "derived from nigerianlawguru DEED-OF-LEASE.pdf (pasted as text)"
     },
@@ -89,112 +101,128 @@
     {
       "file": "real/bt_employment_sample.pdf",
       "transport": "upload",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "employment_contract",
       "source": "https://www.moice.gov.bt/wp-content/uploads/2017/07/COE-Sample.pdf"
     },
     {
       "file": "real/us_employment_agreement.txt",
       "transport": "upload",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "employment_contract",
       "source": "https://www.sec.gov/Archives/edgar/data/0001395585/000143774913004313/ftfc20130409_8kex10-20.htm"
     },
     {
       "file": "real/us_loan_agreement.txt",
       "transport": "upload",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "loan_finance_agreement",
       "source": "https://www.sec.gov/Archives/edgar/data/0001062231/000095012309043741/k48314exv99w1.htm"
     },
     {
       "file": "real/us_nda.txt",
       "transport": "upload",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "nda",
       "source": "https://www.sec.gov/Archives/edgar/data/0000320187/000119312508159004/dex1019.htm"
     },
     {
       "file": "real/us_sale_agreement.txt",
       "transport": "upload",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "sale_purchase_agreement",
       "source": "https://www.sec.gov/Archives/edgar/data/0001434621/000110465911015602/a11-8401_1ex2d2.htm"
     },
     {
       "file": "real/news_article.txt",
       "transport": "upload",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "news_article",
       "source": "https://www.bbc.com/news/articles/cxr5yvzv7rp0o"
     },
     {
       "file": "real/news_article.txt",
       "transport": "paste",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "news_article_pasted",
       "source": "https://www.bbc.com/news/articles/cxr5yvzv7rp0o"
     },
     {
       "file": "generated/invoice.png",
       "transport": "upload",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "invoice_image",
       "source": "generated (Pillow)"
     },
     {
       "file": "generated/bank_statement.png",
       "transport": "upload",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "bank_statement_image",
       "source": "generated (Pillow)"
     },
     {
       "file": "generated/cv.png",
       "transport": "upload",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "cv_image",
       "source": "generated (Pillow)"
     },
     {
       "file": "generated/landscape.png",
       "transport": "upload",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "random_photo_landscape",
       "source": "generated (Pillow)"
     },
     {
       "file": "generated/food.png",
       "transport": "upload",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "random_photo_food",
       "source": "generated (Pillow)"
     },
     {
       "file": "generated/person.png",
       "transport": "upload",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "random_photo_person",
       "source": "generated (Pillow)"
     },
     {
       "file": "generated/es_arrendamiento.txt",
       "transport": "upload",
-      "expected": "accept",
+      "expected": ["out_of_scope", "needs_jurisdiction"],
+      "scope": "foreign",
       "category": "spanish_tenancy",
       "source": "generated (Spanish arrendamiento text)"
     },
     {
       "file": "generated/de_mietvertrag.txt",
       "transport": "upload",
-      "expected": "accept",
+      "expected": ["out_of_scope", "needs_jurisdiction"],
+      "scope": "foreign",
       "category": "german_tenancy",
       "source": "generated (German Mietvertrag text)"
     },
     {
       "file": "generated/fr_contrat_travail.txt",
       "transport": "upload",
-      "expected": "reject",
+      "expected": ["reject"],
+      "scope": null,
       "category": "french_employment_contract",
       "source": "generated (French contrat de travail text)"
     }
