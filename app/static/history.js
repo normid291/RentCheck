@@ -48,12 +48,18 @@
     }, 5000);
   }
 
-  function riskBadge(score) {
-    var risk = Tenura.riskFor(score);
+  function bandOf(a) {
+    if (a && a.risk_level) return a.risk_level;
+    return Tenura.bandFor(a && a.risk_score, a && a.coverage, a && a.degraded);
+  }
+
+  function riskBadge(a) {
+    var risk = Tenura.riskForBand(bandOf(a));
+    var score = Number(a && a.risk_score) || 0;
     return (
       '<span class="risk-level ' + risk.cls + '">' +
       '<span class="risk-dot"></span>' + esc(risk.label) +
-      " <b>" + (Number(score) || 0) + "/100</b></span>"
+      " <b>" + score + "/100</b></span>"
     );
   }
 
@@ -98,7 +104,7 @@
 
     els.listContainer.innerHTML = analyses
       .map(function (a) {
-        var risk = Tenura.riskFor(a.risk_score);
+        var risk = Tenura.riskForBand(bandOf(a));
         var flagged = Number(a.flagged_count) || 0;
         var missing = Number(a.missing_count) || 0;
         return (
@@ -162,7 +168,7 @@
     var flagged = Tenura.sortFindings(analysis.flagged_clauses);
     var missing = analysis.missing_protections || [];
     var questions = analysis.questions_to_ask || [];
-    var risk = Tenura.riskFor(analysis.risk_score);
+    var risk = Tenura.riskForBand(bandOf(analysis));
 
     var html = "";
 
@@ -174,7 +180,7 @@
     html += "</div></div>";
 
     html += '<p class="detail-meta">Analysed ' + esc(Tenura.formatDateTime(analysis.created_at)) +
-      " · " + riskBadge(analysis.risk_score) + "</p>";
+      " · " + riskBadge(analysis) + "</p>";
 
     html += '<div class="panel detail-score">';
     html += '<div class="stat-row">';

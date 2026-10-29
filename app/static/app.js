@@ -48,6 +48,9 @@
     riskLevel: $("riskLevel"),
     riskLabel: $("riskLabel"),
     scoreSummary: $("scoreSummary"),
+    coverageBanner: $("coverageBanner"),
+    coverageTitle: $("coverageTitle"),
+    coverageNote: $("coverageNote"),
     statFlagged: $("statFlagged"),
     statFlaggedVal: $("statFlaggedVal"),
     statMissing: $("statMissing"),
@@ -101,7 +104,6 @@
 
   const escapeHtml = Tenura.escapeHtml;
   const titleCase = Tenura.titleCase;
-  const riskFor = Tenura.riskFor;
 
   function formatSize(bytes) {
     if (bytes < 1024) return bytes + " B";
@@ -446,9 +448,15 @@
   function renderNotice(data) {
     const unreadable =
       data.status === "unreadable" || data.document_type === "unreadable";
+    const outOfScope = data.status === "out_of_scope";
+    const needsJurisdiction = data.status === "needs_jurisdiction";
 
     if (unreadable) {
       els.noticeTitle.textContent = "We couldn't read this file";
+    } else if (outOfScope) {
+      els.noticeTitle.textContent = "This looks like a non-Nigerian agreement";
+    } else if (needsJurisdiction) {
+      els.noticeTitle.textContent = "Which country is this agreement for?";
     } else {
       els.noticeTitle.textContent = "This doesn't look like a tenancy agreement";
     }
@@ -459,6 +467,9 @@
       if (unreadable) {
         message =
           "We couldn't read this file clearly. Please upload a sharper photo or a PDF/text version of your tenancy agreement.";
+      } else if (outOfScope || needsJurisdiction) {
+        message =
+          "Tenura only reviews Nigerian tenancy agreements, and judging a foreign one against Nigerian rules would be misleading.";
       } else {
         const reason = (data.reason || "").trim().replace(/\.$/, "");
         message = "This doesn't look like a tenancy agreement.";
@@ -476,7 +487,12 @@
 
   function render(data) {
     const score = Math.max(0, Math.min(100, Number(data.risk_score) || 0));
-    const risk = riskFor(score);
+    // The server decides the band (it knows the coverage). Fall back to the
+    // shared client mirror if an older response omits it.
+    const band =
+      data.risk_band ||
+      Tenura.bandFor(score, data.coverage, !!data.degraded);
+    const risk = Tenura.riskForBand(band);
 
     els.ringFg.style.stroke = risk.color;
     const offset = RING_CIRCUMFERENCE * (1 - score / 100);
@@ -487,6 +503,23 @@
     els.riskLevel.className = "risk-level " + risk.cls;
     els.riskLabel.textContent = risk.label;
     els.scoreSummary.textContent = data.summary || "";
+
+    // Coverage banner: explain a thin/degraded run in plain language so a
+    // score of 0 can never read as "nothing to worry about".
+    if (els.coverageBanner) {
+      const note = (data.coverage_note || "").trim();
+      if (data.degraded || (typeof data.coverage === "number" && data.coverage < 0.6)) {
+        els.coverageTitle.textContent = "How much of this agreement we checked";
+        els.coverageNote.textContent = note || "We could not check enough of this agreement to rate it.";
+        els.coverageBanner.hidden = false;
+      } else if (note) {
+        els.coverageTitle.textContent = "How much of this agreement we checked";
+        els.coverageNote.textContent = note;
+        els.coverageBanner.hidden = false;
+      } else {
+        els.coverageBanner.hidden = true;
+      }
+    }
 
     const flagged = Tenura.sortFindings(data.flagged_clauses);
     const missing = data.missing_protections || [];

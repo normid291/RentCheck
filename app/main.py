@@ -9,15 +9,14 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.exc import SQLAlchemyError
 
+from app import config
+from app.logging_config import configure_logging
 from app.routers import agreements, auth, google_auth, history
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-)
+configure_logging()
 logger = logging.getLogger("tenura")
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -32,7 +31,13 @@ async def lifespan(app: FastAPI):
     production database works without a separate manual init step. Failures are
     logged (with a full traceback) but do not stop the app from starting - the
     /health endpoint stays up and request-level errors are reported clearly.
+
+    A misconfigured production process, by contrast, is refused outright: a bad
+    SESSION_SECRET or an unconfigured mail provider must not serve one request.
     """
+    # Deliberately outside the try: a production misconfiguration aborts startup.
+    config.require_production_config()
+
     try:
         from app.init_db import ensure_schema
 
@@ -45,7 +50,16 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Tenura", version="0.1.0", lifespan=lifespan)
+app = FastAPI(
+    title="Tenura",
+    version="0.1.0",
+    lifespan=lifespan,
+    # Interactive docs are useful in development and a needless surface in
+    # production, so they are simply not mounted there.
+    docs_url=None if config.IS_PRODUCTION else "/docs",
+    redoc_url=None if config.IS_PRODUCTION else "/redoc",
+    openapi_url=None if config.IS_PRODUCTION else "/openapi.json",
+)
 
 # CORS is off by default: the front end is served from this same origin, so it
 # needs nothing, and allow_origins=["*"] alongside cookie sessions would invite
@@ -73,34 +87,46 @@ app.include_router(history.router, prefix="/api", tags=["history"])
 
 @app.get("/health")
 def health():
-    """Rumpty's readiness check hits this."""
+    """Liveness: the process is up and serving. Always 200.
+
+    Deliberately does not touch the database. A platform readiness probe wants
+    to know "should I keep sending this instance traffic", and a process that is
+    alive but temporarily unable to reach the database should not be killed and
+    restarted for it. Use /health/ready for the database-backed answer.
+    """
     return {"status": "ok"}
 
 
-@app.get("/health/db")
-def health_db():
-    """Diagnostic: can the app reach its database and query the tables?
+@app.get("/health/ready")
+def health_ready():
+    """Readiness: can we actually serve a request (database reachable)?
 
-    Separates a database/config problem from an application problem. Returns
-    503 (not 200) when the database is unreachable or not initialised.
+    Returns 503 with a generic body when the database cannot be reached, so the
+    endpoint cannot be used to fingerprint the deployment. The detail (exception
+    type and message) goes to the server log only.
     """
     from app.database import engine
     from app.models.db import Agreement
 
     try:
         with engine.connect() as conn:
-            count = conn.execute(select(func.count()).select_from(Agreement)).scalar()
-        return {"status": "ok", "database": "reachable", "agreements": count}
-    except Exception as exc:
-        logger.error("Database health check failed:\n%s", traceback.format_exc())
-        return JSONResponse(
-            status_code=503,
-            content={
-                "status": "error",
-                "database": "unreachable_or_uninitialised",
-                "error": f"{type(exc).__name__}: {exc}",
-            },
-        )
+            # Bound the wait so a hung database cannot stall the probe.
+            conn.execute(text("SET LOCAL statement_timeout = '3s'"))
+            conn.execute(select(func.count()).select_from(Agreement)).scalar()
+        return {"status": "ready"}
+    except Exception:
+        logger.error("Readiness check failed:\n%s", traceback.format_exc())
+        return JSONResponse(status_code=503, content={"status": "not_ready"})
+
+
+@app.get("/health/db")
+def health_db():
+    """Diagnostic alias for readiness. Kept for existing callers.
+
+    Returns the same generic body as /health/ready: the exception detail stays
+    in the server log rather than being handed to whoever can reach the URL.
+    """
+    return health_ready()
 
 
 @app.exception_handler(SQLAlchemyError)

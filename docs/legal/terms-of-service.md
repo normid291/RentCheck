@@ -1,6 +1,6 @@
 # Tenura Terms of Service
 
-**Version 1.3 — last updated 21 October 2026**
+**Version 1.4 — last updated 29 October 2026**
 
 These Terms govern your use of Tenura. By using the Service you agree to
 them. If you do not agree, please do not use it.
@@ -21,7 +21,13 @@ Tenura reads a tenancy agreement and gives you back:
 - **Missing protections** — protections a Nigerian tenancy would usually have
   and this one appears to lack.
 - **Questions to ask** before you sign.
-- A **risk score** and a short summary.
+- A **risk band** (low, moderate, high, or "Review needed"), a coverage figure
+  for how much of the document we could check, and a short summary.
+
+Tenura reviews **Nigerian** tenancy agreements. If an agreement is clearly from
+another country, or we cannot tell which country it is from, we will say so and
+will not analyse it against Nigerian norms — judging a foreign agreement by
+Nigerian rules would be misleading.
 
 ### It is not legal advice
 
@@ -32,18 +38,23 @@ lawyer**, and using it does **not** create a lawyer–client relationship with u
 
 Some specific consequences:
 
-- The **risk score is a rough indicator**, calculated from how many clauses were
-  flagged and how many expected protections were missing. It is not a legal
-  assessment and a low score does not mean an agreement is safe.
+- The **risk band is a rough indicator**, calculated from how many clauses were
+  flagged, how many expected protections were missing, and how much of the
+  agreement we were able to check. It is not a legal assessment, and a low band
+  does not mean an agreement is safe.
 - Flags come from two sources. Ones marked **"[flagged by rule]"** come from
   fixed rules in our code and are certain about what they detect. Ones marked
   **"[AI suggestion — worth a manual check]"** come from an AI model, are
   verified only to the extent that the quoted words really appear in your
   agreement, and **may be wrong** — either pointing at something that is
   actually fine, or missing something that is not.
-- Our reference points are **general Nigerian rental norms**. They may not
-  reflect the law that applies to your specific agreement, the practice in your
-  state, or a recent change in the law.
+- Our reference points describe **common practice in the Nigerian rental
+  market**. They are labelled as market practice, **not as statements of law**,
+  and we do not invent statutory provisions. They may not reflect the law that
+  applies to your specific agreement, the practice in your state, or a recent
+  change in the law.
+- When we could only check part of an agreement, we will say so and label the
+  result "Review needed". We do not present a thin analysis as low risk.
 - For anything that matters — a large deposit, an unusual term, a dispute with a
   landlord — **speak to a qualified lawyer**.
 
@@ -108,7 +119,7 @@ permitted by law, we make no warranty and give no guarantee that:
 
 - the analysis is accurate, complete, current or correct;
 - the flags identify every risky clause, or that every flag is justified;
-- the risk score reflects the true risk of your agreement;
+- the risk band reflects the true risk of your agreement;
 - the Service will be available, uninterrupted, timely or free of errors.
 
 We test carefully, and we verify the AI's quotes against the clause text, but

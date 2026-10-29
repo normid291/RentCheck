@@ -9,3 +9,8 @@ edge-tts
 # starlette's TestClient requires httpx2 (it only falls back to the legacy
 # httpx package, which it warns is deprecated).
 httpx2
+
+# Test runner + static analysis (CI runs these; not needed to run the app).
+pytest>=8
+ruff>=0.6
+mypy>=1.10

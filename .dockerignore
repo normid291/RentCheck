@@ -11,3 +11,20 @@ venv/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# OAuth client secret. This must never be baked into an image: `COPY . .`
+# would otherwise ship the credential to every host that runs the container.
+client_secret_*.json
+
+# Large/irrelevant assets. The video project alone carries ~1 GB of
+# node_modules and rendered output; none of it is needed to run the app.
+video/node_modules/
+video/**/node_modules/
+artifacts/
+assets/
+data/
+
+# Test fixtures are only needed to run the test suite, not the service.
+tests/fixtures/
+scripts/
+docs/

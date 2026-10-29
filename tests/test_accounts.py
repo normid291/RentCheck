@@ -47,7 +47,14 @@ from app.services.document_classifier import TENANCY_AGREEMENT  # noqa: E402
 
 
 def _always_tenancy(text, source_type):
-    return {"document_type": TENANCY_AGREEMENT, "confidence": 0.95, "reason": ""}
+    return {
+        "document_type": TENANCY_AGREEMENT,
+        "confidence": 0.95,
+        "reason": "",
+        "jurisdiction": "NG-LA",
+        "jurisdiction_confidence": 0.95,
+        "jurisdiction_evidence": ["lagos"],
+    }
 
 
 def _fake_analyze_clause(clause_text, reference):
@@ -225,7 +232,7 @@ def main() -> int:
         check("exactly one analysis", listing["count"] == 1, str(listing["count"]))
         item = listing["analyses"][0]
         check("the newest is first", item["id"] == analysis_id)
-        check("it carries a risk band", item["risk_level"] in ("low", "medium", "high"))
+        check("it carries a risk band", item["risk_level"] in ("low", "moderate", "high", "unknown"))
 
         print("\n[8] Open, rename, and open again")
         detail = client.get(f"/api/analyses/{analysis_id}").json()["analysis"]
@@ -324,10 +331,12 @@ def main() -> int:
         signup_client = TestClient(app, base_url="https://testserver")
         signup_client.post("/api/auth/signup", json={"email": otp_email, "password": PASSWORD})
         first_code = code_from_last_email()
-        check(
-            "resending inside the cooldown is refused",
-            signup_client.post("/api/auth/resend-otp", json={"email": otp_email}).status_code == 429,
-        )
+        # Resending inside the cooldown must not leak that the address exists:
+        # the answer is the same 200 as for any address, no new code goes out.
+        before = len(SENT)
+        resend_early = signup_client.post("/api/auth/resend-otp", json={"email": otp_email})
+        check("resending inside the cooldown answers 200", resend_early.status_code == 200)
+        check("but sends no new code", len(SENT) == before, str(len(SENT)))
         wrong_code = "111111" if first_code != "111111" else "222222"
         for _ in range(5):
             signup_client.post("/api/auth/verify-otp", json={"email": otp_email, "code": wrong_code})

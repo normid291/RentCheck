@@ -182,6 +182,28 @@
     return { key: "low", label: "Low risk", cls: "risk-low", color: "var(--brand)" };
   }
 
+  // Mirrors app/services/scoring.py: a run is only banded low/moderate/high
+  // when enough clauses were actually checked. A thin or degraded run is
+  // "unknown" — never "low risk".
+  var MIN_COVERAGE = 0.6;
+
+  function bandFor(score, coverage, degraded) {
+    var cov = coverage == null ? null : Number(coverage);
+    var trustworthy = cov !== null && !isNaN(cov) && cov >= MIN_COVERAGE && !degraded;
+    if (!trustworthy) return "unknown";
+    var n = Number(score) || 0;
+    if (n >= 40) return "high";
+    if (n >= 15) return "moderate";
+    return "low";
+  }
+
+  function riskForBand(band) {
+    if (band === "high") return { key: "high", label: "High risk", cls: "risk-high", color: "var(--high)" };
+    if (band === "moderate") return { key: "moderate", label: "Moderate risk", cls: "risk-medium", color: "var(--medium)" };
+    if (band === "low") return { key: "low", label: "Low risk", cls: "risk-low", color: "var(--brand)" };
+    return { key: "unknown", label: "Review needed", cls: "risk-unknown", color: "var(--medium)" };
+  }
+
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   function formatDate(iso) {
@@ -202,11 +224,31 @@
   }
 
   /* Where to send someone after signing in. Only same-site paths are honoured,
-   * so a crafted ?next= cannot bounce a user to another host. */
+   * so a crafted ?next= cannot bounce a user to another host. This mirrors
+   * app/services/redirects.py exactly; keep the two in step. */
+  function safeNextPath(value, fallback) {
+    fallback = fallback || "/";
+    if (!value) return fallback;
+    var v = String(value).trim();
+    if (!v) return fallback;
+    // Control characters (CRLF/header smuggling, odd URL handling).
+    if (/[\u0000-\u001f\u007f]/.test(v)) return fallback;
+    // Backslashes, raw or percent-encoded: browsers read "/\evil.com" as "//evil.com".
+    if (/\\|%5c/i.test(v)) return fallback;
+    // Must be a single-slash path, never scheme-relative.
+    if (v.charAt(0) !== "/" || v.charAt(1) === "/") return fallback;
+    // Reject anything that resolves off-origin.
+    try {
+      var resolved = new URL(v, window.location.origin);
+      if (resolved.origin !== window.location.origin) return fallback;
+    } catch (e) {
+      return fallback;
+    }
+    return v;
+  }
+
   function safeNext(fallback) {
-    var next = param("next");
-    if (next && next.charAt(0) === "/" && next.charAt(1) !== "/") return next;
-    return fallback || "/";
+    return safeNextPath(param("next"), fallback || "/");
   }
 
   /* ---------- header session state ---------- */
@@ -555,6 +597,15 @@
         escapeHtml(c.clause) +
         "</blockquote></details>"
       : "";
+    var consequence = c.consequence
+      ? '<p class="consequence"><strong>What this could mean:</strong> ' + escapeHtml(c.consequence) + "</p>"
+      : "";
+    var counter = c.counter_clause
+      ? '<p class="counter"><strong>You could ask for:</strong> ' + escapeHtml(c.counter_clause) + "</p>"
+      : "";
+    var question = c.tenant_question
+      ? '<p class="ask"><strong>Ask:</strong> ' + escapeHtml(c.tenant_question) + "</p>"
+      : "";
 
     return (
       '<article class="finding sev-' + escapeHtml(sev) + '">' +
@@ -564,6 +615,9 @@
       src +
       "</div>" +
       '<p class="reason">' + escapeHtml(c.reason || "") + "</p>" +
+      consequence +
+      counter +
+      question +
       evidence +
       clause +
       "</article>"
@@ -595,10 +649,13 @@
     escapeHtml: escapeHtml,
     titleCase: titleCase,
     riskFor: riskFor,
+    bandFor: bandFor,
+    riskForBand: riskForBand,
     formatDate: formatDate,
     formatDateTime: formatDateTime,
     param: param,
     safeNext: safeNext,
+    safeNextPath: safeNextPath,
     pending: pending,
     logout: logout,
     ready: ready,

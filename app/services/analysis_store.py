@@ -17,9 +17,11 @@ import uuid
 from sqlalchemy.orm import Session
 
 from app.models.db import Agreement, Analysis, SourceType, User
+from app.services.scoring import band_for, band_label
 
-# Same thresholds the front end uses (app/static/app.js), so a score shown in the
-# history list is banded identically to the score shown right after an analysis.
+# Legacy score thresholds, kept for callers that only have a score. New code
+# should go through scoring.band_for, which refuses to call a low-coverage run
+# "low risk".
 RISK_HIGH = 55
 RISK_MEDIUM = 25
 
@@ -28,7 +30,7 @@ PREVIEW_CHARS = 400
 
 
 def risk_level(score: int) -> tuple[str, str]:
-    """(key, human label) for a risk score."""
+    """(key, human label) for a risk score, ignoring coverage."""
     if score >= RISK_HIGH:
         return "high", "High risk"
     if score >= RISK_MEDIUM:
@@ -58,23 +60,39 @@ def build_title(text: str) -> str:
     return "Untitled agreement"
 
 
-def build_recommendation(risk_score: int, flagged: list, missing: list) -> str:
+def build_recommendation(
+    risk_score: int,
+    flagged: list,
+    missing: list,
+    band: str | None = None,
+) -> str:
     """The one-line "what should I do" shown in the history list.
 
     Built from the counts, never from the model, so it cannot overstate the
-    result. Deliberately practical rather than a legal opinion.
+    result. Deliberately practical rather than a legal opinion. `band` comes from
+    scoring.band_for; when it is "unknown" (low coverage or a degraded run) the
+    line says so rather than pretending the agreement is low risk.
     """
-    level, _ = risk_level(risk_score)
+    if band is None:
+        band = {"high": "high", "medium": "moderate", "low": "low"}[
+            risk_level(risk_score)[0]
+        ]
     n_flagged = len(flagged or [])
     n_missing = len(missing or [])
 
-    if level == "high":
+    if band == "unknown":
+        return (
+            "Not enough of this agreement could be checked automatically to "
+            "give it a risk rating. Read the unchecked clauses yourself, or ask "
+            "a lawyer before you sign."
+        )
+    if band == "high":
         return (
             f"High risk — {_plural(n_flagged, 'flagged clause')} and "
             f"{_plural(n_missing, 'missing protection')}. "
             "Have a lawyer look at this before you sign."
         )
-    if level == "medium":
+    if band == "moderate":
         return (
             f"Moderate risk — {_plural(n_flagged, 'flagged clause')}, "
             f"{_plural(n_missing, 'missing protection')}. "
@@ -99,12 +117,20 @@ def persist(
     questions_to_ask: list,
     risk_score: int,
     summary_text: str,
+    jurisdiction: str | None = None,
+    coverage: float | None = None,
+    degraded: bool = False,
+    pipeline_version: str | None = None,
+    prompt_version: str | None = None,
+    model_id: str | None = None,
+    clause_reference_version: str | None = None,
 ) -> Analysis:
     """Store one analysis (and the text it came from) for `user`.
 
     The agreement row is written only here, at the end of a successful run, so an
     analysis that fails part-way leaves no orphaned text behind.
     """
+    band = band_for(risk_score, coverage, degraded)
     agreement = Agreement(source_type=source_type, raw_text=text)
     db.add(agreement)
     db.flush()  # assign agreement.id without committing the pair separately
@@ -118,7 +144,16 @@ def persist(
         questions_to_ask=questions_to_ask,
         risk_score=risk_score,
         summary_text=summary_text,
-        recommendation=build_recommendation(risk_score, flagged_clauses, missing_protections),
+        recommendation=build_recommendation(
+            risk_score, flagged_clauses, missing_protections, band
+        ),
+        jurisdiction=jurisdiction,
+        coverage=coverage,
+        degraded=degraded,
+        pipeline_version=pipeline_version,
+        prompt_version=prompt_version,
+        model_id=model_id,
+        clause_reference_version=clause_reference_version,
     )
     db.add(analysis)
     db.commit()
@@ -145,18 +180,21 @@ def summary_of(analysis: Analysis) -> dict:
     flagged = analysis.flagged_clauses or []
     missing = analysis.missing_protections or []
     score = analysis.risk_score or 0
-    level, label = risk_level(score)
+    band = band_for(score, analysis.coverage, bool(analysis.degraded))
     return {
         "id": str(analysis.id),
         "title": analysis.title or "Untitled agreement",
         "created_at": analysis.created_at.isoformat() if analysis.created_at else None,
         "risk_score": score,
-        "risk_level": level,
-        "risk_label": label,
+        "risk_level": band,
+        "risk_label": band_label(band),
+        "jurisdiction": analysis.jurisdiction,
+        "coverage": analysis.coverage,
+        "degraded": bool(analysis.degraded),
         "flagged_count": len(flagged),
         "missing_count": len(missing),
         "recommendation": analysis.recommendation
-        or build_recommendation(score, flagged, missing),
+        or build_recommendation(score, flagged, missing, band),
     }
 
 

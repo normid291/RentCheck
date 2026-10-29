@@ -18,6 +18,7 @@ budget is the one that cannot be spoofed.
 """
 from __future__ import annotations
 
+import logging
 import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
@@ -47,6 +48,8 @@ from app.services.auth import (
 from app.services.ratelimit import client_ip, limiter
 
 router = APIRouter()
+
+logger = logging.getLogger("tenura.auth")
 
 # (limit, window_seconds) per policy.
 SIGNUP_IP = (10, 3600)
@@ -140,7 +143,7 @@ def send_or_fail(to: str, subject: str, body: str) -> None:
     try:
         email_service.send_email(to, subject, body)
     except email_service.EmailError as exc:
-        print(f"[auth] could not send email: {exc}")
+        logger.warning("could not send email: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="We could not send the email just now. Please try again in a moment.",
@@ -265,7 +268,16 @@ def verify_otp(
 def resend_otp(
     payload: ResendOtpIn, request: Request, db: Session = Depends(get_db)
 ):
-    """Send a fresh code, subject to the 60-second cooldown."""
+    """Send a fresh code, subject to the 60-second cooldown.
+
+    This endpoint must not be usable to test which addresses have an account, so
+    every case - unknown address, known and unverified, known and verified, or a
+    real account still inside its cooldown - answers with exactly the same body
+    and the same status. Whether a code was actually sent is never observable:
+    the cooldown is never echoed back (``resend_in`` is the constant window), and
+    a mail failure for a real account is swallowed rather than raised, which
+    would otherwise be a per-address signal via the status code.
+    """
     email = normalise_email(payload.email)
     guard(request, (f"resend:ip:{client_ip(request)}", RESEND_IP))
 
@@ -274,29 +286,24 @@ def resend_otp(
     except ValueError:
         purpose = OtpPurpose.verify_email
 
-    # Answering with the real cooldown keeps the screen honest...
     user = get_user_by_email(db, email)
-    if user is None or (purpose == OtpPurpose.verify_email and user.is_verified):
-        # ...but never reveals that the address is unknown or already verified.
-        return {
-            "status": "ok",
-            "message": "If that address can be registered, we have sent a new code.",
-            "resend_in": otp.RESEND_COOLDOWN_SECONDS,
-        }
+    # Only a genuine account that could receive one gets a code. The condition
+    # is intentionally identical in effect to the old one; what changed is that
+    # the caller can no longer tell which branch it took.
+    if user is not None and not (
+        purpose == OtpPurpose.verify_email and user.is_verified
+    ):
+        if otp.resend_wait(db, user, purpose) == 0:
+            try:
+                send_code_or_fail(db, user, purpose)
+            except HTTPException:
+                # A provider outage must not become a per-address signal.
+                logger.warning("resend-otp: code could not be sent for a real account")
 
-    wait = otp.resend_wait(db, user, purpose)
-    if wait > 0:
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail=f"Please wait {wait} second{'s' if wait != 1 else ''} before requesting a new code.",
-            headers={"Retry-After": str(wait)},
-        )
-
-    cooldown = send_code_or_fail(db, user, purpose)
     return {
         "status": "ok",
-        "message": "We have sent a new code. It replaces the previous one.",
-        "resend_in": cooldown,
+        "message": "If that address can be registered, we have sent a new code.",
+        "resend_in": otp.RESEND_COOLDOWN_SECONDS,
     }
 
 
@@ -401,7 +408,7 @@ def forgot_password(payload: EmailIn, request: Request, db: Session = Depends(ge
         except HTTPException:
             # Never let a mail problem turn a non-revealing endpoint into a
             # revealing one by failing only for real accounts.
-            print("[auth] forgot-password: reset email could not be sent")
+            logger.warning("forgot-password: reset email could not be sent")
 
     return {
         "status": "ok",

@@ -84,6 +84,8 @@ written as an ordered, idempotent step in `app/migrations.py`, recorded in a
 ```python
 MIGRATIONS: list[tuple[str, object]] = [
     ("0001_user_ownership", m0001_user_ownership),
+    ("0002_google_signin", m0002_google_signin),
+    ("0003_clause_provenance", m0003_clause_provenance),
 ]
 ```
 
@@ -232,6 +234,47 @@ uploads never count as completed analyses:
 `status` is `unreadable` for that case; successful analyses return
 `"status": "ok"` with `"document_type": "tenancy_agreement"`.
 
+### Jurisdiction gate (which country's norms apply?)
+
+Tenura reviews **Nigerian** tenancy agreements against Nigerian norms, so after
+the document-type gate it decides the jurisdiction
+(`app/services/jurisdiction.py`) and **never silently judges a foreign
+agreement with Nigerian rules**:
+
+- `NG-LA`, `NG-FC`, `NG-<CODE>`, `NG-UNKNOWN` — Nigerian; judged with the NG
+  norm pack.
+- `NON_NG` — clearly from another country. A **clean 200**
+  (`"status": "out_of_scope"`) with no analysis and **nothing stored**.
+- `UNKNOWN` — not enough signal. A **clean 200**
+  (`"status": "needs_jurisdiction"`) asking the user to name the Nigerian state
+  or show the rent in naira.
+
+The decision is deterministic first (the naira sign, Nigerian states/cities and
+law names versus `£`, "assured shorthold", "section 21", `€`, French/German/
+Spanish tenancy words, `$`), with **one** model call only when the text is
+genuinely ambiguous and the answer `UNKNOWN` (ask the user) when it is still
+unsure. Agreement text is treated as untrusted data: instructions embedded in it
+are ignored (see `docs/legal/jurisdiction-notes.md`).
+
+### Coverage and risk banding
+
+Every clause that is matched to a norm is checked; `coverage` is the fraction of
+the agreement's clauses that actually got a verdict. The risk band is derived
+deterministically from the flagged/missing counts **and the coverage**
+(`app/services/scoring.py`): a run that checked too little, or whose model calls
+failed, is reported as **`unknown` / "Review needed"** with a plain-language
+coverage note — it is **never** shown as "low risk". Sufficiently covered runs
+band as low / moderate / high.
+
+### Where the norms come from — and what they are not
+
+The norms in `clause_reference` are seeded with `legal_basis = "market_norm"`:
+they state **common practice in the Nigerian rental market, not the law**. Their
+source fields are deliberately empty and **no statute or section number is
+invented**. The UI therefore says "common practice in Nigeria", never "the law
+requires". `docs/legal/source-register.md` lists every norm and the process a
+lawyer follows to promote one to `legal_basis = "statute"`.
+
 ## Testing the document gate
 
 `tests/` holds an end-to-end harness that runs the real HTTP endpoints against
@@ -364,8 +407,10 @@ app/
   routers/google_auth.py      - "Continue with Google": /auth/google/start + /callback
   routers/history.py          - List, open, rename, delete your own analyses
   services/clause_splitter.py - Deterministic clause splitting
-  services/clause_matcher.py  - Deterministic clause-to-norm matching
+  services/clause_matcher.py  - Deterministic clause-to-norm matching per jurisdiction
   services/document_classifier.py - Is this a tenancy agreement? (gate before analysis)
+  services/jurisdiction.py    - Which country's (and which Nigerian state's) norms apply?
+  services/scoring.py         - Coverage, degraded flag, and risk banding (never "low" on thin runs)
   services/ai_inference.py    - Rumpty AI Inference calls (grounded, few-shot)
   services/protections.py     - Deterministic missing-protections + questions
   services/red_flags.py       - Deterministic high-confidence red-flag rules
@@ -388,6 +433,10 @@ app/
   static/privacy.html         - Privacy Policy page (generated — see docs/legal)
   static/terms.html           - Terms of Service page (generated)
 tests/
+  conftest.py                  - shared fixtures (client, make_user, captured_email)
+  unit/                        - fast, DB-free unit tests (red flags, jurisdiction,
+                                 matching, scoring, evidence, redaction, health)
+  integration/                 - DB-backed tests (resend enumeration, jurisdiction gate)
   test_accounts.py             - End-to-end accounts + history test
   test_google_signin.py        - End-to-end "Continue with Google" test
   test_document_type.py        - End-to-end gate tests over real + generated fixtures
@@ -395,9 +444,24 @@ tests/
   fetch_real_fixtures.py       - Re-download the real fixtures (network)
   fixtures/manifest.json       - Every fixture with its source URL + expected result
 docs/
-  legal/                       - Privacy policy + terms; the Markdown is the source
+  legal/                       - Privacy policy + terms, source register, jurisdiction notes
+  legal/source-register.md     - Every clause norm and its (unverified) legal basis
+  legal/jurisdiction-notes.md  - How jurisdiction is detected and gated
 scripts/
   build_legal_pages.py         - Renders docs/legal/*.md into the pages the app serves
+```
+
+### Automated tests (CI)
+
+`.github/workflows/ci.yml` runs on every push and pull request against a
+Postgres service: `ruff` (lint), `mypy` (the annotated modules), then `pytest`
+(unit + integration). Run the same locally:
+
+```bash
+pip install -r requirements.txt -r requirements-dev.txt
+python -m app.init_db      # schema + seed for the integration tests
+pytest                     # or: pytest tests/unit  (no database needed)
+ruff check app tests/unit tests/integration tests/conftest.py
 ```
 
 ## Current scope
@@ -413,6 +477,11 @@ scripts/
 - A document-type gate runs first: non-tenancy inputs (receipts, photos, other
   contracts) and unreadable files are rejected with a friendly notice instead of
   being analysed (see below).
+- A jurisdiction gate runs next: a clearly non-Nigerian agreement is refused
+  (`out_of_scope`) and an ambiguous one asks the user (`needs_jurisdiction`);
+  neither is stored. Only `NG-*` agreements are judged against Nigerian norms.
+- Every result carries a **coverage** figure and a **risk band**; a run that
+  checked too few clauses is shown as "Review needed", never "low risk".
 - Outputs: flagged clauses, missing protections, and questions to ask before
   signing. Missing protections and questions are derived deterministically
   (`app/services/protections.py`) from which clause types were matched and

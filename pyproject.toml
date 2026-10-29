@@ -1,0 +1,44 @@
+[project]
+name = "tenura"
+version = "0.1.0"
+description = "AI-assisted tenancy agreement reviewer for Nigerian renters"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-q"
+markers = [
+    "integration: needs a live database (DATABASE_URL)",
+    "live_ai: needs the real Rumpty AI endpoint (never runs in CI)",
+]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = ["tests/fixtures", "artifacts", "video", "data", ".venv"]
+
+[tool.ruff.lint]
+# Real bugs and unused imports/code only. E501 (line length) is formatting;
+# B008 flags FastAPI's `Depends(...)` in argument defaults, which is the
+# framework's documented idiom, so it is ignored.
+select = ["E9", "F", "B"]
+ignore = ["E501", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011"]
+
+[tool.mypy]
+python_version = "3.12"
+# The codebase is largely untyped and uses SQLAlchemy's dynamic Column API, so a
+# strict pass is not realistic yet. This catches import/name errors and obvious
+# type bugs in the files we have actually annotated without drowning in noise.
+ignore_missing_imports = true
+follow_imports = "silent"
+warn_unused_ignores = false
+warn_redundant_casts = true
+no_implicit_optional = true
+check_untyped_defs = false
+exclude = ["tests/fixtures", "artifacts", "video", "data", "\\.venv"]

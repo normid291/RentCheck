@@ -15,6 +15,7 @@ Design:
   to the keyword signal rather than failing the request.
 """
 import json
+import logging
 import re
 
 from app.models.db import SourceType
@@ -23,6 +24,9 @@ from app.services.ai_inference import (
     RUMPTY_AI_MODEL,
     _post_with_retries,
 )
+from app.services.jurisdiction import detect_jurisdiction
+
+logger = logging.getLogger("tenura.classify")
 
 TENANCY_AGREEMENT = "tenancy_agreement"
 NOT_TENANCY_AGREEMENT = "not_tenancy_agreement"
@@ -120,6 +124,21 @@ _SIGNAL_CACHE: dict[tuple[str, ...], list[re.Pattern]] = {}
 
 def classify_document(text: str, source_type: SourceType) -> dict:
     """Return {"document_type", "confidence", "reason"} for the given text.
+
+    When the document IS a tenancy agreement the verdict also carries the four
+    jurisdiction fields (jurisdiction, jurisdiction_confidence,
+    jurisdiction_evidence, jurisdiction_source). Non-tenancy verdicts do not:
+    there is nothing to judge, so we never spend a jurisdiction call on a photo
+    or a receipt.
+    """
+    verdict = _classify_document(text, source_type)
+    if verdict["document_type"] == TENANCY_AGREEMENT:
+        verdict.update(detect_jurisdiction(text or ""))
+    return verdict
+
+
+def _classify_document(text: str, source_type: SourceType) -> dict:
+    """The classifier proper, without the jurisdiction attachment.
 
     `source_type` matters only to distinguish OCR'd images (where short/garbled
     text means "unreadable") from digital documents (where short text just means
@@ -278,10 +297,11 @@ def _llm_classify(text: str) -> tuple[str, float, str] | None:
         )
         raw = response.json()["choices"][0]["message"]["content"].strip()
     except Exception as exc:  # network, auth, timeout - never crash the request
-        print(f"[classify] model call failed: {exc}")
+        logger.warning("classify model call failed: %s", type(exc).__name__)
         return None
 
-    print(f"[classify] model: {raw}")
+    # The raw answer is not logged: it is derived from the document text.
+    logger.debug("classify model answered")
     parsed = _extract_json(raw)
     if parsed is None:
         return None

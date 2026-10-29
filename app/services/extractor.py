@@ -128,7 +128,7 @@ def _ocr_pdf(data: bytes) -> str:
     try:
         import pypdfium2 as pdfium
         import pytesseract
-        from PIL import Image
+        from PIL import Image  # noqa: F401  (availability probe for the OCR stack)
     except ImportError as exc:  # optional OCR stack not installed
         raise ExtractionError(
             "This PDF has no selectable text (it looks like a scan) and server-side "

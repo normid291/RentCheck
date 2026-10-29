@@ -1,6 +1,6 @@
 # Tenura Privacy Policy
 
-**Version 1.4 — last updated 21 October 2026**
+**Version 1.5 — last updated 29 October 2026**
 
 Tenura is a tenancy-agreement analysis tool. You paste or upload a tenancy
 agreement and it returns flagged clauses, missing protections and questions to
@@ -123,13 +123,15 @@ date of birth, or address.
 ### 3.3 Technical data in logs
 
 Like any web service, our servers log the IP address a request came from, the
-time, the path requested and any error trace. Because of how the analysis is
-logged, **operational logs can also contain short excerpts of document text** —
-for example a clause the model was asked about, or its answer. Logs are used for
+time, the path requested and any error trace. **We deliberately keep document
+text out of the logs.** The analysis path no longer logs clause text or the
+model's raw answers, and a redaction step strips email addresses, one-time codes
+and long token-like strings from anything that is logged. Logs are used for
 debugging and security only.
 
-One thing that is never logged: **one-time codes and passwords**. Neither is
-written to a log, and neither is stored in a form anyone can read.
+One thing that is never logged: **one-time codes, passwords, and the text of
+your agreement**. None of them is written to a log, and codes and passwords are
+never stored in a form anyone can read.
 
 ## 4. Why we are allowed to use it
 
@@ -160,7 +162,12 @@ analysis, and we do not send one document as a single request.
 There is one other case. Before analysing anything, we decide whether the input
 is really a tenancy agreement. Most files are decided by fixed rules with no AI
 involved. If, and only if, the answer is genuinely ambiguous, we send **only the
-first 1,800 characters** of the text to the model to have it decide.
+first 1,800 characters** of the text to the model to have it decide. The same
+applies to working out which country's rules apply: most agreements are decided
+by fixed markers (the naira sign, Nigerian places and law names, or foreign
+equivalents), and only a genuinely ambiguous one sends **the first 1,500
+characters** to the model, which returns `NG`, `NON_NG` or `UNKNOWN` and nothing
+else.
 
 Much of the analysis involves no AI at all. Known high-confidence traps — such
 as a re-entry clause that operates "whether or not lawfully demanded", or a
@@ -182,7 +189,7 @@ Two things follow from this that you should know:
 
 | Recipient | What they receive | Why |
 | --- | --- | --- |
-| Rumpty AI Inference (Rumpty Cloud) | Individual clause text together with the matching rental norm; or the first 1,800 characters, but only when the document type is ambiguous | To evaluate a clause, or to classify the document |
+| Rumpty AI Inference (Rumpty Cloud) | Individual clause text together with the matching rental norm; or the first 1,800 characters, but only when the document type is ambiguous; or the first 1,500 characters, but only when the jurisdiction is ambiguous | To evaluate a clause, or to classify the document or its jurisdiction |
 | Rumpty Cloud | Our application and the managed PostgreSQL database, which holds your stored text and analysis | Hosting the Service and storing the data |
 | Resend | Your email address and the one-time code message | To deliver verification and password-reset emails |
 | Google | Your Google sign-in, handled on Google's own page; Google then tells us your verified email address and account identifier | To let you sign in with your Google account, only if you choose to |
@@ -276,10 +283,13 @@ find a record, we will say so.
 
 ## 11. Automated decisions
 
-Your results, including the risk score, are generated automatically. That score
-is a rough indicator built from how many clauses were flagged and how many
-expected protections were missing — it is not a legal assessment of your
-agreement and it is not a decision *about you*.
+Your results, including the risk band, are generated automatically. That band is
+a rough indicator built from how many clauses were flagged, how many expected
+protections were missing, **and how much of the agreement we were actually able
+to check**. When too little could be checked, we say so and label the result
+"Review needed" rather than guessing — we do not present a thin analysis as low
+risk. It is not a legal assessment of your agreement and it is not a decision
+*about you*.
 
 The NDPA restricts decisions based solely on automated processing that produce
 legal effects or similarly significantly affect you. Tenura does not make

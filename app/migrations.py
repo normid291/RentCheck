@@ -21,6 +21,8 @@ What actually needs a "migration" rather than `create_all()`
 """
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from sqlalchemy import inspect, text
 from sqlalchemy.engine import Connection
 
@@ -30,11 +32,11 @@ _FK_ANALYSES_USER = "fk_analyses_user_id_users"
 _FK_OTP_USER = "fk_otp_codes_user_id_users"
 
 
-def _fk_names(conn: Connection, table: str) -> set[str]:
+def _fk_names(conn: Connection, table: str) -> set[str | None]:
     return {fk.get("name") for fk in inspect(conn).get_foreign_keys(table)}
 
 
-def _index_names(conn: Connection, table: str) -> set[str]:
+def _index_names(conn: Connection, table: str) -> set[str | None]:
     return {ix.get("name") for ix in inspect(conn).get_indexes(table)}
 
 
@@ -127,10 +129,43 @@ def m0002_google_signin(conn: Connection) -> list[str]:
     return notes
 
 
+def m0003_clause_provenance(conn: Connection) -> list[str]:
+    """Add the constraint/indexes Phase 1 needs.
+
+    The new COLUMNS (jurisdiction, legal_basis, coverage, degraded, ...) are
+    added by `add_missing_columns()`, which runs before this step on every boot.
+    What it cannot do is create a multi-column unique constraint or a composite
+    index, so those live here. Both statements are idempotent.
+    """
+    notes: list[str] = []
+
+    if _has_table(conn, "clause_reference"):
+        conn.execute(
+            text(
+                "CREATE UNIQUE INDEX IF NOT EXISTS "
+                "uq_clause_reference_type_juris_version "
+                "ON clause_reference (clause_type, jurisdiction, version)"
+            )
+        )
+        notes.append("ensured unique index on clause_reference(type, jurisdiction, version)")
+
+    if _has_table(conn, "analyses"):
+        conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS ix_analyses_user_created "
+                "ON analyses (user_id, created_at)"
+            )
+        )
+        notes.append("ensured index analyses(user_id, created_at)")
+
+    return notes
+
+
 # Order matters: run top to bottom, only the unapplied ones.
-MIGRATIONS: list[tuple[str, object]] = [
+MIGRATIONS: list[tuple[str, Callable[[Connection], list[str]]]] = [
     ("0001_user_ownership", m0001_user_ownership),
     ("0002_google_signin", m0002_google_signin),
+    ("0003_clause_provenance", m0003_clause_provenance),
 ]
 
 

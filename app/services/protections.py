@@ -138,8 +138,10 @@ def build_questions(flagged: list[dict], missing: list[dict]) -> list[str]:
             questions.append(question)
 
     # Flagged clauses first: these are problems in what the agreement DOES say.
+    # Prefer the norm's own question (newer norms carry one); fall back to the
+    # curated table for older norms.
     for verdict in flagged:
-        add(FLAG_QUESTIONS.get(verdict.get("clause_type", "")))
+        add(verdict.get("tenant_question") or FLAG_QUESTIONS.get(verdict.get("clause_type", "")))
 
     # Then gaps: protections the agreement does not contain at all.
     for item in missing:

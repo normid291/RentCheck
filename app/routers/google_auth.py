@@ -15,6 +15,7 @@ is fussier than it looks:
 """
 from __future__ import annotations
 
+import logging
 import secrets
 from urllib.parse import urlencode
 
@@ -25,6 +26,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.routers.auth import guard
 from app.services import google_auth
+from app.services.redirects import safe_next_path
 from app.services.auth import (
     OAUTH_STATE_COOKIE,
     clear_oauth_state_cookie,
@@ -40,6 +42,8 @@ from app.services.ratelimit import client_ip, limiter
 
 router = APIRouter()
 
+logger = logging.getLogger("tenura.google")
+
 # Generous: this only guards against the endpoint being hammered, and a real
 # person may retry a couple of times if they pick the wrong Google account.
 GOOGLE_IP = (30, 600)
@@ -49,9 +53,7 @@ _NOT_CONFIGURED = "Google sign-in is not configured on this server."
 
 def _safe_next(value: str | None) -> str:
     """Only same-site paths, the same rule the browser applies to `?next=`."""
-    if value and value.startswith("/") and not value.startswith("//"):
-        return value
-    return "/"
+    return safe_next_path(value, "/")
 
 
 def _failure(next_path: str) -> RedirectResponse:
@@ -130,7 +132,7 @@ def google_callback(
         )
     except google_auth.GoogleAuthError as exc:
         # Never log the code or the tokens — just the reason.
-        print(f"[google] sign-in refused: {exc}")
+        logger.warning("google sign-in refused: %s", type(exc).__name__)
         return _failure(target)
 
     user = get_user_by_google_sub(db, identity["sub"])
@@ -140,7 +142,7 @@ def google_callback(
         if existing is not None:
             if existing.google_sub and existing.google_sub != identity["sub"]:
                 # This address already belongs to a different Google account.
-                print("[google] sign-in refused: address is linked to another Google account")
+                logger.warning("google sign-in refused: address linked to another Google account")
                 return _failure(target)
             # Same address, either already ours or an email/password account the
             # user is now choosing to sign into with Google. Link them: Google
