@@ -72,6 +72,29 @@ def test_unknown_text_asks(monkeypatch):
     assert v["jurisdiction_confidence"] == 0.0
 
 
+def test_model_non_ng_without_evidence_asks(monkeypatch):
+    # A small model will call a marker-less document NON_NG. Acting on that
+    # would hard-refuse a Nigerian agreement, so with nothing in the text to
+    # support it we ask the user instead.
+    monkeypatch.setattr(
+        jurisdiction, "_llm_jurisdiction", lambda text: (jurisdiction.NON_NG, 0.95)
+    )
+    v = jurisdiction.detect_jurisdiction("A lease between AB and CD for a house.")
+    assert v["jurisdiction"] == "UNKNOWN"
+
+
+def test_model_non_ng_with_foreign_evidence_is_honoured(monkeypatch):
+    # NG and foreign signals tie, so the model arbitrates; because the text
+    # really does carry foreign evidence, its NON_NG is kept.
+    monkeypatch.setattr(
+        jurisdiction, "_llm_jurisdiction", lambda text: (jurisdiction.NON_NG, 0.9)
+    )
+    text = "An agreement mentioning Nigeria, with rent of $500 a month."
+    v = jurisdiction.detect_jurisdiction(text)
+    assert v["jurisdiction"] == "NON_NG"
+    assert v["jurisdiction_evidence"]
+
+
 def test_model_resolves_ambiguous(monkeypatch):
     monkeypatch.setattr(jurisdiction, "_llm_jurisdiction", lambda text: ("NG", 0.8))
     v = jurisdiction.detect_jurisdiction("An agreement about a house.")

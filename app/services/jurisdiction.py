@@ -148,12 +148,14 @@ def detect_jurisdiction(text: str) -> dict:
         jurisdiction, confidence = model
         if jurisdiction == NG_LA or jurisdiction == NG_FC or jurisdiction.startswith("NG"):
             return _ng_verdict(state, ng_score, ng_evidence, confidence, source="model")
-        if jurisdiction == NON_NG:
+        if jurisdiction == NON_NG and foreign_evidence:
+            # Trust a NON_NG model verdict ONLY when the text itself carries
+            # foreign evidence. A small model will happily label a marker-less
+            # document NON_NG, and acting on that would hard-refuse a Nigerian
+            # agreement - exactly what this gate exists to prevent. Without
+            # evidence we fall through to UNKNOWN and ask the user instead.
             return _verdict(
-                NON_NG,
-                confidence,
-                (foreign_evidence or ng_evidence)[:MAX_EVIDENCE],
-                "model",
+                NON_NG, confidence, foreign_evidence[:MAX_EVIDENCE], "model"
             )
 
     # No model, or an inconclusive answer: do not guess.
