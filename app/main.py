@@ -79,6 +79,24 @@ if ALLOWED_ORIGINS:
         allow_headers=["Content-Type"],
     )
 
+
+@app.middleware("http")
+async def revalidate_pages_and_assets(request: Request, call_next):
+    """Make HTML, JS and CSS revalidate on every load.
+
+    Static files otherwise go out with only an ETag/Last-Modified and no
+    Cache-Control, so a browser can keep a heuristically-fresh common.js whose
+    behaviour no longer matches the HTML it is running against — which is how a
+    deploy can leave an old bundle hiding the Google button. `no-cache` still
+    allows a 304 when nothing changed, so this costs a conditional request, not
+    a re-download.
+    """
+    response = await call_next(request)
+    content_type = response.headers.get("content-type", "")
+    if request.url.path.endswith((".js", ".css")) or content_type.startswith("text/html"):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
+
 app.include_router(agreements.router, prefix="/api", tags=["agreements"])
 app.include_router(auth.router, prefix="/api", tags=["auth"])
 app.include_router(google_auth.router, prefix="/api", tags=["auth"])
