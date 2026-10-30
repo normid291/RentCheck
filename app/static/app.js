@@ -548,9 +548,9 @@
 
     els.statFlaggedVal.textContent = String(flagged.length);
     els.statFlagged.className =
-      "stat " + (flagged.length === 0 ? "is-low" : risk.key === "high" ? "is-high" : "is-medium");
+      "stat-card " + (flagged.length === 0 ? "is-brand" : risk.key === "high" ? "is-danger" : "is-warn");
     els.statMissingVal.textContent = String(missing.length);
-    els.statMissing.className = "stat " + (missing.length === 0 ? "is-low" : "is-medium");
+    els.statMissing.className = "stat-card " + (missing.length === 0 ? "is-brand" : "is-warn");
     els.statCheckedVal.textContent = String(extractChecked(data.summary));
 
     lastFlagged = flagged;
@@ -712,6 +712,14 @@
   renderEmptyState();
   setMode("paste");
   updateCharCount();
+
+  // The landing page's sample CTA links here with ?sample=1. Prefill, do not
+  // auto-run: the visitor still chooses when to send the document.
+  if (Tenura.param("sample")) {
+    setMode("paste");
+    els.text.value = SAMPLE;
+    updateCharCount();
+  }
 
   // Once the header knows who is signed in, offer to save a guest analysis that
   // is still waiting in this tab (they ran it, then created an account).

@@ -1,30 +1,30 @@
 /* Tenura — UI styles
-   Palette: brand blue (the logo's gradient) + severity colours (red/amber/blue). */
+   Palette: deep teal-navy brand + severity colours (red/amber/green). */
 
 :root {
-  --brand: #2f5cf6;
-  --brand-dark: #1e3fc9;
-  --brand-soft: #eef2fe;
-  --brand-ring: rgba(47, 92, 246, 0.18);
-  --brand-2: #6a35f0; /* the violet end of the logo gradient */
+  --brand: #0f4c6b;
+  --brand-dark: #0b3c5d;
+  --brand-soft: #e8f1f5;
+  --brand-ring: rgba(15, 76, 107, 0.18);
+  --brand-2: #0f4c6b;
 
-  --bg: #f5f7fb;
+  --bg: #f5f7f8;
   --surface: #ffffff;
-  --surface-2: #fafbfe;
-  --ink: #0f172a;
-  --ink-soft: #334155;
-  --muted: #64748b;
-  --line: #e6eaf2;
-  --line-strong: #d4dae6;
+  --surface-2: #f8fafb;
+  --ink: #12222b;
+  --ink-soft: #3d4d55;
+  --muted: #68777f;
+  --line: #e7ecee;
+  --line-strong: #dbe3e6;
 
   --high: #c0392b;
   --high-soft: #fdeceb;
-  --medium: #b9770a;
+  --medium: #a86a08;
   --medium-soft: #fdf4e6;
-  --low: #2f6fb0;
-  --low-soft: #eaf2fb;
+  --low: #1f8a5b;
+  --low-soft: #e7f6ee;
   --ai: #6b7280;
-  --rule: #6d47d9;
+  --rule: #0b3c5d;
 
   --radius: 16px;
   --radius-sm: 10px;
@@ -79,7 +79,7 @@
   --transition: 0.16s ease;
 
   /* --- Avatar ------------------------------------------------------------ */
-  --avatar-grad: linear-gradient(135deg, var(--brand), var(--brand-2));
+  --avatar-grad: var(--brand);
 }
 
 /* A single, consistent focus treatment for keyboard users everywhere. */
@@ -98,10 +98,7 @@ body {
   font-family: var(--font);
   color: var(--ink);
   background: var(--bg);
-  background-image:
-    radial-gradient(1200px 500px at 78% -8%, rgba(47, 92, 246, 0.10), transparent 60%),
-    radial-gradient(900px 420px at 8% -12%, rgba(106, 53, 240, 0.07), transparent 55%);
-  background-repeat: no-repeat;
+  background-image: none;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
@@ -303,8 +300,8 @@ textarea#agreementText:focus { outline: none; border-color: var(--brand); box-sh
   border: 2px solid rgba(255, 255, 255, 0.45); border-top-color: #fff;
   animation: spin 0.7s linear infinite;
 }
-.btn-primary { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; box-shadow: 0 6px 18px rgba(47, 92, 246, 0.28); }
-.btn-primary:hover { background: linear-gradient(135deg, var(--brand-dark), #5a28e0); }
+.btn-primary { background: var(--brand); color: #fff; box-shadow: 0 1px 2px rgba(15, 76, 107, 0.2); }
+.btn-primary:hover { background: var(--brand-dark); }
 .btn-primary:active { transform: translateY(1px); }
 .btn:disabled { opacity: 0.6; cursor: default; box-shadow: none; }
 .btn:disabled:active { transform: none; }
@@ -340,7 +337,7 @@ textarea#agreementText:focus { outline: none; border-color: var(--brand); box-sh
 }
 .loading-bar span {
   display: block; height: 100%; width: 38%; border-radius: inherit;
-  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+  background: var(--brand);
   animation: loading-slide 1.3s ease-in-out infinite;
 }
 @keyframes loading-slide {
@@ -363,7 +360,7 @@ textarea#agreementText:focus { outline: none; border-color: var(--brand); box-sh
 .notice-card {
   display: flex; gap: 20px; align-items: flex-start;
   padding: 26px 24px; border-left: 5px solid var(--brand);
-  background: linear-gradient(180deg, var(--brand-soft), var(--surface) 55%);
+  background: var(--brand-soft);
 }
 @media (max-width: 640px) { .notice-card { flex-direction: column; gap: 14px; } }
 .notice-icon {
@@ -599,11 +596,11 @@ textarea#agreementText:focus { outline: none; border-color: var(--brand); box-sh
 .acct-btn.is-open .acct-chev { transform: rotate(180deg); }
 /* The logged-out control is the primary call to action. */
 .acct-btn-cta {
-  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  background: var(--brand);
   border-color: transparent; color: #fff; padding: 8px 14px;
-  box-shadow: 0 6px 18px rgba(47, 92, 246, 0.28);
+  box-shadow: 0 1px 2px rgba(15, 76, 107, 0.2);
 }
-.acct-btn-cta:hover { background: linear-gradient(135deg, var(--brand-dark), #5a28e0); color: #fff; }
+.acct-btn-cta:hover { background: var(--brand-dark); color: #fff; }
 .acct-btn-cta .acct-chev { color: rgba(255, 255, 255, 0.85); }
 
 /* Avatar: initials chip, or a photo when one is available. */
@@ -707,7 +704,7 @@ textarea#agreementText:focus { outline: none; border-color: var(--brand); box-sh
   border: 1px solid var(--line-strong); border-radius: 9px; padding: 7px 13px;
 }
 .ghost-btn:hover { border-color: var(--brand); color: var(--brand-dark); background: var(--brand-soft); }
-.ghost-btn.primary { background: linear-gradient(135deg, var(--brand), var(--brand-2)); border-color: transparent; color: #fff; }
+.ghost-btn.primary { background: var(--brand); border-color: transparent; color: #fff; }
 .ghost-btn.danger:hover { border-color: #e6b8b3; color: var(--high); background: var(--high-soft); }
 
 /* "Keep this analysis?" / "Saved" banner on the analyser. */

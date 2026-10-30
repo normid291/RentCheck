@@ -129,7 +129,7 @@ async def record(base_url: str, webm_dir: str) -> str:
         wait = page.wait_for_timeout
 
         # 1. Land on the page.
-        await page.goto(base_url, wait_until="domcontentloaded")
+        await page.goto(base_url.rstrip("/") + "/analyse", wait_until="domcontentloaded")
         await page.wait_for_selector("#analyzeBtn", state="visible")
         await wait(2600)  # let the hero settle
 

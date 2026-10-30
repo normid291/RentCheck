@@ -3,262 +3,334 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tenura — Understand your tenancy agreement before you sign</title>
-  <meta name="description" content="Tenura analyses Nigerian tenancy agreements and flags risky clauses, missing protections, and questions to ask before you sign." />
-  <meta name="theme-color" content="#2f5cf6" />
+  <title>Tenura — Understand your Nigerian tenancy agreement before you sign</title>
+  <meta name="description" content="Tenura reviews Nigerian tenancy agreements and shows you the unfair clauses, the missing protections, and the questions to ask before you sign. No account needed." />
+  <meta name="theme-color" content="#0f4c6b" />
+  <link rel="canonical" href="https://www.tenura.online/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Tenura" />
+  <meta property="og:title" content="Tenura — Understand your tenancy agreement before you sign" />
+  <meta property="og:description" content="Paste or upload your Nigerian tenancy agreement. Tenura flags unfair clauses, missing protections, and the questions to ask before signing." />
+  <meta property="og:url" content="https://www.tenura.online/" />
+  <meta property="og:image" content="https://www.tenura.online/tenura-mark.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
   <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <link rel="stylesheet" href="/styles.css?v=2" />
-  <link rel="stylesheet" href="/app.css?v=2" />
+  <link rel="stylesheet" href="/styles.css?v=3" />
+  <link rel="stylesheet" href="/app.css?v=3" />
 </head>
-<body>
-  <header class="m-nav">
-    <div class="m-nav-inner">
-      <a class="brand" href="/">
-        <img class="brand-logo" src="/tenura-logo.png" alt="Tenura" width="119" height="30" />
+<body class="lp-body">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="lp-header">
+    <div class="lp-header-inner">
+      <a class="brand-lockup" href="/" aria-label="Tenura home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="1" y="1" width="30" height="30" rx="9" fill="currentColor"/>
+          <path d="M10.5 9.5h7l4 4v9a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 9 22.5v-11a2 2 0 0 1 1.5-2z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
+          <path d="M17.5 9.5v4h4" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
+          <path d="M12.4 18.4l1.9 1.9 3.7-3.9" fill="none" stroke="#8fd3c8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="brand-word">Tenura</span>
       </a>
-      <nav class="m-links" aria-label="Sections">
+
+      <nav class="lp-nav" aria-label="Sections">
         <a href="#how">How it works</a>
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
+        <a href="#checks">What we check</a>
+        <a href="#faq">FAQ</a>
       </nav>
+
       <span class="nav-spacer"></span>
       <div class="auth-slot" id="authSlot"></div>
     </div>
   </header>
 
-  <main class="m-wrap">
-    <section class="hero">
-      <span class="eyebrow"><span class="dot"></span> Read the fine print, in seconds</span>
-      <h1>Know what you're signing before you sign it.</h1>
-      <p class="lede">
-        Paste your tenancy agreement or upload the document. Tenura checks every
-        clause against common Nigerian rental norms and shows you the risky terms,
-        the protections that are missing, and the questions to ask your landlord.
-      </p>
-      <ul class="hero-points">
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Risky clauses flagged by severity</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Missing protections called out</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> A ready list of questions to ask</li>
-      </ul>
+  <main id="main">
+    <!-- Hero ------------------------------------------------------------- -->
+    <section class="lp-hero">
+      <div class="lp-hero-inner">
+        <div class="lp-hero-copy">
+          <span class="lp-eyebrow"><span class="dot"></span> Built for Nigerian tenancy agreements</span>
+          <h1>Know what your tenancy agreement really says before you sign.</h1>
+          <p class="lp-lede">
+            Paste your agreement or upload the document. Tenura reads every clause,
+            flags the terms that work against you, and shows the protections that are
+            missing, so you can ask the right questions before you commit.
+          </p>
+          <div class="lp-cta-row">
+            <a class="btn btn-primary" id="heroPrimary" href="/analyse">Try it now</a>
+            <a class="btn btn-ghost" id="heroSecondary" href="/signup">Create free account</a>
+          </div>
+          <p class="lp-micro">
+            No account needed. Your document is processed only to produce your analysis.
+          </p>
+        </div>
+
+        <!-- Product preview, built in HTML/CSS (no image). -->
+        <div class="lp-preview-wrap">
+          <div class="lp-preview" role="img" aria-label="Preview of a Tenura analysis: four flagged clauses, three missing protections and eighteen fair clauses">
+            <div class="lp-preview-top">
+              <span class="lp-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="lp-preview-title">Analysis result</span>
+              <span class="pill pill-high">High risk</span>
+            </div>
+
+            <div class="lp-preview-body">
+              <div class="lp-mini-stats">
+                <div class="lp-mini-stat">
+                  <span class="lp-mini-ico is-danger" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><path d="M12 9v5M12 17h.01"/></svg>
+                  </span>
+                  <div><span>Flagged clauses</span><b>4</b></div>
+                </div>
+                <div class="lp-mini-stat">
+                  <span class="lp-mini-ico is-warn" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                  </span>
+                  <div><span>Missing protections</span><b>3</b></div>
+                </div>
+                <div class="lp-mini-stat">
+                  <span class="lp-mini-ico is-ok" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                  </span>
+                  <div><span>Fair clauses</span><b>18</b></div>
+                </div>
+              </div>
+
+              <div class="lp-flag">
+                <div class="lp-flag-head">
+                  <span>Re-entry without lawful demand</span>
+                  <span class="pill pill-high">High</span>
+                </div>
+                <p>&ldquo;If rent is in arrears for seven days, whether or not lawfully demanded, the landlord may re-enter.&rdquo;</p>
+              </div>
+
+              <div class="lp-flag">
+                <div class="lp-flag-head">
+                  <span>Non-refundable caution fee</span>
+                  <span class="pill pill-warn">Medium</span>
+                </div>
+                <p>&ldquo;The caution fee of &#8358;1,000,000 shall not be refunded on the tenant vacating.&rdquo;</p>
+              </div>
+
+              <div class="lp-missing">
+                <h3>Missing protections</h3>
+                <ul>
+                  <li>No written receipt for the caution fee</li>
+                  <li>No notice period before the landlord can raise the rent</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="lp-preview-glow" aria-hidden="true"></div>
+        </div>
+      </div>
     </section>
 
-    <section class="panel input-panel" id="inputPanel" aria-label="Analyse a tenancy agreement">
-      <div class="tabs" role="tablist" aria-label="Input method">
-        <button class="tab" id="tab-paste" role="tab" aria-selected="true" aria-controls="panel-paste" data-mode="paste" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/><rect x="2" y="7" width="20" height="14" rx="2"/></svg>
-          Paste text
-        </button>
-        <button class="tab" id="tab-upload" role="tab" aria-selected="false" aria-controls="panel-upload" data-mode="upload" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
-          Upload file
-        </button>
-      </div>
-
-      <div class="tabpanel" id="panel-paste" role="tabpanel" aria-labelledby="tab-paste">
-        <textarea id="agreementText" placeholder="Paste the full tenancy agreement here..." spellcheck="false"></textarea>
-        <div class="meta-row">
-          <span id="charCount">0 characters</span>
-          <button type="button" class="link-btn" id="sampleBtn">Try a sample agreement</button>
-        </div>
-      </div>
-
-      <div class="tabpanel" id="panel-upload" role="tabpanel" aria-labelledby="tab-upload" hidden>
-        <label for="agreementFile" class="visually-hidden">Upload your tenancy agreement</label>
-        <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-describedby="dzHint">
-          <input type="file" id="agreementFile" class="dz-input"
-                 accept=".pdf,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.bmp,.tiff,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg,image/webp,image/bmp,image/tiff,text/plain,text/markdown" />
-
-          <div class="dz-empty" id="dzEmpty">
-            <span class="dz-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
-            </span>
-            <span class="dz-title">Drop your file here, or click to browse</span>
-            <span class="dz-hint" id="dzHint">PDF, Word (.docx), image (PNG/JPG/WEBP), or .txt, up to 15 MB</span>
-          </div>
-
-          <div class="dz-file" id="dzFile" hidden>
-            <span class="file-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-            </span>
-            <span class="file-meta">
-              <span class="file-name" id="fileName"></span>
-              <span class="file-size" id="fileSize"></span>
-            </span>
-            <span class="file-actions">
-              <button type="button" class="file-btn" id="replaceFile">Replace file</button>
-              <button type="button" class="file-remove" id="removeFile" aria-label="Remove file" title="Remove file">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
-              </button>
-            </span>
-          </div>
-        </div>
-        <p class="dz-error" id="fileError" role="alert" hidden></p>
-      </div>
-
-      <div class="actions">
-        <button class="btn btn-primary" id="analyzeBtn" type="button">
-          <span class="btn-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 20.5 20.5"/></svg>
+    <!-- Trust strip ------------------------------------------------------ -->
+    <section class="lp-trust" aria-label="Trust and scope">
+      <div class="lp-trust-inner">
+        <div class="lp-trust-item">
+          <span class="lp-trust-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.2-3 7.4-7 9-4-1.6-7-4.8-7-9V6z"/><path d="M9.5 12l1.8 1.8 3.4-3.6"/></svg>
           </span>
-          <span class="btn-spinner" id="btnSpinner" aria-hidden="true" hidden></span>
-          <span id="analyzeBtnLabel">Analyse agreement</span>
-        </button>
-        <span class="privacy-note">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Processed only to produce your analysis.
-        </span>
-      </div>
-    </section>
-
-    <section class="loading" id="loading" hidden aria-live="polite">
-      <div class="panel loading-card">
-        <div class="spinner" aria-hidden="true"></div>
-        <div class="loading-steps">
-          <strong id="loadingTitle">Analysing your agreement…</strong>
-          <span id="loadingSub">This can take a moment while each clause is checked.</span>
-          <div class="step-dots" aria-hidden="true"><i></i><i></i><i></i></div>
-          <div class="loading-bar" aria-hidden="true"><span></span></div>
+          <span><strong>Built for Nigerian tenancy agreements</strong>Norms, states and naira amounts, not generic advice.</span>
+        </div>
+        <div class="lp-trust-item">
+          <span class="lp-trust-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>
+          <span><strong>Processed only to produce your analysis</strong>No external scripts, and nothing is stored unless you sign in.</span>
+        </div>
+        <div class="lp-trust-item">
+          <span class="lp-trust-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9S14.5 18.3 12 21c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>
+          </span>
+          <span><strong>More countries are coming</strong>Nigeria is supported today; other jurisdictions are planned.</span>
         </div>
       </div>
     </section>
 
-    <section class="error" id="error" role="alert" hidden>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-      <div><strong>We couldn't analyse that</strong><span id="errorMsg"></span></div>
-    </section>
-
-    <section class="notice" id="notice" role="status" hidden aria-live="polite">
-      <div class="panel notice-card">
-        <span class="notice-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>
-        </span>
-        <div class="notice-body">
-          <h2 id="noticeTitle">This doesn't look like a tenancy agreement</h2>
-          <p id="noticeMessage"></p>
-          <button class="btn btn-primary" id="noticeAction" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
-            Try another file or paste text
-          </button>
-        </div>
+    <!-- How it works ---------------------------------------------------- -->
+    <section class="lp-section" id="how">
+      <div class="lp-section-head">
+        <span class="lp-kicker">How it works</span>
+        <h2>Three steps, a few seconds.</h2>
+        <p>No legal training needed. Tenura does the reading and shows its evidence.</p>
       </div>
-    </section>
-
-    <section class="results" id="results" hidden aria-live="polite">
-      <div class="panel score-panel" id="scorePanel">
-        <div class="ring-wrap" aria-hidden="true">
-          <svg class="ring" width="148" height="148" viewBox="0 0 148 148">
-            <circle class="ring-bg" cx="74" cy="74" r="64"></circle>
-            <circle class="ring-fg" id="ringFg" cx="74" cy="74" r="64"></circle>
-          </svg>
-          <div class="ring-center">
-            <span class="score-value" id="scoreValue">0</span>
-            <small>risk score / 100</small>
-          </div>
-        </div>
-        <div>
-          <p class="risk-level" id="riskLevel"><span class="risk-dot"></span><span id="riskLabel">—</span></p>
-          <p class="score-summary" id="scoreSummary"></p>
-          <div class="coverage-banner" id="coverageBanner" hidden>
-            <strong id="coverageTitle">How much we checked</strong>
-            <p id="coverageNote"></p>
-          </div>
-          <div class="stat-row">
-            <div class="stat" id="statFlagged"><b id="statFlaggedVal">0</b><span>flagged clauses</span></div>
-            <div class="stat" id="statMissing"><b id="statMissingVal">0</b><span>missing protections</span></div>
-            <div class="stat" id="statChecked"><b id="statCheckedVal">0</b><span>clauses checked</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="result-section" id="flaggedSection">
-        <div class="section-head">
-          <h2>Flagged clauses</h2>
-          <span class="count" id="flaggedCount">0</span>
-          <span class="sub">Terms that may work against you</span>
-        </div>
-        <div class="filter-row" id="flaggedFilters" role="group" aria-label="Filter flagged clauses by severity" hidden>
-          <button class="chip is-active" data-sev="all" type="button" aria-pressed="true">All</button>
-          <button class="chip" data-sev="high" type="button" aria-pressed="false">High</button>
-          <button class="chip" data-sev="medium" type="button" aria-pressed="false">Medium</button>
-          <button class="chip" data-sev="low" type="button" aria-pressed="false">Low</button>
-        </div>
-        <div id="flaggedList"></div>
-      </div>
-
-      <div class="result-section" id="missingSection">
-        <div class="section-head">
-          <h2>Missing protections</h2>
-          <span class="count" id="missingCount">0</span>
-          <span class="sub">Not clearly addressed in the agreement</span>
-        </div>
-        <div id="missingList"></div>
-      </div>
-
-      <div class="result-section" id="questionsSection">
-        <div class="questions-head">
-          <h2>Questions to ask before signing</h2>
-          <button class="copy-btn" id="copyQuestions" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-            <span id="copyLabel">Copy</span>
-          </button>
-        </div>
-        <ul class="questions-list" id="questionsList"></ul>
-      </div>
-    </section>
-
-    <!-- Shown after a guest analysis (offer to keep it) or after a saved one
-         (confirmation). Populated by app.js. -->
-    <section class="save-banner" id="saveBanner" hidden>
-      <div class="panel save-card">
-        <div class="save-body">
-          <strong id="saveTitle"></strong>
-          <p id="saveText"></p>
-        </div>
-        <div class="save-actions" id="saveActions"></div>
-      </div>
-    </section>
-
-    <section class="how" id="how">
-      <h2>How Tenura reads your agreement</h2>
-      <div class="how-grid">
-        <div class="how-card">
-          <div class="num">1</div>
-          <h3>Splits into clauses</h3>
-          <p>Your document is broken into individual clauses, so each one is judged on its own.</p>
-        </div>
-        <div class="how-card">
-          <div class="num">2</div>
-          <h3>Checks against the rules</h3>
-          <p>Clauses are matched to known Nigerian rental norms and known unfair patterns.</p>
-        </div>
-        <div class="how-card">
-          <div class="num">3</div>
-          <h3>Explains, with evidence</h3>
+      <div class="lp-steps">
+        <article class="lp-step">
+          <span class="lp-step-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+          </span>
+          <span class="lp-step-num">01</span>
+          <h3>Upload or paste your agreement</h3>
+          <p>PDF, Word, an image of a printed lease, or plain text. Up to 15 MB.</p>
+        </article>
+        <article class="lp-step">
+          <span class="lp-step-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 20.5 20.5"/></svg>
+          </span>
+          <span class="lp-step-num">02</span>
+          <h3>We check every clause</h3>
+          <p>Each clause is matched to known Nigerian rental norms and known unfair patterns.</p>
+        </article>
+        <article class="lp-step">
+          <span class="lp-step-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>
+          </span>
+          <span class="lp-step-num">03</span>
+          <h3>Get flagged clauses and missing protections</h3>
           <p>Every flag quotes the exact words from your agreement, so you can verify it yourself.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- What we check --------------------------------------------------- -->
+    <section class="lp-section lp-checks" id="checks">
+      <div class="lp-section-head">
+        <span class="lp-kicker">What we check</span>
+        <h2>Two things that matter most.</h2>
+        <p>A clause that takes a right away, and a protection that was never written down.</p>
+      </div>
+      <div class="lp-feature-grid">
+        <article class="lp-feature">
+          <span class="lp-feature-ico is-danger" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><path d="M12 9v5M12 17h.01"/></svg>
+          </span>
+          <h3>Flagged clauses</h3>
+          <p>Unfair or non-permitted terms for tenants, ranked by severity.</p>
+          <div class="lp-example">
+            <span class="pill pill-high">Example</span>
+            <p>A landlord may re-enter the property if rent is seven days late, &ldquo;whether or not lawfully demanded&rdquo;, with no notice and no court process.</p>
+          </div>
+        </article>
+        <article class="lp-feature">
+          <span class="lp-feature-ico is-warn" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          </span>
+          <h3>Missing protections</h3>
+          <p>Important clauses that should be there, but are absent from the agreement.</p>
+          <div class="lp-example">
+            <span class="pill pill-warn">Example</span>
+            <p>No clause says the caution fee must be receipted, or when and how it will be refunded after you move out.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Sample ---------------------------------------------------------- -->
+    <section class="lp-sample">
+      <div class="lp-sample-inner">
+        <div>
+          <span class="lp-kicker">See it first</span>
+          <h2>Try a sample agreement.</h2>
+          <p>Load a complete Lagos tenancy agreement and see the kind of result Tenura returns.</p>
         </div>
+        <a class="btn btn-ghost" href="/analyse?sample=1">Load the sample</a>
+      </div>
+    </section>
+
+    <!-- Why an account -------------------------------------------------- -->
+    <section class="lp-section lp-why">
+      <div class="lp-why-inner">
+        <div class="lp-why-copy">
+          <span class="lp-kicker">Why create an account</span>
+          <h2>Keep the analysis for the day you sign.</h2>
+          <p>Signing up is free. You can still analyse an agreement without one.</p>
+          <div class="lp-cta-row">
+            <a class="btn btn-primary" href="/signup">Create free account</a>
+            <a class="btn btn-ghost" href="/login">Log in</a>
+          </div>
+          <p class="lp-micro">Continue with Google is one click when it is enabled.</p>
+        </div>
+        <ul class="lp-why-list">
+          <li>
+            <span class="lp-why-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg></span>
+            <div><strong>Save your analyses</strong><span>Keep the flagged clauses and questions in one place.</span></div>
+          </li>
+          <li>
+            <span class="lp-why-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            <div><strong>View your history</strong><span>Rename an analysis, reopen it, or delete it at any time.</span></div>
+          </li>
+          <li>
+            <span class="lp-why-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 22h8M12 18v4"/></svg></span>
+            <div><strong>Access from any device</strong><span>Your account and history follow you, not the browser.</span></div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- FAQ -------------------------------------------------------------- -->
+    <section class="lp-section lp-faq" id="faq">
+      <div class="lp-section-head">
+        <span class="lp-kicker">FAQ</span>
+        <h2>Questions people ask.</h2>
+      </div>
+      <div class="lp-faq-list">
+        <details class="lp-faq-item">
+          <summary>Is this legal advice?</summary>
+          <p>No. Tenura gives you an informational review of common rental practices so you can read an agreement more confidently. It is not a substitute for advice from a qualified lawyer.</p>
+        </details>
+        <details class="lp-faq-item">
+          <summary>Which countries are supported?</summary>
+          <p>Nigeria only for now. Tenura applies Nigerian rental norms and asks for the Nigerian state where it matters. More countries are planned.</p>
+        </details>
+        <details class="lp-faq-item">
+          <summary>Is my document stored?</summary>
+          <p>If you analyse without signing in, your document is used to produce the analysis and is not saved. If you are signed in, the analysis and agreement text are saved to your private account so you can reopen them, and you can delete any of them at any time.</p>
+        </details>
+        <details class="lp-faq-item">
+          <summary>Do I need an account?</summary>
+          <p>No. You can run an analysis straight away. An account lets you keep the result and see it again later.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- Final CTA ------------------------------------------------------- -->
+    <section class="lp-final">
+      <div class="lp-final-inner">
+        <div>
+          <h2>Read the agreement before you sign it.</h2>
+          <p>Free to try. No account needed.</p>
+        </div>
+        <a class="btn lp-final-btn" href="/analyse">Try it now</a>
       </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="m-wrap">
-      <div class="disclaimer">
-        <strong>Not legal advice.</strong> Tenura provides general information about
-        common rental practices to help you read an agreement. It is not a substitute
-        for advice from a qualified lawyer.
+  <footer class="lp-footer">
+    <div class="lp-footer-inner">
+      <div class="lp-footer-brand">
+        <a class="brand-lockup" href="/" aria-label="Tenura home">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <rect x="1" y="1" width="30" height="30" rx="9" fill="currentColor"/>
+            <path d="M10.5 9.5h7l4 4v9a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 9 22.5v-11a2 2 0 0 1 1.5-2z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M17.5 9.5v4h4" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M12.4 18.4l1.9 1.9 3.7-3.9" fill="none" stroke="#8fd3c8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="brand-word">Tenura</span>
+        </a>
+        <p>Not legal advice. Tenura provides general information about common rental practices to help you read an agreement. It is not a substitute for advice from a qualified lawyer.</p>
       </div>
-      <div class="footer-row">
-        <span>Tenura — built for the Devcenter Hacktober sprint.</span>
-        <span class="footer-links">
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/terms">Terms of Service</a>
-        </span>
-      </div>
+      <nav class="lp-footer-links" aria-label="Footer">
+        <a href="#how">How it works</a>
+        <a href="#checks">What we check</a>
+        <a href="#faq">FAQ</a>
+        <a href="/analyse">Analyse</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </nav>
+    </div>
+    <div class="lp-footer-base">
+      <span>&copy; 2026 Tenura. Built for the Devcenter Hacktober sprint.</span>
+      <span>Made for Nigerian renters.</span>
     </div>
   </footer>
 
-  <script src="/common.js?v=2"></script>
-  <script src="/app.js?v=2"></script>
+  <script src="/common.js?v=3"></script>
+  <script src="/landing.js?v=3"></script>
 </body>
 </html>

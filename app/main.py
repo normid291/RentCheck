@@ -220,6 +220,11 @@ def terms_of_service():
 
 # Account pages. Same reasoning as the legal pages: registered explicitly so
 # /login, /signup and /history resolve without needing the ".html".
+@app.get("/analyse", include_in_schema=False)
+def analyse_page():
+    return FileResponse(BASE_DIR / "static" / "analyse.html")
+
+
 @app.get("/login", include_in_schema=False)
 def login_page():
     return FileResponse(BASE_DIR / "static" / "login.html")

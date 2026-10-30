@@ -346,9 +346,8 @@
         escapeHtml(email) + "</span>" +
         "</span>" +
         "</div>" +
-        '<a class="acct-item" role="menuitem" href="/dashboard">Dashboard</a>' +
-        '<a class="acct-item" role="menuitem" href="/history">My analyses</a>' +
         '<a class="acct-item" role="menuitem" href="/profile">Profile</a>' +
+        '<a class="acct-item" role="menuitem" href="/history">History</a>' +
         '<button class="acct-item acct-item-danger" role="menuitem" id="logoutBtn" type="button">' +
         "Log out</button>" +
         "</div></div>";
@@ -575,7 +574,7 @@
           "/api/auth/google/start?from=" +
           encodeURIComponent(googleOrigin()) +
           "&next=" +
-          encodeURIComponent(safeNext("/"));
+          encodeURIComponent(safeNext("/analyse"));
       });
   }
 
@@ -667,13 +666,18 @@
 
     if (side) {
       side.innerHTML =
-        '<a class="side-brand" href="/">' +
-        '<img src="/tenura-logo.png" alt="Tenura" width="119" height="28" /></a>' +
+        '<a class="side-brand" href="/" aria-label="Tenura home">' +
+        '<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">' +
+        '<rect x="1" y="1" width="30" height="30" rx="9" fill="currentColor"/>' +
+        '<path d="M10.5 9.5h7l4 4v9a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 9 22.5v-11a2 2 0 0 1 1.5-2z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>' +
+        '<path d="M17.5 9.5v4h4" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>' +
+        '<path d="M12.4 18.4l1.9 1.9 3.7-3.9" fill="none" stroke="#8fd3c8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg><span class="brand-word">Tenura</span></a>' +
         '<nav class="side-nav" aria-label="Primary">' +
         '<p class="side-label">Main</p>' +
         shellItem("/dashboard", "dashboard", "Dashboard", ICON.dashboard, active) +
         shellItem("/history", "analyses", "My analyses", ICON.file, active) +
-        shellItem("/", "new", "New analysis", ICON.search, active) +
+        shellItem("/analyse", "new", "New analysis", ICON.search, active) +
         shellItem("/profile", "profile", "Profile", ICON.user, active) +
         '<p class="side-label">Others</p>' +
         shellItem("/privacy", "privacy", "Privacy", ICON.shield, active) +
@@ -682,7 +686,7 @@
         '<div class="side-card">' +
         "<strong>Your analyses are private</strong>" +
         "<p>Saved agreements are visible only to you. Delete any of them at any time.</p>" +
-        '<a class="side-cta" href="/">' + ICON.plus + " Analyse an agreement</a>" +
+        '<a class="side-cta" href="/analyse">' + ICON.plus + " Analyse an agreement</a>" +
         "</div>";
     }
 

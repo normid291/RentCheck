@@ -64,9 +64,17 @@
   }
 
   function stat(value, label, cls) {
+    var tone =
+      cls === "is-high" ? "is-danger" : cls === "is-medium" ? "is-warn" : "is-brand";
+    var icon =
+      tone === "is-brand"
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><path d="M12 9v5M12 17h.01"/></svg>';
     return (
-      '<div class="stat ' + (cls || "") + '"><b>' + value + "</b><span>" +
-      esc(label) + "</span></div>"
+      '<div class="stat-card ' + tone + '">' +
+      '<span class="sc-ico" aria-hidden="true">' + icon + "</span>" +
+      '<div><div class="sc-label">' + esc(label) + "</div>" +
+      '<div class="sc-value">' + value + "</div></div></div>"
     );
   }
 
@@ -95,7 +103,7 @@
         "<p>Upload your first tenancy agreement and Tenura will flag the risky " +
         "clauses, call out the protections that are missing, and give you the " +
         "questions to ask before you sign.</p>" +
-        '<a class="btn btn-primary" href="/">' +
+        '<a class="btn btn-primary" href="/analyse">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>' +
         "Upload your first agreement</a>" +
         "</div>";
