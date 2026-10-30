@@ -38,7 +38,7 @@ are actually good at.
 ## Stack
 
 - FastAPI (Python) backend
-- PostgreSQL (Rumpty Managed Database)
+- PostgreSQL (Neon in production; local Postgres for development)
 - Rumpty AI Inference (OpenAI-compatible endpoint)
 - Resend for transactional email (sign-in and password-reset codes)
 - Plain HTML/JS frontend (no framework)
@@ -108,7 +108,8 @@ self-contained, so moving to Alembic later is mechanical.)
    the database); the default `/` also works.
 3. Set environment variables in the deployment config:
    - `DATABASE_URL` — the connection string for the Postgres instance the app
-     should use (use the internal one when the app and DB are both on Rumpty)
+     should use. Production uses Neon; local development uses a local Postgres
+     instance.
    - `SESSION_SECRET` — a long random string; signs the session cookie. Without
      it a random per-process key is generated, which signs everyone out on every
      restart (and a loud warning is printed). **Set this in production.**

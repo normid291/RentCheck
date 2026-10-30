@@ -6,8 +6,8 @@ from sqlalchemy.orm import sessionmaker
 
 load_dotenv()  # reads the .env file in the project folder
 
-# On Rumpty: use the internal connection string when the app is deployed
-# on Rumpty Cloud itself, or the public one for local dev.
+# Production uses Neon; local development uses a local Postgres instance.
+# DATABASE_URL is set per environment.
 DATABASE_URL_FROM_ENV = bool(os.environ.get("DATABASE_URL"))
 
 DATABASE_URL = os.environ.get(

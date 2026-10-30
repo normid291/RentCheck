@@ -14,7 +14,15 @@
 <body>
   <header class="nav">
     <div class="wrap nav-inner">
-      <a class="brand-lockup brand" href="/" aria-label="Tenura home"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="9" fill="currentColor"/><path d="M10.5 9.5h7l4 4v9a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 9 22.5v-11a2 2 0 0 1 1.5-2z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/><path d="M17.5 9.5v4h4" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/><path d="M12.4 18.4l1.9 1.9 3.7-3.9" fill="none" stroke="#8fd3c8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="brand-word">Tenura</span></a>
+      <a class="brand-lockup brand" href="/" aria-label="Tenura home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="1" y="1" width="30" height="30" rx="9" fill="currentColor"/>
+          <path d="M10.5 9.5h7l4 4v9a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 9 22.5v-11a2 2 0 0 1 1.5-2z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
+          <path d="M17.5 9.5v4h4" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
+          <path d="M12.4 18.4l1.9 1.9 3.7-3.9" fill="none" stroke="#8fd3c8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="brand-word">Tenura</span>
+      </a>
       <span class="nav-spacer"></span>
       <nav class="nav-links">
         <a href="/privacy">Privacy</a>
@@ -28,7 +36,7 @@
   <main class="wrap legal">
     <article>
       <h1 id="tenura-privacy-policy">Tenura Privacy Policy</h1>
-      <p><strong>Version 1.5 — last updated 29 October 2026</strong></p>
+      <p><strong>Version 1.6 — last updated 30 October 2026</strong></p>
       <p>Tenura is a tenancy-agreement analysis tool. You paste or upload a tenancy agreement and it returns flagged clauses, missing protections and questions to ask before you sign. You can use it as a guest, or create an account to keep the analyses you run. This policy explains what personal data each of those involves, why we use it, who else sees it, and what you can ask us to do about it.</p>
       <p>We have tried to write this in plain language rather than legal padding. If anything is unclear, ask us — the contact details are at the end.</p>
       <h2 id="1-who-we-are">1. Who we are</h2>
@@ -46,12 +54,12 @@
       <div class="legal-table"><table>
       <thead><tr><th>What we hold</th><th>Why</th><th>Who else sees it</th></tr></thead>
       <tbody>
-      <tr><td>The text of the agreement you submit, <strong>only when you are signed in</strong></td><td>To produce your analysis, and to reopen it later from your history</td><td>Rumpty AI Inference (selected parts only — see section 5), Rumpty Cloud (hosting and database)</td></tr>
-      <tr><td>The analysis we generate — flagged clauses, missing protections, questions, risk score — <strong>only when you are signed in</strong></td><td>To show you the result and keep it for you</td><td>Rumpty Cloud</td></tr>
-      <tr><td>If you have an account: your <strong>email address</strong>, your <strong>password hash</strong>, and the <strong>one-time codes</strong> we send you</td><td>To sign you in, verify your email, and let you reset a forgotten password</td><td>Rumpty Cloud; and our email provider, Resend, to deliver the message</td></tr>
-      <tr><td>If you sign in with Google: your email address and the <strong>account identifier Google sends us</strong> — no password, because there is none</td><td>To recognise you on later visits and keep your history with you</td><td>Google, which performs the sign-in; Rumpty Cloud</td></tr>
+      <tr><td>The text of the agreement you submit, <strong>only when you are signed in</strong></td><td>To produce your analysis, and to reopen it later from your history</td><td>Rumpty AI Inference (selected parts only — see section 5), Rumpty Cloud (hosting), Neon (database)</td></tr>
+      <tr><td>The analysis we generate — flagged clauses, missing protections, questions, risk score — <strong>only when you are signed in</strong></td><td>To show you the result and keep it for you</td><td>Rumpty Cloud (hosting), Neon (database)</td></tr>
+      <tr><td>If you have an account: your <strong>email address</strong>, your <strong>password hash</strong>, and the <strong>one-time codes</strong> we send you</td><td>To sign you in, verify your email, and let you reset a forgotten password</td><td>Rumpty Cloud (hosting), Neon (database); and our email provider, Resend, to deliver the message</td></tr>
+      <tr><td>If you sign in with Google: your email address and the <strong>account identifier Google sends us</strong> — no password, because there is none</td><td>To recognise you on later visits and keep your history with you</td><td>Google, which performs the sign-in; Rumpty Cloud (hosting), Neon (database)</td></tr>
       <tr><td>A <strong>session cookie</strong> holding your signed-in state</td><td>To keep you logged in between pages</td><td>Nobody — it is set by us and never shared</td></tr>
-      <tr><td>Server logs: IP address, timestamps, requested pages, error traces</td><td>To run the Service, debug failures and prevent abuse</td><td>Rumpty Cloud</td></tr>
+      <tr><td>Server logs: IP address, timestamps, requested pages, error traces</td><td>To run the Service, debug failures and prevent abuse</td><td>Rumpty Cloud (hosting)</td></tr>
       </tbody></table></div>
       <p>We run no analytics and no advertising, and no third-party scripts load on the page — including when you sign in with Google, which we do by sending you to Google&#x27;s own page rather than by loading Google&#x27;s script into ours. We do not sell your data. We do not use your document to train anyone&#x27;s AI model.</p>
       <h2 id="3-what-we-collect">3. What we collect</h2>
@@ -84,14 +92,15 @@
       <thead><tr><th>Recipient</th><th>What they receive</th><th>Why</th></tr></thead>
       <tbody>
       <tr><td>Rumpty AI Inference (Rumpty Cloud)</td><td>Individual clause text together with the matching rental norm; or the first 1,800 characters, but only when the document type is ambiguous; or the first 1,500 characters, but only when the jurisdiction is ambiguous</td><td>To evaluate a clause, or to classify the document or its jurisdiction</td></tr>
-      <tr><td>Rumpty Cloud</td><td>Our application and the managed PostgreSQL database, which holds your stored text and analysis</td><td>Hosting the Service and storing the data</td></tr>
+      <tr><td>Rumpty Cloud</td><td>Our application server and the code that runs the Service</td><td>Hosting the Service</td></tr>
+      <tr><td>Neon</td><td>The managed PostgreSQL database that holds your stored text, analyses and account records</td><td>Database hosting and storage</td></tr>
       <tr><td>Resend</td><td>Your email address and the one-time code message</td><td>To deliver verification and password-reset emails</td></tr>
       <tr><td>Google</td><td>Your Google sign-in, handled on Google&#x27;s own page; Google then tells us your verified email address and account identifier</td><td>To let you sign in with your Google account, only if you choose to</td></tr>
       </tbody></table></div>
       <p>We do not sell, rent or trade personal data. We do not share it with advertisers or data brokers. We do not allow a provider to use your document for their own purposes.</p>
       <p>We may disclose personal data where we are legally required to — for example a valid court order or a lawful request from a competent Nigerian authority — or where it is necessary to protect someone&#x27;s safety or our legal rights. If that ever happens, we disclose only what is actually required.</p>
       <h2 id="7-transfers-outside-nigeria">7. Transfers outside Nigeria</h2>
-      <p>Our hosting and AI providers may process data on servers located outside Nigeria. Where personal data is transferred out of the country, we rely on the safeguards the NDPA requires for such transfers, including ensuring the recipient is bound to protect the data to a comparable standard. If you need details of where a particular transfer goes, ask us.</p>
+      <p>Our hosting, database and AI providers may process data on servers located outside Nigeria. Where personal data is transferred out of the country, we rely on the safeguards the NDPA requires for such transfers, including ensuring the recipient is bound to protect the data to a comparable standard. If you need details of where a particular transfer goes, ask us.</p>
       <h2 id="8-how-long-we-keep-it">8. How long we keep it</h2>
       <p><strong>Guest analyses are not stored at all</strong>, so there is nothing to keep.</p>
       <p>For an account:</p>
@@ -99,7 +108,7 @@
       <p>There is no automatic expiry on saved analyses. We would rather say that plainly than claim a retention period we do not enforce — and it is the reason the delete button is in your hands rather than ours.</p>
       <p>To close your account, or to have anything else deleted, email <strong>privacy@tenura.online</strong> from the address on the account.</p>
       <h2 id="9-how-we-protect-it">9. How we protect it</h2>
-      <ul><li><strong>In transit</strong> over HTTPS.</li><li><strong>At rest</strong> in a managed PostgreSQL database on Rumpty Cloud.</li><li><strong>Uploads are handled in memory</strong> and are not saved to disk as files.</li><li><strong>Passwords are hashed with Argon2id</strong> and are never stored or logged in plain text. Signed-in sessions use a signed, expiring cookie that page scripts cannot read, and no sign-in token is kept in browser storage where a script could reach it.</li><li><strong>One-time codes are hashed, single-use, short-lived and attempt-limited.</strong></li><li><strong>Every account can reach only its own records</strong> — checked on the server for every query, not merely hidden in the interface.</li><li><strong>Sign-in, sign-up and code requests are rate-limited</strong> to slow down guessing and abuse.</li><li><strong>Access is limited</strong> to the people who operate and maintain the Service.</li></ul>
+      <ul><li><strong>In transit</strong> over HTTPS.</li><li><strong>At rest</strong> in a managed PostgreSQL database operated by Neon.</li><li><strong>Uploads are handled in memory</strong> and are not saved to disk as files.</li><li><strong>Passwords are hashed with Argon2id</strong> and are never stored or logged in plain text. Signed-in sessions use a signed, expiring cookie that page scripts cannot read, and no sign-in token is kept in browser storage where a script could reach it.</li><li><strong>One-time codes are hashed, single-use, short-lived and attempt-limited.</strong></li><li><strong>Every account can reach only its own records</strong> — checked on the server for every query, not merely hidden in the interface.</li><li><strong>Sign-in, sign-up and code requests are rate-limited</strong> to slow down guessing and abuse.</li><li><strong>Access is limited</strong> to the people who operate and maintain the Service.</li></ul>
       <p>No system is perfectly secure and we do not pretend otherwise. Tenura is an early-stage project, not a bank. If you are uncomfortable sending a particular document, consider redacting the parts that are not relevant to the clauses you want checked — the names, phone numbers and account details — before you submit it. The analysis works fine without them.</p>
       <h2 id="10-your-rights">10. Your rights</h2>
       <p>Under the NDPA you have the right to:</p>

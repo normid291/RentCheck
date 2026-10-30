@@ -50,22 +50,29 @@ SHELL = """<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>__TITLE__ — Tenura</title>
   <meta name="description" content="__DESC__" />
-  <meta name="theme-color" content="#2f5cf6" />
+  <meta name="theme-color" content="#0f4c6b" />
   <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=3" />
+  <link rel="stylesheet" href="/app.css?v=3" />
 </head>
 <body>
   <header class="nav">
     <div class="wrap nav-inner">
-      <a class="brand" href="/">
-        <img class="brand-logo" src="/tenura-logo.png" alt="Tenura" width="119" height="30" />
+      <a class="brand-lockup brand" href="/" aria-label="Tenura home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="1" y="1" width="30" height="30" rx="9" fill="currentColor"/>
+          <path d="M10.5 9.5h7l4 4v9a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 9 22.5v-11a2 2 0 0 1 1.5-2z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
+          <path d="M17.5 9.5v4h4" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
+          <path d="M12.4 18.4l1.9 1.9 3.7-3.9" fill="none" stroke="#8fd3c8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="brand-word">Tenura</span>
       </a>
       <span class="nav-spacer"></span>
       <nav class="nav-links">
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
-        <a href="/">Analyse an agreement</a>
+        <a href="/analyse">Analyse an agreement</a>
       </nav>
       <div class="auth-slot" id="authSlot"></div>
     </div>
@@ -93,7 +100,7 @@ __BODY__
       </div>
     </div>
   </footer>
-  <script src="/common.js"></script>
+  <script src="/common.js?v=3"></script>
 </body>
 </html>
 """

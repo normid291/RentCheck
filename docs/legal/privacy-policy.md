@@ -1,6 +1,6 @@
 # Tenura Privacy Policy
 
-**Version 1.5 — last updated 29 October 2026**
+**Version 1.6 — last updated 30 October 2026**
 
 Tenura is a tenancy-agreement analysis tool. You paste or upload a tenancy
 agreement and it returns flagged clauses, missing protections and questions to
@@ -34,12 +34,12 @@ delete them.
 
 | What we hold | Why | Who else sees it |
 | --- | --- | --- |
-| The text of the agreement you submit, **only when you are signed in** | To produce your analysis, and to reopen it later from your history | Rumpty AI Inference (selected parts only — see section 5), Rumpty Cloud (hosting and database) |
-| The analysis we generate — flagged clauses, missing protections, questions, risk score — **only when you are signed in** | To show you the result and keep it for you | Rumpty Cloud |
-| If you have an account: your **email address**, your **password hash**, and the **one-time codes** we send you | To sign you in, verify your email, and let you reset a forgotten password | Rumpty Cloud; and our email provider, Resend, to deliver the message |
-| If you sign in with Google: your email address and the **account identifier Google sends us** — no password, because there is none | To recognise you on later visits and keep your history with you | Google, which performs the sign-in; Rumpty Cloud |
+| The text of the agreement you submit, **only when you are signed in** | To produce your analysis, and to reopen it later from your history | Rumpty AI Inference (selected parts only — see section 5), Rumpty Cloud (hosting), Neon (database) |
+| The analysis we generate — flagged clauses, missing protections, questions, risk score — **only when you are signed in** | To show you the result and keep it for you | Rumpty Cloud (hosting), Neon (database) |
+| If you have an account: your **email address**, your **password hash**, and the **one-time codes** we send you | To sign you in, verify your email, and let you reset a forgotten password | Rumpty Cloud (hosting), Neon (database); and our email provider, Resend, to deliver the message |
+| If you sign in with Google: your email address and the **account identifier Google sends us** — no password, because there is none | To recognise you on later visits and keep your history with you | Google, which performs the sign-in; Rumpty Cloud (hosting), Neon (database) |
 | A **session cookie** holding your signed-in state | To keep you logged in between pages | Nobody — it is set by us and never shared |
-| Server logs: IP address, timestamps, requested pages, error traces | To run the Service, debug failures and prevent abuse | Rumpty Cloud |
+| Server logs: IP address, timestamps, requested pages, error traces | To run the Service, debug failures and prevent abuse | Rumpty Cloud (hosting) |
 
 We run no analytics and no advertising, and no third-party scripts load on the
 page — including when you sign in with Google, which we do by sending you to
@@ -190,7 +190,8 @@ Two things follow from this that you should know:
 | Recipient | What they receive | Why |
 | --- | --- | --- |
 | Rumpty AI Inference (Rumpty Cloud) | Individual clause text together with the matching rental norm; or the first 1,800 characters, but only when the document type is ambiguous; or the first 1,500 characters, but only when the jurisdiction is ambiguous | To evaluate a clause, or to classify the document or its jurisdiction |
-| Rumpty Cloud | Our application and the managed PostgreSQL database, which holds your stored text and analysis | Hosting the Service and storing the data |
+| Rumpty Cloud | Our application server and the code that runs the Service | Hosting the Service |
+| Neon | The managed PostgreSQL database that holds your stored text, analyses and account records | Database hosting and storage |
 | Resend | Your email address and the one-time code message | To deliver verification and password-reset emails |
 | Google | Your Google sign-in, handled on Google's own page; Google then tells us your verified email address and account identifier | To let you sign in with your Google account, only if you choose to |
 
@@ -205,9 +206,9 @@ ever happens, we disclose only what is actually required.
 
 ## 7. Transfers outside Nigeria
 
-Our hosting and AI providers may process data on servers located outside
-Nigeria. Where personal data is transferred out of the country, we rely on the
-safeguards the NDPA requires for such transfers, including ensuring the
+Our hosting, database and AI providers may process data on servers located
+outside Nigeria. Where personal data is transferred out of the country, we rely
+on the safeguards the NDPA requires for such transfers, including ensuring the
 recipient is bound to protect the data to a comparable standard. If you need
 details of where a particular transfer goes, ask us.
 
@@ -239,7 +240,7 @@ To close your account, or to have anything else deleted, email
 ## 9. How we protect it
 
 - **In transit** over HTTPS.
-- **At rest** in a managed PostgreSQL database on Rumpty Cloud.
+- **At rest** in a managed PostgreSQL database operated by Neon.
 - **Uploads are handled in memory** and are not saved to disk as files.
 - **Passwords are hashed with Argon2id** and are never stored or logged in plain
   text. Signed-in sessions use a signed, expiring cookie that page scripts cannot

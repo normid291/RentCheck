@@ -164,9 +164,10 @@ or of the analysis we produce for you.
 ## 11. Third-party services
 
 We depend on third parties to run the Service, in particular **Rumpty Cloud**
-for hosting and database, **Rumpty AI Inference** for AI analysis, and **Resend**
-for transactional email. If you choose to sign in with Google, that step is
-handled by **Google**, and Google's own terms and privacy policy apply to it.
+for application hosting, **Neon** for the managed PostgreSQL database,
+**Rumpty AI Inference** for AI analysis, and **Resend** for transactional email.
+If you choose to sign in with Google, that step is handled by **Google**, and
+Google's own terms and privacy policy apply to it.
 Our providers' availability and behaviour affect ours. We choose them with care,
 but we are not responsible for their acts or omissions, and their terms may also
 apply to the parts of the Service they provide.

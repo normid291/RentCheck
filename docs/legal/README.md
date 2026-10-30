@@ -27,10 +27,11 @@ guessed. They have **not been reviewed by a lawyer**. Before relying on them,
 and certainly before a public launch, have a Nigerian lawyer read them. The open
 items:
 
-- **Confirm where Rumpty Cloud hosts** the app and its database, and where
-  Rumpty AI Inference runs. Section 7 of the privacy policy assumes data may
-  leave Nigeria and leans on the NDPA's transfer safeguards. If it stays in
-  Nigeria, say so — that is a better answer and a shorter section.
+- **Confirm the processing regions** for Rumpty Cloud (app hosting), Neon
+  (database) and Rumpty AI Inference. Section 7 of the privacy policy assumes
+  data may leave Nigeria and leans on the NDPA's transfer safeguards. If any of
+  them keep data in Nigeria, say so — that is a better answer and a shorter
+  section.
 - **Decide on retention.** Section 8 is deliberately honest that there is no
   automatic expiry. Either keep that wording, or implement a retention window
   and update the section to match. Do not promise a period the code does not
