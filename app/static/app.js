@@ -143,10 +143,20 @@
   els.text.addEventListener("input", updateCharCount);
 
   const SAMPLE = [
-    "1. TERM. The tenancy is for a term of two (2) years from the date of this agreement.",
-    "2. TO PAY all taxes, rates, duties, assessments and outgoings whatsoever in respect of the demised premises.",
-    "3. Provided that if any part of the rent hereby reserved is in arrears for 21 days, whether or not lawfully",
-    "demanded, the Landlord may re-enter the demised premises and the term shall absolutely cease and determine.",
+    "TENANCY AGREEMENT",
+    "",
+    "THIS TENANCY AGREEMENT is made this ...... day of ...... 20.... BETWEEN the Landlord of ...... (hereinafter called \"the Landlord\") and the Tenant of ...... (hereinafter called \"the Tenant\"). The premises situate at ...... in Lagos State shall be let to the Tenant at a yearly rent of ₦2,500,000 (Two Million, Five Hundred Thousand Naira) payable annually in advance.",
+    "",
+    "1. The Tenant shall pay all taxes, rates, duties, assessments and outgoings whatsoever in respect of the demised premises.",
+    "2. The Tenant shall keep the demised premises in good and substantial repair and shall be responsible for all repairs, maintenance and upkeep, including the roof, walls, plumbing and wiring.",
+    "3. If the rent hereby reserved or any part of it is in arrears for seven (7) days, whether or not lawfully demanded, the Landlord may re-enter the demised premises and the tenancy shall absolutely cease and determine.",
+    "4. The Landlord and his agents shall have the right to enter the premises at any time and without notice to inspect, repair or show the premises.",
+    "5. The Tenant shall pay a caution fee of ₦500,000 which shall not be refunded on the Tenant vacating the premises.",
+    "6. The Landlord may at any time during the term, and without notice to the Tenant, review rent and adjust rent.",
+    "7. The Tenant shall pay all utility bills, electricity, water rate and any service charge, howsoever described.",
+    "8. The Tenant shall not sublet or underlet the demised premises or any part of it.",
+    "9. The Tenant shall give the Landlord six (6) months written notice to quit the premises, but the Landlord may terminate this tenancy at any time without notice.",
+    "10. This agreement shall be governed by the laws of the Federal Republic of Nigeria and the Lagos State Tenancy Law.",
   ].join("\n");
 
   els.sampleBtn.addEventListener("click", () => {
