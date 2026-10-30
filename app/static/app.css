@@ -744,29 +744,8 @@ a { color: var(--brand-dark); }
 .app-foot a { color: var(--brand-dark); font-weight: 600; text-decoration: none; }
 .app-foot a:hover { text-decoration: underline; }
 
-/* Compact screens: collapse the sidebar into a top strip. */
-@media (max-width: 880px) {
-  .app { flex-direction: column; }
-  .sidebar {
-    position: static;
-    height: auto;
-    width: 100%;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    overflow-x: auto;
-    padding: 12px 16px;
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .sidebar .side-label, .sidebar .side-card { display: none; }
-  .sidebar .side-nav { flex-direction: row; gap: 6px; }
-  .sidebar .side-item { white-space: nowrap; }
-  .page { padding: 20px 16px 48px; }
-  .topbar { padding: 0 16px; }
-  .stat-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .chart-grid { grid-template-columns: 1fr; }
-}
+/* Compact screens: the drawer and content rules live in the responsive
+ * section at the end of this file. */
 
 /* ======================================================================
  * Brand, focus and shared primitives
@@ -1376,4 +1355,240 @@ html { scroll-behavior: smooth; }
   .lp-sample-inner { padding: 22px; }
   .result-stats { grid-template-columns: 1fr; }
   .m-nav .m-links { display: none; }
+}
+
+/* ======================================================================
+ * App shell: sidebar account block, mobile drawer and top bar
+ * ==================================================================== */
+
+.side-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+.drawer-close {
+  display: none;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+.drawer-close:hover { background: var(--surface-2); color: var(--ink); }
+.drawer-close:focus { outline: 2px solid var(--brand-dark); outline-offset: 2px; }
+.drawer-close svg { width: 18px; height: 18px; }
+
+.side-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.side-bottom .side-card { margin-top: 0; }
+
+.side-user {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.side-user-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 5px 7px;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+.side-user-link:hover { background: var(--surface-2); }
+.avatar-sm { width: 36px; height: 36px; font-size: 0.82rem; }
+.side-user-id { min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.side-user-id strong {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.86rem;
+  color: var(--ink);
+}
+.side-user-id > span {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+.side-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 38px;
+  padding: 9px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+}
+.side-logout svg { width: 16px; height: 16px; flex: none; }
+.side-logout:hover {
+  background: var(--high-soft);
+  border-color: #f2cfcb;
+  color: var(--high);
+}
+
+/* Top bar: search on the left on desktop; hamburger and wordmark on mobile. */
+.nav-toggle,
+.topbar-brand,
+.top-search-toggle { display: none; }
+
+.nav-toggle {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.nav-toggle svg { width: 20px; height: 20px; }
+.nav-toggle:hover { border-color: var(--brand); color: var(--brand-dark); background: var(--brand-soft); }
+
+.topbar-brand {
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  color: var(--brand);
+  text-decoration: none;
+}
+.topbar-brand .brand-mark { width: 26px; height: 26px; }
+.topbar-brand .brand-word { font-size: 1.04rem; }
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(18, 34, 43, 0.44);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+body.drawer-open .drawer-backdrop {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+body.drawer-open { overflow: hidden; }
+
+/* Guest/member copy reserves its line while auth resolves. */
+.lp-cta-row { min-height: 44px; }
+.lp-micro { min-height: 1.25em; }
+
+@media (max-width: 1023px) {
+  .app { display: block; }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 70;
+    width: min(320px, 86vw);
+    height: 100dvh;
+    padding: 16px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-right: 1px solid var(--line);
+    background: var(--surface);
+    box-shadow: 0 24px 60px rgba(18, 34, 43, 0.22);
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .sidebar.is-open { transform: translateX(0); }
+  .drawer-close { display: grid; }
+
+  .main-col { width: 100%; min-width: 0; }
+  .topbar { height: 60px; padding: 0 12px; gap: 8px; }
+  .nav-toggle { display: grid; }
+  .topbar-brand { display: inline-flex; }
+  .topbar .nav-spacer { flex: 1; }
+  .page { padding: 20px 16px 48px; }
+
+  .stat-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .chart-grid { grid-template-columns: 1fr; }
+  .table-scroll { max-width: 100%; -webkit-overflow-scrolling: touch; }
+
+  .btn,
+  .btn-new,
+  .tt-btn,
+  .ghost-btn,
+  .icon-btn,
+  .nav-toggle,
+  .acct-btn { min-height: 44px; }
+  .icon-btn { width: 44px; height: 44px; }
+  .side-item { min-height: 44px; padding: 11px 12px; }
+  .side-logout { min-height: 44px; }
+  .drawer-close { min-width: 44px; min-height: 44px; }
+}
+
+@media (max-width: 640px) {
+  .top-search { display: none; }
+  .topbar.has-search .top-search-toggle { display: grid; }
+  .topbar.search-open .top-search {
+    display: flex;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 12px;
+    right: 12px;
+    flex: none;
+    padding: 8px;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    z-index: 5;
+  }
+  .topbar.search-open .top-search .key { display: none; }
+  .topbar.search-open .top-search input { padding-right: 14px; }
+
+  .stat-card { padding: 12px; gap: 10px; }
+  .stat-card .sc-ico { width: 34px; height: 34px; border-radius: 9px; }
+  .stat-card .sc-ico svg { width: 17px; height: 17px; }
+  .stat-card .sc-label { font-size: 0.72rem; line-height: 1.25; }
+  .stat-card .sc-value { font-size: 1.28rem; }
+
+  .table-toolbar { padding: 12px; gap: 8px; }
+  .tt-search { flex: 1 1 130px; }
+  .tt-search input { width: 100%; min-height: 44px; }
+
+  .page-head .btn-new { flex: 1 1 auto; justify-content: center; }
+}
+
+.analyse-account-link { flex: none; }
+
+/* A top bar with no search has nothing to show on desktop; the mobile one
+ * still carries the hamburger and wordmark. */
+@media (min-width: 1024px) {
+  .topbar:not([data-shell-search]) { display: none; }
+}
+@media (max-width: 640px) {
+  .topbar.search-open .top-search input { min-height: 44px; }
 }

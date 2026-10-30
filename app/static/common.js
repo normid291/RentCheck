@@ -478,6 +478,19 @@
     };
   }
 
+  /* One source of truth for guest/member copy. Elements marked
+   * data-guest-only or data-member-only start hidden in the HTML, so a
+   * signed-in visitor never sees guest copy flash while /api/auth/me resolves.
+   * This only runs once the session is known. */
+  function applyViewerState(user) {
+    var isMember = !!user;
+    var guests = document.querySelectorAll("[data-guest-only]");
+    var members = document.querySelectorAll("[data-member-only]");
+    for (var i = 0; i < guests.length; i++) guests[i].hidden = isMember;
+    for (var j = 0; j < members.length; j++) members[j].hidden = !isMember;
+    document.documentElement.setAttribute("data-auth", isMember ? "in" : "out");
+  }
+
   function loadSession() {
     return apiFetch("/api/auth/me")
       .then(function (data) {
@@ -485,6 +498,8 @@
         googleReady = !!(data && data.google);
         sessionKnown = true;
         renderAuthSlot();
+        renderShellUser();
+        applyViewerState(currentUser);
         return currentUser;
       })
       .catch(function () {
@@ -493,6 +508,7 @@
         // user to /login during a cold start. sessionKnown records the doubt.
         sessionKnown = false;
         renderAuthSlot();
+        renderShellUser();
         return null;
       });
   }
@@ -647,7 +663,21 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l4 4v14H9z"/><path d="M15 3v5h4"/><path d="M12 13h4M12 17h4"/></svg>',
     plus:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+    menu:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+    close:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    logout:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg>',
   };
+
+  var BRAND_SVG =
+    '<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">' +
+    '<rect x="1" y="1" width="30" height="30" rx="9" fill="currentColor"/>' +
+    '<path d="M10.5 9.5h7l4 4v9a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 9 22.5v-11a2 2 0 0 1 1.5-2z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>' +
+    '<path d="M17.5 9.5v4h4" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>' +
+    '<path d="M12.4 18.4l1.9 1.9 3.7-3.9" fill="none" stroke="#8fd3c8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>' +
+    "</svg>";
 
   function shellItem(href, key, label, icon, active) {
     var isActive = active === key;
@@ -657,22 +687,33 @@
     );
   }
 
+  function activeRouteKey() {
+    var active = (document.body.getAttribute("data-app") || "").trim();
+    var path = window.location.pathname;
+    // Nested routes still resolve to the section they belong to.
+    if (path.indexOf("/dashboard") === 0) return "dashboard";
+    if (path.indexOf("/history") === 0) return "analyses";
+    if (path.indexOf("/profile") === 0) return "profile";
+    if (path.indexOf("/analyse") === 0) return "new";
+    return active;
+  }
+
   function mountShell() {
     var side = document.querySelector('[data-shell="sidebar"]');
     var top = document.querySelector('[data-shell="topbar"]');
     if (!side && !top) return;
 
-    var active = (document.body.getAttribute("data-app") || "").trim();
+    var active = activeRouteKey();
 
     if (side) {
+      side.id = "appSidebar";
       side.innerHTML =
+        '<div class="side-head">' +
         '<a class="side-brand" href="/" aria-label="Tenura home">' +
-        '<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">' +
-        '<rect x="1" y="1" width="30" height="30" rx="9" fill="currentColor"/>' +
-        '<path d="M10.5 9.5h7l4 4v9a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 9 22.5v-11a2 2 0 0 1 1.5-2z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>' +
-        '<path d="M17.5 9.5v4h4" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>' +
-        '<path d="M12.4 18.4l1.9 1.9 3.7-3.9" fill="none" stroke="#8fd3c8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>' +
-        '</svg><span class="brand-word">Tenura</span></a>' +
+        BRAND_SVG + '<span class="brand-word">Tenura</span></a>' +
+        '<button class="drawer-close" id="drawerClose" type="button" aria-label="Close navigation menu">' +
+        ICON.close + "</button>" +
+        "</div>" +
         '<nav class="side-nav" aria-label="Primary">' +
         '<p class="side-label">Main</p>' +
         shellItem("/dashboard", "dashboard", "Dashboard", ICON.dashboard, active) +
@@ -683,16 +724,24 @@
         shellItem("/privacy", "privacy", "Privacy", ICON.shield, active) +
         shellItem("/terms", "terms", "Terms", ICON.doc, active) +
         "</nav>" +
+        '<div class="side-bottom">' +
         '<div class="side-card">' +
         "<strong>Your analyses are private</strong>" +
         "<p>Saved agreements are visible only to you. Delete any of them at any time.</p>" +
         '<a class="side-cta" href="/analyse">' + ICON.plus + " Analyse an agreement</a>" +
+        "</div>" +
+        '<div class="side-user" id="sideUser" hidden></div>' +
         "</div>";
     }
 
     if (top) {
       var search = top.getAttribute("data-shell-search");
+      if (search) top.classList.add("has-search");
       top.innerHTML =
+        '<button class="nav-toggle" id="navToggle" type="button" aria-label="Open navigation menu" ' +
+        'aria-expanded="false" aria-controls="appSidebar">' + ICON.menu + "</button>" +
+        '<a class="topbar-brand" href="/" aria-label="Tenura home">' +
+        BRAND_SVG + '<span class="brand-word">Tenura</span></a>' +
         (search
           ? '<label class="top-search">' + ICON.search +
             '<input type="search" id="shellSearch" placeholder="' + escapeHtml(search) +
@@ -700,13 +749,214 @@
             '<span class="key">\u2318K</span></label>'
           : "") +
         '<span class="nav-spacer"></span>' +
-        '<div class="top-actions">' +
-        '<a class="icon-btn" href="/privacy" title="Privacy and data" aria-label="Privacy and data">' +
-        ICON.shield + "</a>" +
-        '<div class="auth-slot" id="authSlot"></div>' +
-        "</div>";
+        (search
+          ? '<button class="icon-btn top-search-toggle" id="searchToggle" type="button" ' +
+            'aria-label="Search analyses" aria-expanded="false" aria-controls="shellSearch">' +
+            ICON.search + "</button>"
+          : "");
     }
+
+    setupDrawer(side, top);
+    setupShellSearch(top);
   }
+
+  /* Off-canvas navigation below the lg breakpoint. The same sidebar element is
+   * fixed and visible on desktop, so the drawer only changes its position and
+   * adds inert/aria state while it is off-screen. */
+  function setupDrawer(side, top) {
+    if (!side || !top) return;
+
+    var toggle = document.getElementById("navToggle");
+    var closeBtn = document.getElementById("drawerClose");
+    if (!toggle || !closeBtn) return;
+
+    var backdrop = document.getElementById("drawerBackdrop");
+    if (!backdrop) {
+      backdrop = document.createElement("div");
+      backdrop.id = "drawerBackdrop";
+      backdrop.className = "drawer-backdrop";
+      backdrop.setAttribute("aria-hidden", "true");
+      document.body.appendChild(backdrop);
+    }
+
+    var mq = window.matchMedia("(max-width: 1023px)");
+    var isOpen = false;
+    var returnFocus = null;
+
+    function isMobile() {
+      return mq.matches;
+    }
+
+    function focusables() {
+      return Array.prototype.slice.call(
+        side.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+    }
+
+    function syncInert() {
+      if (isMobile() && !isOpen) {
+        side.setAttribute("inert", "");
+      } else {
+        side.removeAttribute("inert");
+      }
+    }
+
+    function openDrawer() {
+      if (!isMobile() || isOpen) return;
+      isOpen = true;
+      returnFocus = document.activeElement;
+      side.classList.add("is-open");
+      side.removeAttribute("inert");
+      side.setAttribute("role", "dialog");
+      side.setAttribute("aria-modal", "true");
+      side.setAttribute("aria-label", "Navigation menu");
+      document.body.classList.add("drawer-open");
+      toggle.setAttribute("aria-expanded", "true");
+      toggle.setAttribute("aria-label", "Close navigation menu");
+      closeBtn.focus();
+    }
+
+    function closeDrawer(restoreFocus) {
+      if (!isOpen) return;
+      isOpen = false;
+      side.classList.remove("is-open");
+      side.removeAttribute("role");
+      side.removeAttribute("aria-modal");
+      side.removeAttribute("aria-label");
+      document.body.classList.remove("drawer-open");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Open navigation menu");
+      syncInert();
+      if (restoreFocus !== false) {
+        var target = returnFocus && document.contains(returnFocus) ? returnFocus : toggle;
+        target.focus();
+      }
+    }
+
+    toggle.addEventListener("click", function () {
+      if (isOpen) closeDrawer();
+      else openDrawer();
+    });
+    closeBtn.addEventListener("click", function () {
+      closeDrawer();
+    });
+    backdrop.addEventListener("click", function () {
+      closeDrawer();
+    });
+
+    // Following a link navigates, so do not pull focus back to the hamburger.
+    side.addEventListener("click", function (event) {
+      if (event.target.closest("a")) closeDrawer(false);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (!isOpen) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeDrawer();
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      var items = focusables();
+      if (!items.length) return;
+      var first = items[0];
+      var last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    function onBreakpointChange() {
+      if (!isMobile() && isOpen) closeDrawer(false);
+      syncInert();
+    }
+    if (mq.addEventListener) mq.addEventListener("change", onBreakpointChange);
+    else mq.addListener(onBreakpointChange);
+
+    syncInert();
+  }
+
+  /* The top search is visible from 641px up. On phones it collapses to an icon
+   * and opens as a small floating field, so the top bar stays slim. */
+  function setupShellSearch(top) {
+    if (!top) return;
+    var input = document.getElementById("shellSearch");
+    if (!input) return;
+    var toggle = document.getElementById("searchToggle");
+
+    function openSearch() {
+      top.classList.add("search-open");
+      if (toggle) toggle.setAttribute("aria-expanded", "true");
+      input.focus();
+      input.select();
+    }
+
+    function closeSearch() {
+      top.classList.remove("search-open");
+      if (toggle) toggle.setAttribute("aria-expanded", "false");
+    }
+
+    if (toggle) {
+      toggle.addEventListener("click", function () {
+        if (top.classList.contains("search-open")) closeSearch();
+        else openSearch();
+      });
+    }
+
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        closeSearch();
+        if (toggle) toggle.focus();
+      }
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (!(event.metaKey || event.ctrlKey) || event.altKey) return;
+      if (event.key !== "k" && event.key !== "K") return;
+      if (document.body.classList.contains("drawer-open")) return;
+      event.preventDefault();
+      if (window.matchMedia("(max-width: 640px)").matches && toggle) openSearch();
+      else {
+        input.focus();
+        input.select();
+      }
+    });
+  }
+
+  /* Sidebar account block. The public header keeps its dropdown, but the app
+   * shell puts the same account actions in the sidebar instead. */
+  function renderShellUser() {
+    var slot = document.getElementById("sideUser");
+    if (!slot) return;
+    if (!currentUser) {
+      slot.hidden = true;
+      slot.innerHTML = "";
+      return;
+    }
+
+    var email = currentUser.email || "";
+    slot.hidden = false;
+    slot.innerHTML =
+      '<a class="side-user-link" href="/profile" aria-label="Open your profile">' +
+      avatarHtml(currentUser, "avatar-sm") +
+      '<span class="side-user-id">' +
+      "<strong>" + escapeHtml(displayName(currentUser)) + "</strong>" +
+      '<span title="' + escapeHtml(email) + '">' + escapeHtml(email) + "</span>" +
+      "</span></a>" +
+      '<button class="side-logout" id="sideLogout" type="button">' +
+      ICON.logout + "<span>Log out</span></button>";
+
+    var logoutBtn = document.getElementById("sideLogout");
+    if (logoutBtn) logoutBtn.addEventListener("click", logout);
+  }
+
 
   /* ---------- ready ---------- */
 

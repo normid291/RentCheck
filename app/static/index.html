@@ -60,11 +60,16 @@
             missing, so you can ask the right questions before you commit.
           </p>
           <div class="lp-cta-row">
-            <a class="btn btn-primary" id="heroPrimary" href="/analyse">Try it now</a>
-            <a class="btn btn-ghost" id="heroSecondary" href="/signup">Create free account</a>
+            <a class="btn btn-primary" id="heroPrimary" href="/analyse" data-guest-only hidden>Try it now</a>
+            <a class="btn btn-primary" href="/analyse" data-member-only hidden>Go to analyser</a>
+            <a class="btn btn-ghost" href="/signup" data-guest-only hidden>Create free account</a>
+            <a class="btn btn-ghost" href="/history" data-member-only hidden>View your history</a>
           </div>
-          <p class="lp-micro">
+          <p class="lp-micro" data-guest-only hidden>
             No account needed. Your document is processed only to produce your analysis.
+          </p>
+          <p class="lp-micro" data-member-only hidden>
+            Your analyses are saved to your history.
           </p>
         </div>
 
@@ -142,7 +147,8 @@
           <span class="lp-trust-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           </span>
-          <span><strong>Processed only to produce your analysis</strong>No external scripts, and nothing is stored unless you sign in.</span>
+          <span data-guest-only hidden><strong>Processed only to produce your analysis</strong>No external scripts, and nothing is stored unless you sign in.</span>
+          <span data-member-only hidden><strong>Processed only to produce your analysis</strong>Saved analyses are private to your account.</span>
         </div>
         <div class="lp-trust-item">
           <span class="lp-trust-ico" aria-hidden="true">
@@ -234,7 +240,7 @@
     </section>
 
     <!-- Why an account -------------------------------------------------- -->
-    <section class="lp-section lp-why">
+    <section class="lp-section lp-why" data-guest-only hidden>
       <div class="lp-why-inner">
         <div class="lp-why-copy">
           <span class="lp-kicker">Why create an account</span>
@@ -294,7 +300,8 @@
       <div class="lp-final-inner">
         <div>
           <h2>Read the agreement before you sign it.</h2>
-          <p>Free to try. No account needed.</p>
+          <p data-guest-only hidden>Free to try. No account needed.</p>
+          <p data-member-only hidden>Your analyses are saved to your history.</p>
         </div>
         <a class="btn lp-final-btn" href="/analyse">Try it now</a>
       </div>
@@ -331,6 +338,5 @@
   </footer>
 
   <script src="/common.js?v=3"></script>
-  <script src="/landing.js?v=3"></script>
 </body>
 </html>
