@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New analysis — Tenura</title>
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#0f4c6b" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="stylesheet" href="/styles.css?v=3" />
+  <link rel="stylesheet" href="/app.css?v=3" />
+</head>
+<body data-app="new">
+  <div class="app">
+    <aside class="sidebar" data-shell="sidebar"></aside>
+
+    <div class="main-col">
+      <header class="topbar" data-shell="topbar"></header>
+
+      <main class="page app-analyser">
+        <div class="page-head">
+          <div>
+            <span class="eyebrow"><span class="dot"></span> Saved to your history</span>
+            <h1>New analysis</h1>
+            <p class="page-sub">Paste or upload an agreement. Saved analyses stay private to your account.</p>
+          </div>
+        </div>
+
+<section class="panel input-panel" id="inputPanel" aria-label="Analyse a tenancy agreement">
+      <div class="tabs" role="tablist" aria-label="Input method">
+        <button class="tab" id="tab-paste" role="tab" aria-selected="true" aria-controls="panel-paste" data-mode="paste" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/><rect x="2" y="7" width="20" height="14" rx="2"/></svg>
+          Paste text
+        </button>
+        <button class="tab" id="tab-upload" role="tab" aria-selected="false" aria-controls="panel-upload" data-mode="upload" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+          Upload file
+        </button>
+      </div>
+
+      <div class="tabpanel" id="panel-paste" role="tabpanel" aria-labelledby="tab-paste">
+        <textarea id="agreementText" placeholder="Paste the full tenancy agreement here..." spellcheck="false"></textarea>
+        <div class="meta-row">
+          <span id="charCount">0 characters</span>
+          <button type="button" class="link-btn" id="sampleBtn">Try a sample agreement</button>
+        </div>
+      </div>
+
+      <div class="tabpanel" id="panel-upload" role="tabpanel" aria-labelledby="tab-upload" hidden>
+        <label for="agreementFile" class="visually-hidden">Upload your tenancy agreement</label>
+        <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-describedby="dzHint">
+          <input type="file" id="agreementFile" class="dz-input"
+                 accept=".pdf,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.bmp,.tiff,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg,image/webp,image/bmp,image/tiff,text/plain,text/markdown" />
+
+          <div class="dz-empty" id="dzEmpty">
+            <span class="dz-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+            </span>
+            <span class="dz-title">Drop your file here, or click to browse</span>
+            <span class="dz-hint" id="dzHint">PDF, Word (.docx), image (PNG/JPG/WEBP), or .txt, up to 15 MB</span>
+          </div>
+
+          <div class="dz-file" id="dzFile" hidden>
+            <span class="file-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+            </span>
+            <span class="file-meta">
+              <span class="file-name" id="fileName"></span>
+              <span class="file-size" id="fileSize"></span>
+            </span>
+            <span class="file-actions">
+              <button type="button" class="file-btn" id="replaceFile">Replace file</button>
+              <button type="button" class="file-remove" id="removeFile" aria-label="Remove file" title="Remove file">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+              </button>
+            </span>
+          </div>
+        </div>
+        <p class="dz-error" id="fileError" role="alert" hidden></p>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="analyzeBtn" type="button">
+          <span class="btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 20.5 20.5"/></svg>
+          </span>
+          <span class="btn-spinner" id="btnSpinner" aria-hidden="true" hidden></span>
+          <span id="analyzeBtnLabel">Analyse agreement</span>
+        </button>
+        <span class="privacy-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Processed only to produce your analysis.
+        </span>
+      </div>
+    </section>
+
+    <section class="loading" id="loading" hidden aria-live="polite">
+      <div class="panel loading-card">
+        <div class="spinner" aria-hidden="true"></div>
+        <div class="loading-steps">
+          <strong id="loadingTitle">Analysing your agreement…</strong>
+          <span id="loadingSub">This can take a moment while each clause is checked.</span>
+          <div class="step-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="loading-bar" aria-hidden="true"><span></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="error" id="error" role="alert" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+      <div><strong>We couldn't analyse that</strong><span id="errorMsg"></span></div>
+    </section>
+
+    <section class="notice" id="notice" role="status" hidden aria-live="polite">
+      <div class="panel notice-card">
+        <span class="notice-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>
+        </span>
+        <div class="notice-body">
+          <h2 id="noticeTitle">This doesn't look like a tenancy agreement</h2>
+          <p id="noticeMessage"></p>
+          <button class="btn btn-primary" id="noticeAction" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+            Try another file or paste text
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="results" id="results" hidden aria-live="polite">
+      <div class="panel score-panel" id="scorePanel">
+        <div class="ring-wrap" aria-hidden="true">
+          <svg class="ring" width="148" height="148" viewBox="0 0 148 148">
+            <circle class="ring-bg" cx="74" cy="74" r="64"></circle>
+            <circle class="ring-fg" id="ringFg" cx="74" cy="74" r="64"></circle>
+          </svg>
+          <div class="ring-center">
+            <span class="score-value" id="scoreValue">0</span>
+            <small>risk score / 100</small>
+          </div>
+        </div>
+        <div>
+          <p class="risk-level" id="riskLevel"><span class="risk-dot"></span><span id="riskLabel">—</span></p>
+          <p class="score-summary" id="scoreSummary"></p>
+          <div class="coverage-banner" id="coverageBanner" hidden>
+            <strong id="coverageTitle">How much we checked</strong>
+            <p id="coverageNote"></p>
+          </div>
+          <div class="stat-row result-stats">
+            <div class="stat-card is-danger" id="statFlagged">
+              <span class="sc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><path d="M12 9v5M12 17h.01"/></svg></span>
+              <div><div class="sc-label">Flagged clauses</div><div class="sc-value" id="statFlaggedVal">0</div></div>
+            </div>
+            <div class="stat-card is-warn" id="statMissing">
+              <span class="sc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg></span>
+              <div><div class="sc-label">Missing protections</div><div class="sc-value" id="statMissingVal">0</div></div>
+            </div>
+            <div class="stat-card is-brand" id="statChecked">
+              <span class="sc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <div><div class="sc-label">Clauses checked</div><div class="sc-value" id="statCheckedVal">0</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-section" id="flaggedSection">
+        <div class="section-head">
+          <h2>Flagged clauses</h2>
+          <span class="count" id="flaggedCount">0</span>
+          <span class="sub">Terms that may work against you</span>
+        </div>
+        <div class="filter-row" id="flaggedFilters" role="group" aria-label="Filter flagged clauses by severity" hidden>
+          <button class="chip is-active" data-sev="all" type="button" aria-pressed="true">All</button>
+          <button class="chip" data-sev="high" type="button" aria-pressed="false">High</button>
+          <button class="chip" data-sev="medium" type="button" aria-pressed="false">Medium</button>
+          <button class="chip" data-sev="low" type="button" aria-pressed="false">Low</button>
+        </div>
+        <div id="flaggedList"></div>
+      </div>
+
+      <div class="result-section" id="missingSection">
+        <div class="section-head">
+          <h2>Missing protections</h2>
+          <span class="count" id="missingCount">0</span>
+          <span class="sub">Not clearly addressed in the agreement</span>
+        </div>
+        <div id="missingList"></div>
+      </div>
+
+      <div class="result-section" id="questionsSection">
+        <div class="questions-head">
+          <h2>Questions to ask before signing</h2>
+          <button class="copy-btn" id="copyQuestions" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            <span id="copyLabel">Copy</span>
+          </button>
+        </div>
+        <ul class="questions-list" id="questionsList"></ul>
+      </div>
+    </section>
+
+    <!-- Populated by app.js: a saved confirmation, or the low-key offer to
+         keep a pending guest analysis. -->
+    <section class="save-banner" id="saveBanner" hidden>
+      <div class="panel save-card">
+        <div class="save-body">
+          <strong id="saveTitle"></strong>
+          <p id="saveText"></p>
+        </div>
+        <div class="save-actions" id="saveActions"></div>
+      </div>
+    </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/common.js?v=3"></script>
+  <script src="/app.js?v=3"></script>
+</body>
+</html>

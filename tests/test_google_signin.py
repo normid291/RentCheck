@@ -292,7 +292,7 @@ def main() -> int:
         identities["code-again"] = {"sub": gsub, "email": fresh, "name": "New Person"}
         state = start_and_state()
         again = client.get(f"/api/auth/google/callback?code=code-again&state={state}", follow_redirects=False)
-        check("it signs in again", again.status_code == 303 and again.headers["location"] == "/")
+        check("it signs in again", again.status_code == 303 and again.headers["location"] == "/dashboard")
         check("it is the same account, not a second one",
               client.get("/api/auth/me").json()["user"]["email"] == fresh)
         db = SessionLocal()

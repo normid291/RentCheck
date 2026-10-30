@@ -44,3 +44,24 @@ def safe_next_path(value: str | None, fallback: str = "/") -> str:
         return fallback
 
     return candidate
+
+
+# The signed-in app. A post-auth `next` may only return someone to one of these
+# routes; the public landing page and guest analyser are never valid return
+# destinations. Keep this in step with safeAppNextPath() in static/common.js.
+APP_PATH_PREFIXES = ("/dashboard", "/history", "/profile")
+
+
+def safe_app_next_path(value: str | None, fallback: str = "/dashboard") -> str:
+    """Return a safe `next` only when it points at a protected app route."""
+    candidate = safe_next_path(value, "")
+    if not candidate:
+        return fallback
+
+    path = urlsplit(candidate).path
+    if ".." in path.split("/"):
+        return fallback
+    for prefix in APP_PATH_PREFIXES:
+        if path == prefix or path.startswith(prefix + "/"):
+            return candidate
+    return fallback

@@ -103,7 +103,7 @@
         "<p>Upload your first tenancy agreement and Tenura will flag the risky " +
         "clauses, call out the protections that are missing, and give you the " +
         "questions to ask before you sign.</p>" +
-        '<a class="btn btn-primary" href="/analyse">' +
+        '<a class="btn btn-primary" href="/dashboard/new">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>' +
         "Upload your first agreement</a>" +
         "</div>";

@@ -158,7 +158,7 @@
       body: JSON.stringify({ email: email, code: code }),
     })
       .then(function () {
-        window.location.href = Tenura.safeNext("/analyse");
+        window.location.href = Tenura.safeNext("/dashboard");
       })
       .catch(function (err) {
         showError(els.otpError, err.message);

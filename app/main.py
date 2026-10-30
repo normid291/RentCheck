@@ -1,13 +1,15 @@
 import logging
 import os
+import re
 import traceback
 from contextlib import asynccontextmanager
 from pathlib import Path
+from urllib.parse import quote
 
 import requests as requests_lib
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, select, text
 from sqlalchemy.exc import SQLAlchemyError
@@ -15,6 +17,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import config
 from app.logging_config import configure_logging
 from app.routers import agreements, auth, google_auth, history
+from app.services.auth import SESSION_COOKIE, read_session_token
 
 configure_logging()
 logger = logging.getLogger("tenura")
@@ -207,24 +210,95 @@ async def unhandled_error_handler(request: Request, exc: Exception):
 # Legal pages. Generated from docs/legal/*.md by scripts/build_legal_pages.py.
 # Registered explicitly rather than left to the static mount resolving
 # extensionless paths, so /privacy and /terms are guaranteed to resolve and are
-# easy to find from the code.
+# easy to find from the code. Signed-in visitors get the same article inside the
+# app shell; guests keep the public layout.
+_LEGAL_ARTICLE = re.compile(r"<article\b.*?</article>", re.DOTALL | re.IGNORECASE)
+
+
+def _legal_page(request: Request, filename: str, title: str, app_key: str):
+    if not _has_session(request):
+        return FileResponse(BASE_DIR / "static" / filename)
+
+    source = (BASE_DIR / "static" / filename).read_text(encoding="utf-8")
+    match = _LEGAL_ARTICLE.search(source)
+    article = match.group(0) if match else "<article></article>"
+    return HTMLResponse(
+        f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#0f4c6b" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="stylesheet" href="/styles.css?v=3" />
+  <link rel="stylesheet" href="/app.css?v=3" />
+</head>
+<body data-app="{app_key}">
+  <div class="app">
+    <aside class="sidebar" data-shell="sidebar"></aside>
+    <div class="main-col">
+      <header class="topbar" data-shell="topbar"></header>
+      <main class="page"><div class="legal">{article}</div></main>
+    </div>
+  </div>
+  <script src="/common.js?v=3"></script>
+</body>
+</html>
+"""
+    )
+
+
 @app.get("/privacy", include_in_schema=False)
-def privacy_policy():
-    return FileResponse(BASE_DIR / "static" / "privacy.html")
+def privacy_policy(request: Request):
+    return _legal_page(request, "privacy.html", "Privacy Policy — Tenura", "privacy")
 
 
 @app.get("/terms", include_in_schema=False)
-def terms_of_service():
-    return FileResponse(BASE_DIR / "static" / "terms.html")
+def terms_of_service(request: Request):
+    return _legal_page(request, "terms.html", "Terms of Service — Tenura", "terms")
 
 
-# Account pages. Same reasoning as the legal pages: registered explicitly so
-# /login, /signup and /history resolve without needing the ".html".
+# Page routing. Public pages are for signed-out visitors only; the app routes
+# require a session. The check uses the signed session cookie (no database hit),
+# so the redirect happens before any HTML is sent and the wrong layout cannot
+# flash. The client still verifies the session against /api/auth/me.
+def _has_session(request: Request) -> bool:
+    token = request.cookies.get(SESSION_COOKIE)
+    return read_session_token(token or "") is not None
+
+
+def _login_redirect(request: Request) -> RedirectResponse:
+    return RedirectResponse(
+        "/login?next=" + quote(request.url.path, safe=""),
+        status_code=303,
+    )
+
+
+def _app_page(request: Request, filename: str):
+    if not _has_session(request):
+        return _login_redirect(request)
+    return FileResponse(BASE_DIR / "static" / filename)
+
+
+@app.get("/", include_in_schema=False)
+def landing_page(request: Request):
+    if _has_session(request):
+        return RedirectResponse("/dashboard", status_code=303)
+    return FileResponse(BASE_DIR / "static" / "index.html")
+
+
 @app.get("/analyse", include_in_schema=False)
-def analyse_page():
+def analyse_page(request: Request):
+    if _has_session(request):
+        return RedirectResponse("/dashboard/new", status_code=303)
     return FileResponse(BASE_DIR / "static" / "analyse.html")
 
 
+# Login and sign-up stay available to signed-in visitors so the existing
+# password-reset flow from Profile keeps working.
 @app.get("/login", include_in_schema=False)
 def login_page():
     return FileResponse(BASE_DIR / "static" / "login.html")
@@ -236,21 +310,53 @@ def signup_page():
 
 
 @app.get("/history", include_in_schema=False)
-def history_page():
-    return FileResponse(BASE_DIR / "static" / "history.html")
+def history_page(request: Request):
+    return _app_page(request, "history.html")
 
 
 @app.get("/dashboard", include_in_schema=False)
-def dashboard_page():
-    return FileResponse(BASE_DIR / "static" / "dashboard.html")
+def dashboard_page(request: Request):
+    return _app_page(request, "dashboard.html")
+
+
+@app.get("/dashboard/new", include_in_schema=False)
+def new_analysis_page(request: Request):
+    return _app_page(request, "dashboard-new.html")
 
 
 @app.get("/profile", include_in_schema=False)
-def profile_page():
-    return FileResponse(BASE_DIR / "static" / "profile.html")
+def profile_page(request: Request):
+    return _app_page(request, "profile.html")
+
+
+# Static pages are only reachable through the guarded, extensionless routes
+# above. A raw page path would otherwise bypass the layout/auth rules, so send
+# known page filenames to their canonical URL and refuse any other .html path.
+_HTML_PAGE_ALIASES = {
+    "index.html": "/",
+    "analyse.html": "/analyse",
+    "dashboard.html": "/dashboard",
+    "dashboard-new.html": "/dashboard/new",
+    "history.html": "/history",
+    "profile.html": "/profile",
+    "login.html": "/login",
+    "signup.html": "/signup",
+    "privacy.html": "/privacy",
+    "terms.html": "/terms",
+}
+
+
+class _StaticPages(StaticFiles):
+    async def get_response(self, path, scope):
+        target = _HTML_PAGE_ALIASES.get(path)
+        if target:
+            return RedirectResponse(target, status_code=303)
+        if path.lower().endswith((".html", ".htm")):
+            raise HTTPException(status_code=404)
+        return await super().get_response(path, scope)
 
 
 # Serve the frontend (index.html + any static assets) at /. Mounted last so it
 # does not shadow the API routes. Path is resolved relative to this file so it
 # works regardless of the process working directory.
-app.mount("/", StaticFiles(directory=str(BASE_DIR / "static"), html=True), name="static")
+app.mount("/", _StaticPages(directory=str(BASE_DIR / "static"), html=True), name="static")

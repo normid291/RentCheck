@@ -254,7 +254,7 @@
         "</p>" +
         (state.all.length
           ? ""
-          : '<a class="btn-new" href="/analyse">New analysis</a>') +
+          : '<a class="btn-new" href="/dashboard/new">New analysis</a>') +
         "</div></td></tr>";
     } else {
       body.innerHTML = pageRows.map(function (a) {

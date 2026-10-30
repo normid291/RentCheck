@@ -31,7 +31,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.routers.auth import guard
 from app.services import google_auth
-from app.services.redirects import safe_next_path
+from app.services.redirects import safe_app_next_path, safe_next_path
 from app.services.auth import (
     OAUTH_STATE_COOKIE,
     GoogleAccountConflict,
@@ -61,8 +61,8 @@ _NOT_CONFIGURED = "Google sign-in is not configured on this server."
 
 
 def _safe_next(value: str | None) -> str:
-    """Only same-site paths, the same rule the browser applies to `?next=`."""
-    return safe_next_path(value, "/")
+    """Only protected app routes are valid after auth; public pages are not."""
+    return safe_app_next_path(value, "/dashboard")
 
 
 def _safe_origin(value: str | None) -> str:
@@ -71,7 +71,7 @@ def _safe_origin(value: str | None) -> str:
     return origin if origin in _ORIGINS else _DEFAULT_ORIGIN
 
 
-def _return(origin: str, error: str | None = None, next_path: str = "/") -> RedirectResponse:
+def _return(origin: str, error: str | None = None, next_path: str = "/dashboard") -> RedirectResponse:
     """Send the visitor back to the page they started from.
 
     `error` is a short, specific code the page maps to a friendly message
@@ -81,7 +81,9 @@ def _return(origin: str, error: str | None = None, next_path: str = "/") -> Redi
     params: dict[str, str] = {}
     if error:
         params["error"] = error
-    if next_path and next_path != "/":
+    # The default destination is not worth carrying in the URL. Preserve a
+    # protected-route return only when the visitor came from one.
+    if next_path and next_path not in ("/", "/dashboard"):
         params["next"] = next_path
     url = origin + ("?" + urlencode(params) if params else "")
     response = RedirectResponse(url, status_code=status.HTTP_303_SEE_OTHER)
@@ -134,7 +136,7 @@ def google_callback(
 
     pending = read_oauth_state_cookie(request.cookies.get(OAUTH_STATE_COOKIE))
     origin = _safe_origin(pending.get("origin")) if pending else _DEFAULT_ORIGIN
-    target = _safe_next(pending.get("next")) if pending else "/"
+    target = _safe_next(pending.get("next")) if pending else "/dashboard"
 
     if error:
         # The user dismissed Google's screen (access_denied), or Google itself

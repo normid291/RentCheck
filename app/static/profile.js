@@ -136,7 +136,7 @@
       '<div class="setting-title">Analyse an agreement</div>' +
       '<p class="setting-desc">Paste text or upload a document to check it.</p>' +
       "</div>" +
-      '<a class="setting-action" href="/analyse">New analysis</a>' +
+      '<a class="setting-action" href="/dashboard/new">New analysis</a>' +
       "</div>" +
       "</div>"
     );

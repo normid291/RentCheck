@@ -247,8 +247,29 @@
     return v;
   }
 
+  /* Post-auth return paths must point at a protected app route. The public
+   * landing page and guest analyser are never valid destinations after login. */
+  function safeAppNextPath(value, fallback) {
+    fallback = fallback || "/dashboard";
+    var candidate = safeNextPath(value, "");
+    if (!candidate) return fallback;
+    var path;
+    try {
+      path = new URL(candidate, window.location.origin).pathname;
+    } catch (e) {
+      return fallback;
+    }
+    var prefixes = ["/dashboard", "/history", "/profile"];
+    for (var i = 0; i < prefixes.length; i++) {
+      if (path === prefixes[i] || path.indexOf(prefixes[i] + "/") === 0) {
+        return candidate;
+      }
+    }
+    return fallback;
+  }
+
   function safeNext(fallback) {
-    return safeNextPath(param("next"), fallback || "/");
+    return safeAppNextPath(param("next"), fallback || "/dashboard");
   }
 
   /* ---------- header session state ---------- */
@@ -590,7 +611,7 @@
           "/api/auth/google/start?from=" +
           encodeURIComponent(googleOrigin()) +
           "&next=" +
-          encodeURIComponent(safeNext("/analyse"));
+          encodeURIComponent(safeNext("/dashboard"));
       });
   }
 
@@ -691,6 +712,7 @@
     var active = (document.body.getAttribute("data-app") || "").trim();
     var path = window.location.pathname;
     // Nested routes still resolve to the section they belong to.
+    if (path.indexOf("/dashboard/new") === 0) return "new";
     if (path.indexOf("/dashboard") === 0) return "dashboard";
     if (path.indexOf("/history") === 0) return "analyses";
     if (path.indexOf("/profile") === 0) return "profile";
@@ -714,24 +736,24 @@
         '<button class="drawer-close" id="drawerClose" type="button" aria-label="Close navigation menu">' +
         ICON.close + "</button>" +
         "</div>" +
+        '<div class="side-scroll">' +
         '<nav class="side-nav" aria-label="Primary">' +
         '<p class="side-label">Main</p>' +
         shellItem("/dashboard", "dashboard", "Dashboard", ICON.dashboard, active) +
         shellItem("/history", "analyses", "My analyses", ICON.file, active) +
-        shellItem("/analyse", "new", "New analysis", ICON.search, active) +
+        shellItem("/dashboard/new", "new", "New analysis", ICON.search, active) +
         shellItem("/profile", "profile", "Profile", ICON.user, active) +
         '<p class="side-label">Others</p>' +
         shellItem("/privacy", "privacy", "Privacy", ICON.shield, active) +
         shellItem("/terms", "terms", "Terms", ICON.doc, active) +
         "</nav>" +
-        '<div class="side-bottom">' +
         '<div class="side-card">' +
         "<strong>Your analyses are private</strong>" +
         "<p>Saved agreements are visible only to you. Delete any of them at any time.</p>" +
-        '<a class="side-cta" href="/analyse">' + ICON.plus + " Analyse an agreement</a>" +
+        '<a class="side-cta" href="/dashboard/new">' + ICON.plus + " Analyse an agreement</a>" +
         "</div>" +
-        '<div class="side-user" id="sideUser" hidden></div>' +
-        "</div>";
+        "</div>" +
+        '<div class="side-user" id="sideUser" hidden></div>';
     }
 
     if (top) {
@@ -1054,6 +1076,7 @@
     param: param,
     safeNext: safeNext,
     safeNextPath: safeNextPath,
+    safeAppNextPath: safeAppNextPath,
     pending: pending,
     logout: logout,
     ready: ready,

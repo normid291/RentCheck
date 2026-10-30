@@ -85,7 +85,7 @@ a { color: var(--brand-dark); }
   position: sticky;
   top: 0;
   height: 100vh;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .side-brand {
@@ -1380,13 +1380,16 @@ html { scroll-behavior: smooth; }
 .drawer-close:focus { outline: 2px solid var(--brand-dark); outline-offset: 2px; }
 .drawer-close svg { width: 18px; height: 18px; }
 
-.side-bottom {
-  margin-top: auto;
+.side-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
+  padding-right: 2px;
 }
-.side-bottom .side-card { margin-top: 0; }
+.side-scroll .side-card { margin-top: auto; }
 
 .side-user {
   display: flex;
@@ -1514,7 +1517,7 @@ body.drawer-open { overflow: hidden; }
     width: min(320px, 86vw);
     height: 100dvh;
     padding: 16px;
-    overflow-y: auto;
+    overflow: hidden;
     overscroll-behavior: contain;
     border-right: 1px solid var(--line);
     background: var(--surface);
@@ -1592,3 +1595,8 @@ body.drawer-open { overflow: hidden; }
 @media (max-width: 640px) {
   .topbar.search-open .top-search input { min-height: 44px; }
 }
+
+/* The analyser uses the same component inside the app shell; only the page
+ * header above it is different. */
+.app-analyser .input-panel { margin-top: 0; }
+.app-analyser .eyebrow { margin-bottom: 8px; }
