@@ -30,6 +30,7 @@ from app.models.db import OtpPurpose, User
 from app.services import email as email_service
 from app.services import google_auth
 from app.services import otp
+from app.services.admin_access import is_admin
 from app.services.auth import (
     clear_session_cookie,
     create_user,
@@ -115,6 +116,9 @@ def user_payload(user: User) -> dict:
         # owner already knows about their own account.
         "has_password": bool(user.password_hash),
         "google_linked": bool(user.google_sub),
+        # Computed server-side from ADMIN_EMAILS. Only the signed-in owner sees
+        # their own flag, and it is what reveals the Admin sidebar item.
+        "is_admin": is_admin(user),
     }
 
 

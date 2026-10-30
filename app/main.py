@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 import requests as requests_lib
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -16,8 +16,10 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app import config
 from app.logging_config import configure_logging
+from app.models.db import User
+from app.routers import admin as admin_api
 from app.routers import agreements, auth, google_auth, history
-from app.services.auth import SESSION_COOKIE, read_session_token
+from app.services.auth import SESSION_COOKIE, read_session_token, require_admin
 
 configure_logging()
 logger = logging.getLogger("tenura")
@@ -96,6 +98,10 @@ async def revalidate_pages_and_assets(request: Request, call_next):
     """
     response = await call_next(request)
     content_type = response.headers.get("content-type", "")
+    # A private route may deliberately set no-store; never weaken that to the
+    # revalidate-only default for HTML.
+    if response.headers.get("cache-control", "").lower() == "no-store":
+        return response
     if request.url.path.endswith((".js", ".css")) or content_type.startswith("text/html"):
         response.headers["Cache-Control"] = "no-cache"
     return response
@@ -104,6 +110,7 @@ app.include_router(agreements.router, prefix="/api", tags=["agreements"])
 app.include_router(auth.router, prefix="/api", tags=["auth"])
 app.include_router(google_auth.router, prefix="/api", tags=["auth"])
 app.include_router(history.router, prefix="/api", tags=["history"])
+app.include_router(admin_api.router, prefix="/api", tags=["admin"])
 
 
 @app.get("/health")
@@ -329,6 +336,24 @@ def profile_page(request: Request):
     return _app_page(request, "profile.html")
 
 
+@app.get("/admin", include_in_schema=False)
+def admin_page(user: User = Depends(require_admin)):
+    """Owner-only dashboard shell.
+
+    The dependency performs the full server-side check before this function runs,
+    so a logged-out visitor, a regular account or an unverified address receives
+    a 404 and never the admin HTML. The page also carries noindex/nofollow and a
+    no-store cache header because it is private by design.
+    """
+    return FileResponse(
+        BASE_DIR / "static" / "admin.html",
+        headers={
+            "Cache-Control": "no-store",
+            "X-Robots-Tag": "noindex, nofollow",
+        },
+    )
+
+
 # Static pages are only reachable through the guarded, extensionless routes
 # above. A raw page path would otherwise bypass the layout/auth rules, so send
 # known page filenames to their canonical URL and refuse any other .html path.
@@ -339,6 +364,7 @@ _HTML_PAGE_ALIASES = {
     "dashboard-new.html": "/dashboard/new",
     "history.html": "/history",
     "profile.html": "/profile",
+    "admin.html": "/admin",
     "login.html": "/login",
     "signup.html": "/signup",
     "privacy.html": "/privacy",

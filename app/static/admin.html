@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Tenura</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#f5f7f8" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="stylesheet" href="/styles.css?v=3" />
+  <link rel="stylesheet" href="/app.css?v=3" />
+</head>
+<body data-app="admin">
+  <div class="app">
+    <aside class="sidebar" data-shell="sidebar"></aside>
+
+    <div class="main-col">
+      <header class="topbar" data-shell="topbar"></header>
+
+      <main class="page admin-page">
+        <div class="page-head admin-page-head">
+          <div>
+            <h1>Owner dashboard</h1>
+            <p class="page-sub">Usage and account basics for Tenura. Private to the owner.</p>
+          </div>
+          <button class="tt-btn admin-refresh" id="refreshBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+            Refresh
+          </button>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="filter-row admin-range" role="group" aria-label="Date range">
+            <button class="chip" type="button" data-range="today">Today</button>
+            <button class="chip is-active" type="button" data-range="7d">7 days</button>
+            <button class="chip" type="button" data-range="30d">30 days</button>
+            <button class="chip" type="button" data-range="all">All time</button>
+          </div>
+          <span class="admin-updated">Last updated <span id="lastUpdated">—</span></span>
+        </div>
+
+        <p class="admin-note">
+          Tracking starts when this feature is deployed. Guest runs and failed runs from before
+          deployment cannot be recovered; historical saved analyses are included from the
+          <code>analyses</code> table.
+        </p>
+
+        <div class="admin-error" id="adminError" role="alert" hidden></div>
+
+        <section class="stat-cards admin-stat-cards" id="statCards" aria-live="polite">
+          <div class="stat-card is-brand">
+            <span class="sc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M16 5a3 3 0 0 1 0 6M18 20c0-2.4-.8-4.1-2.2-5.1"/></svg></span>
+            <div><div class="sc-label">Total users</div><div class="sc-value" id="statUsers">—</div><div class="sc-sub" id="statNewUsers">—</div></div>
+          </div>
+          <div class="stat-card">
+            <span class="sc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg></span>
+            <div><div class="sc-label">Saved analyses</div><div class="sc-value" id="statSaved">—</div><div class="sc-sub">All time</div></div>
+          </div>
+          <div class="stat-card is-brand">
+            <span class="sc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+            <div><div class="sc-label">AI runs</div><div class="sc-value" id="statRuns">—</div><div class="sc-sub" id="statSuccess">—</div></div>
+          </div>
+          <div class="stat-card">
+            <span class="sc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c0-3.7 3.1-6 7-6s7 2.3 7 6"/><path d="M3 3l18 18"/></svg></span>
+            <div><div class="sc-label">Guest vs signed-in</div><div class="sc-value" id="statSplit">—</div><div class="sc-sub" id="statSplitSub">guest / signed-in</div></div>
+          </div>
+          <div class="stat-card is-danger">
+            <span class="sc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><path d="M12 9v5M12 17h.01"/></svg></span>
+            <div><div class="sc-label">Failed runs</div><div class="sc-value" id="statFailed">—</div><div class="sc-sub" id="statRejected">—</div></div>
+          </div>
+          <div class="stat-card is-warn">
+            <span class="sc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            <div><div class="sc-label">Average duration</div><div class="sc-value" id="statDuration">—</div><div class="sc-sub" id="statDurationSub">Selected range</div></div>
+          </div>
+        </section>
+
+        <section class="chart-grid admin-chart-grid">
+          <div class="panel chart-card">
+            <div class="chart-head">
+              <svg class="ch-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+              <h2>AI runs per day</h2>
+            </div>
+            <div class="chart-body" id="runsChart"></div>
+            <div class="chart-legend admin-legend" id="runsLegend"></div>
+          </div>
+
+          <div class="panel chart-card">
+            <div class="chart-head">
+              <svg class="ch-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 6-8"/><path d="M3 21h18"/></svg>
+              <h2>New users per day</h2>
+            </div>
+            <div class="chart-body" id="usersChart"></div>
+          </div>
+
+          <div class="panel chart-card">
+            <div class="chart-head">
+              <svg class="ch-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.4 6.4"/></svg>
+              <h2>Sign-up method</h2>
+            </div>
+            <div class="chart-body admin-donut-body" id="methodChart"></div>
+          </div>
+
+          <div class="panel chart-card">
+            <div class="chart-head">
+              <svg class="ch-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h11M4 18h7"/></svg>
+              <h2>Runs by source</h2>
+            </div>
+            <div class="chart-body admin-source-body" id="sourceChart"></div>
+          </div>
+        </section>
+
+        <section class="panel table-card admin-users-card">
+          <div class="table-toolbar">
+            <span class="tt-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M16 5a3 3 0 0 1 0 6M18 20c0-2.4-.8-4.1-2.2-5.1"/></svg>
+              Users
+            </span>
+            <span class="tt-spacer"></span>
+            <label class="tt-search" for="userSearch">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 20.5 20.5"/></svg>
+              <input type="search" id="userSearch" placeholder="Search email…" aria-label="Search users by email" autocomplete="off" />
+            </label>
+            <label class="admin-sort">
+              <span class="visually-hidden">Sort users</span>
+              <select id="userSort" class="admin-select">
+                <option value="joined_desc">Newest joined</option>
+                <option value="joined_asc">Oldest joined</option>
+                <option value="analyses_desc">Most analyses</option>
+                <option value="analyses_asc">Fewest analyses</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="table-scroll admin-table-scroll">
+            <table class="data-table admin-users-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Sign-up</th>
+                  <th>Joined</th>
+                  <th>Analyses</th>
+                  <th>Last active</th>
+                </tr>
+              </thead>
+              <tbody id="userRows"></tbody>
+            </table>
+          </div>
+
+          <div class="pager" id="userPager"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/common.js?v=3"></script>
+  <script src="/admin.js?v=3"></script>
+</body>
+</html>

@@ -129,6 +129,59 @@ def m0002_google_signin(conn: Connection) -> list[str]:
     return notes
 
 
+def m0004_ai_run_events(conn: Connection) -> list[str]:
+    """Prepare the private AI-run log and backfill saved analyses once.
+
+    `create_all()` creates the new table; this step adds its indexes explicitly
+    (so an existing database and a fresh one agree) and copies historical saved
+    analyses into the event log. Guest runs and failed attempts from before this
+    table existed cannot be reconstructed, so the backfill covers saved
+    analyses only. The event table never receives document or model content.
+    """
+    notes: list[str] = []
+
+    if not _has_table(conn, "ai_run_events"):
+        return notes
+
+    conn.execute(
+        text(
+            "CREATE INDEX IF NOT EXISTS ix_ai_run_events_created_at "
+            "ON ai_run_events (created_at)"
+        )
+    )
+    conn.execute(
+        text(
+            "CREATE INDEX IF NOT EXISTS ix_ai_run_events_user_id "
+            "ON ai_run_events (user_id)"
+        )
+    )
+    notes.append("ensured ai_run_events indexes")
+
+    # Only backfill an empty event table. It is normally empty on the first boot
+    # that adds it; the guard makes a retry harmless.
+    has_events = conn.execute(text("SELECT 1 FROM ai_run_events LIMIT 1")).first()
+    if has_events is None and _has_table(conn, "analyses") and _has_table(conn, "agreements"):
+        conn.execute(
+            text(
+                "INSERT INTO ai_run_events ("
+                "  id, created_at, user_id, is_guest, source, status, "
+                "  duration_ms, model_name, input_tokens, output_tokens, error_code"
+                ") "
+                "SELECT "
+                "  gen_random_uuid(), COALESCE(a.created_at, NOW()), a.user_id, "
+                "  false, "
+                "  CASE WHEN CAST(g.source_type AS TEXT) = 'text' "
+                "       THEN 'paste' ELSE 'upload' END, "
+                "  'success', NULL, a.model_id, NULL, NULL, NULL "
+                "FROM analyses a "
+                "JOIN agreements g ON g.id = a.agreement_id"
+            )
+        )
+        notes.append("backfilled saved analyses into ai_run_events")
+
+    return notes
+
+
 def m0003_clause_provenance(conn: Connection) -> list[str]:
     """Add the constraint/indexes Phase 1 needs.
 
@@ -166,6 +219,7 @@ MIGRATIONS: list[tuple[str, Callable[[Connection], list[str]]]] = [
     ("0001_user_ownership", m0001_user_ownership),
     ("0002_google_signin", m0002_google_signin),
     ("0003_clause_provenance", m0003_clause_provenance),
+    ("0004_ai_run_events", m0004_ai_run_events),
 ]
 
 

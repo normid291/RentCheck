@@ -92,6 +92,7 @@
   ];
 
   let mode = "paste";
+  let analysisSource = "paste";
   let busy = false;
   let validFile = null;
   let lastQuestions = [];
@@ -140,7 +141,10 @@
     const n = els.text.value.length;
     els.charCount.textContent = n.toLocaleString() + " character" + (n === 1 ? "" : "s");
   }
-  els.text.addEventListener("input", updateCharCount);
+  els.text.addEventListener("input", () => {
+    analysisSource = "paste";
+    updateCharCount();
+  });
 
   const SAMPLE = [
     "TENANCY AGREEMENT",
@@ -172,6 +176,7 @@
   els.sampleBtn.addEventListener("click", () => {
     setMode("paste");
     els.text.value = SAMPLE;
+    analysisSource = "sample";
     updateCharCount();
     els.text.focus();
   });
@@ -634,7 +639,7 @@
       try {
         const data = await Tenura.apiFetch("/api/agreements/analyze", {
           method: "POST",
-          body: JSON.stringify({ text: text }),
+          body: JSON.stringify({ text: text, source: analysisSource }),
         });
         handleResult(data, { text: text });
       } catch (err) {
@@ -718,6 +723,7 @@
   if (Tenura.param("sample")) {
     setMode("paste");
     els.text.value = SAMPLE;
+    analysisSource = "sample";
     updateCharCount();
   }
 

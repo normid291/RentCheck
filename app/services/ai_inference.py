@@ -6,6 +6,8 @@ import time
 import requests
 from dotenv import load_dotenv
 
+from app.services import ai_usage
+
 load_dotenv()
 
 logger = logging.getLogger("tenura.ai")
@@ -129,6 +131,20 @@ def _post_with_retries(url: str, payload: dict) -> requests.Response:
                 timeout=RUMPTY_AI_TIMEOUT,
             )
             response.raise_for_status()
+            # Token counts are metadata only. If the provider omits them or the
+            # response is unusual, usage stays unknown rather than failing the
+            # analysis.
+            try:
+                body = response.json()
+                usage = body.get("usage") if isinstance(body, dict) else None
+                if isinstance(usage, dict):
+                    ai_usage.record(
+                        payload.get("model"),
+                        usage.get("prompt_tokens", usage.get("input_tokens")),
+                        usage.get("completion_tokens", usage.get("output_tokens")),
+                    )
+            except (ValueError, TypeError):
+                pass
             return response
         except requests.exceptions.HTTPError as exc:
             # Client errors (4xx) are permanent - fail fast.

@@ -11,6 +11,8 @@ Tables:
   users             - accounts, with argon2 password hashes (NULL when the
                       account was created through Google sign-in)
   otp_codes         - hashed, single-use email codes for verification and reset
+  ai_run_events     - privacy-safe metadata about analysis attempts. Never
+                      contains agreement text, clause text, or model output.
 
 Ownership notes:
   - `analyses.user_id` is NULL for rows created before accounts existed. Those
@@ -182,6 +184,45 @@ class Analysis(Base):
     # index serves both in one pass (Postgres can walk it backwards for DESC).
     __table_args__ = (
         Index("ix_analyses_user_created", "user_id", "created_at"),
+    )
+
+
+class AiRunEvent(Base):
+    """One privacy-safe event per analysis attempt.
+
+    This is deliberately metadata only: no agreement text, clause content, model
+    output, email address, or other document-derived value belongs here. It
+    exists so the owner can see usage, failures and guest activity that the
+    `analyses` table cannot represent.
+    """
+
+    __tablename__ = "ai_run_events"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    # Nullable for guests and for events whose account was later removed. The
+    # event itself is retained as anonymous aggregate history.
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "users.id",
+            ondelete="SET NULL",
+            name="fk_ai_run_events_user_id_users",
+        ),
+        nullable=True,
+    )
+    is_guest = Column(Boolean, nullable=False, default=False, server_default="false")
+    source = Column(String(20), nullable=False, default="paste")
+    status = Column(String(32), nullable=False)
+    duration_ms = Column(Integer, nullable=True)
+    model_name = Column(String(120), nullable=True)
+    input_tokens = Column(Integer, nullable=True)
+    output_tokens = Column(Integer, nullable=True)
+    error_code = Column(String(80), nullable=True)
+
+    __table_args__ = (
+        Index("ix_ai_run_events_created_at", "created_at"),
+        Index("ix_ai_run_events_user_id", "user_id"),
     )
 
 

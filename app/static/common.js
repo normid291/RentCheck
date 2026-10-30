@@ -520,6 +520,7 @@
         sessionKnown = true;
         renderAuthSlot();
         renderShellUser();
+        renderAdminNav();
         applyViewerState(currentUser);
         return currentUser;
       })
@@ -530,6 +531,7 @@
         sessionKnown = false;
         renderAuthSlot();
         renderShellUser();
+        renderAdminNav();
         return null;
       });
   }
@@ -682,6 +684,8 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.2-3 7.4-7 9-4-1.6-7-4.8-7-9V6z"/><path d="M9.5 12l1.8 1.8 3.4-3.6"/></svg>',
     doc:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l4 4v14H9z"/><path d="M15 3v5h4"/><path d="M12 13h4M12 17h4"/></svg>',
+    admin:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
     menu:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
     close:
@@ -714,6 +718,7 @@
     if (path.indexOf("/dashboard") === 0) return "dashboard";
     if (path.indexOf("/history") === 0) return "analyses";
     if (path.indexOf("/profile") === 0) return "profile";
+    if (path.indexOf("/admin") === 0) return "admin";
     if (path.indexOf("/analyse") === 0) return "new";
     return active;
   }
@@ -741,6 +746,7 @@
         shellItem("/history", "analyses", "My analyses", ICON.file, active) +
         shellItem("/dashboard/new", "new", "New analysis", ICON.search, active) +
         shellItem("/profile", "profile", "Profile", ICON.user, active) +
+        '<div id="adminNavSlot"></div>' +
         '<p class="side-label">Others</p>' +
         shellItem("/privacy", "privacy", "Privacy", ICON.shield, active) +
         shellItem("/terms", "terms", "Terms", ICON.doc, active) +
@@ -947,6 +953,18 @@
         input.select();
       }
     });
+  }
+
+  /* The Admin item is inserted only after /api/auth/me confirms the server-side
+   * allowlist check. Regular users never receive this markup. */
+  function renderAdminNav() {
+    var slot = document.getElementById("adminNavSlot");
+    if (!slot) return;
+    if (!currentUser || !currentUser.is_admin) {
+      slot.innerHTML = "";
+      return;
+    }
+    slot.innerHTML = shellItem("/admin", "admin", "Admin", ICON.admin, activeRouteKey());
   }
 
   /* Sidebar account block. The public header keeps its dropdown, but the app

@@ -35,6 +35,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.db import User
+from app.services.admin_access import is_admin
 
 # --------------------------------------------------------------------------- #
 # configuration
@@ -439,4 +440,16 @@ def require_user(user: User | None = Depends(get_current_user)) -> User:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Please sign in to continue.",
         )
+    return user
+
+
+def require_admin(user: User | None = Depends(get_current_user)) -> User:
+    """A verified allowlisted owner, or a deliberately indistinguishable 404.
+
+    Admin routes exist only for the owner. Returning 404 for logged-out visitors,
+    regular accounts and unverified addresses avoids revealing that the route or
+    dashboard exists at all.
+    """
+    if user is None or not is_admin(user):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found.")
     return user

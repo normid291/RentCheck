@@ -59,6 +59,8 @@ cp .env.example .env
 #                                             to send a Secure-only cookie
 #   EMAIL_PROVIDER=console                    prints sign-in codes to the server
 #                                             log instead of sending email
+#   ADMIN_EMAILS=you@example.com              enables the owner-only /admin page
+#                                             for that verified account
 
 # 3. Create the schema, run migrations and seed data (also runs on startup)
 python -m app.init_db
@@ -86,6 +88,7 @@ MIGRATIONS: list[tuple[str, object]] = [
     ("0001_user_ownership", m0001_user_ownership),
     ("0002_google_signin", m0002_google_signin),
     ("0003_clause_provenance", m0003_clause_provenance),
+    ("0004_ai_run_events", m0004_ai_run_events),
 ]
 ```
 
@@ -126,6 +129,9 @@ self-contained, so moving to Alembic later is mechanical.)
      button is not shown at all, so leaving them out is safe.
    - `SESSION_COOKIE_SECURE`, leave unset in production (the default, `true`,
      is what you want once the app is served over HTTPS).
+   - `ADMIN_EMAILS`, comma-separated, optional but required to use `/admin`.
+     Only verified accounts in this list can open the owner dashboard. Unset
+     means everyone is denied. See [Owner dashboard](#owner-dashboard).
    - `ALLOWED_ORIGINS`, optional, comma-separated. The API is same-origin only
      by default; add origins only if you deliberately serve the frontend from
      somewhere else.
@@ -400,19 +406,58 @@ hand-built JWTs, so nothing touches the network.
 python tests/test_google_signin.py
 ```
 
+## Owner dashboard
+
+`/admin` is a private usage dashboard for the owner. It is not a normal app
+page: every request is checked on the server before any HTML or JSON is sent.
+
+1. Set `ADMIN_EMAILS` in the deployment environment (or `.env` locally) to a
+   comma-separated list of verified account emails, for example
+   `ADMIN_EMAILS=owner@example.com`.
+2. Restart the app. The schema step `0004_ai_run_events` runs automatically on
+   startup (or run `python -m app.init_db`). It is additive: a new
+   `ai_run_events` table with indexes on `created_at` and `user_id`.
+3. Sign in with an allowlisted, verified account and open `/admin`. The sidebar
+   shows an **Admin** item only after `/api/auth/me` confirms the allowlist.
+
+Access rules: logged-out visitors, regular accounts, unverified addresses and
+any deployment with `ADMIN_EMAILS` unset all receive a `404`. The admin API
+routes (`/api/admin/metrics`, `/api/admin/users`) enforce the same check and are
+rate limited. `/admin` also sends `noindex, nofollow`, is absent from
+`sitemap.xml`, and is disallowed in `robots.txt`.
+
+Tracking and privacy:
+
+- One metadata row is written per analysis attempt at the shared pipeline entry
+  point. It records time, source, status, duration, model name, token counts and
+  a stable error code. It **never** stores agreement text, clause content,
+  document titles or model output, and a logging failure cannot fail the
+  analysis.
+- Guest runs and failed attempts from before this deployment cannot be
+  recovered. Counting starts at deployment.
+- Existing saved analyses are backfilled once from `analyses`; the dashboard's
+  saved-analysis total always reads the `analyses` table.
+- Aggregate metrics are cached for 60 seconds. The Refresh button bypasses the
+  cache.
+
 ## Project structure
 
 ```
 app/
   main.py                    - FastAPI app entrypoint
   database.py                - DB connection/session
-  models/db.py                - SQLAlchemy models (User, OtpCode, Analysis, ...)
+  models/db.py                - SQLAlchemy models (User, OtpCode, Analysis, AiRunEvent, ...)
   migrations.py               - Ordered, idempotent schema steps (see "Schema changes")
   init_db.py                  - create tables + columns + migrations + seed
   routers/agreements.py       - Analyse endpoints (persist only when signed in)
   routers/auth.py             - Sign up, verify, resend, log in/out, forgot/reset
   routers/google_auth.py      - "Continue with Google": /auth/google/start + /callback
   routers/history.py          - List, open, rename, delete your own analyses
+  routers/admin.py            - Private owner metrics/users API (server-checked)
+  services/admin_access.py    - Fail-closed ADMIN_EMAILS allowlist check
+  services/admin_metrics.py   - Cached Postgres aggregates + paginated user list
+  services/ai_run_events.py   - Privacy-safe analysis event log (best effort)
+  services/ai_usage.py        - Per-run token/model usage accumulator
   services/clause_splitter.py - Deterministic clause splitting
   services/clause_matcher.py  - Deterministic clause-to-norm matching per jurisdiction
   services/document_classifier.py - Is this a tenancy agreement? (gate before analysis)
@@ -437,12 +482,14 @@ app/
   static/signup.html/.js      - Create account + enter code
   static/login.html/.js       - Log in, forgot password, verify, reset
   static/history.html/.js     - Saved analyses: list, detail, rename, delete
+  static/admin.html/.js       - Owner dashboard: metrics charts + users table
   static/privacy.html         - Privacy Policy page (generated, see docs/legal)
   static/terms.html           - Terms of Service page (generated)
 tests/
   conftest.py                  - shared fixtures (client, make_user, captured_email)
   unit/                        - fast, DB-free unit tests (red flags, jurisdiction,
-                                 matching, scoring, evidence, redaction, health)
+                                 matching, scoring, evidence, redaction, health,
+                                 admin access, privacy-safe run events)
   integration/                 - DB-backed tests (resend enumeration, jurisdiction gate)
   test_accounts.py             - End-to-end accounts + history test
   test_google_signin.py        - End-to-end "Continue with Google" test

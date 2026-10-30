@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel
@@ -8,7 +9,7 @@ from starlette.concurrency import run_in_threadpool
 
 from app.database import get_db
 from app.models.db import SourceType, User
-from app.services import analysis_store
+from app.services import ai_run_events, ai_usage, analysis_store
 from app.services.auth import get_current_user
 from app.services.clause_splitter import split_into_clauses
 from app.services.document_classifier import (
@@ -41,6 +42,8 @@ MAX_UPLOAD_BYTES = int(os.environ.get("MAX_UPLOAD_BYTES", str(15 * 1024 * 1024))
 
 class AgreementIn(BaseModel):
     text: str
+    # Optional usage label from the UI. It never affects the analysis.
+    source: str | None = None
 
 
 def _attach_norm(verdict: dict, norm) -> dict:
@@ -55,7 +58,7 @@ def _attach_norm(verdict: dict, norm) -> dict:
     return enriched
 
 
-def _run_pipeline(
+def _run_pipeline_core(
     text: str,
     source_type: SourceType,
     db: Session,
@@ -204,6 +207,78 @@ def _run_pipeline(
     return result
 
 
+def _run_pipeline(
+    text: str,
+    source_type: SourceType,
+    db: Session,
+    user: User | None = None,
+    source: str = "paste",
+) -> dict:
+    """Run the analysis and record one privacy-safe usage event.
+
+    Every analysis path (paste, upload, sample) goes through this wrapper, so it
+    is the single place that knows the whole run's outcome, duration and token
+    usage. The event insert happens in its own session and is swallowed on
+    failure: telemetry must never change what the user receives.
+    """
+    started = time.perf_counter()
+    usage_token = ai_usage.start()
+    status = ai_run_events.STATUS_FAILED
+    error_code: str | None = None
+    try:
+        result = _run_pipeline_core(text, source_type, db, user)
+        result_status = result.get("status")
+        if result_status == "ok":
+            status = ai_run_events.STATUS_SUCCESS
+        elif result_status == "out_of_scope":
+            status = ai_run_events.STATUS_REJECTED_NON_NIGERIAN
+        else:
+            # Non-tenancy, unreadable or unresolved jurisdiction: a failed run,
+            # with a stable code and no document-derived message.
+            error_code = str(result_status or "unknown")[:80]
+        return result
+    except Exception as exc:
+        error_code = type(exc).__name__[:80]
+        raise
+    finally:
+        usage: ai_usage.Usage | None = ai_usage.finish(usage_token)
+        duration_ms = max(0, int((time.perf_counter() - started) * 1000))
+        try:
+            ai_run_events.record_run(
+                user_id=user.id if user is not None else None,
+                is_guest=user is None,
+                source=ai_run_events.normalise_source(source),
+                status=status,
+                duration_ms=duration_ms,
+                model_name=(usage.get("model_name") if usage else None)
+                or RUMPTY_AI_MODEL,
+                input_tokens=usage.get("input_tokens") if usage else None,
+                output_tokens=usage.get("output_tokens") if usage else None,
+                error_code=error_code,
+            )
+        except Exception:  # noqa: BLE001 - telemetry must never affect the user
+            logger.exception("AI run event wrapper failed")
+
+
+def _record_upload_failure(user: User | None, error_code: str) -> None:
+    """Record an upload we could not even turn into text.
+
+    No AI call happened, so there is no duration or token usage; the event still
+    belongs in the run history because the user made an analysis attempt and the
+    owner should see the failure. Telemetry never changes the response.
+    """
+    try:
+        ai_run_events.record_run(
+            user_id=user.id if user is not None else None,
+            is_guest=user is None,
+            source="upload",
+            status=ai_run_events.STATUS_FAILED,
+            error_code=error_code[:80],
+        )
+    except Exception:  # noqa: BLE001 - telemetry must never affect the user
+        logger.exception("AI run event wrapper failed")
+
+
 def _jurisdiction_response(verdict: dict, jurisdiction: str) -> dict:
     """Clean 200 for an out-of-scope or unknown jurisdiction (never saved)."""
     if jurisdiction == NON_NG:
@@ -342,7 +417,8 @@ def analyze_agreement(
     Signed in? The result is saved to the caller's history. Guest? Same result,
     nothing stored — the response's `saved` flag says which.
     """
-    return _run_pipeline(payload.text, SourceType.text, db, user)
+    source = "sample" if (payload.source or "").strip().lower() == "sample" else "paste"
+    return _run_pipeline(payload.text, SourceType.text, db, user, source=source)
 
 
 @router.post("/agreements/analyze-upload")
@@ -378,15 +454,21 @@ async def analyze_upload(
         # A file we simply could not read (blank/blurry photo, empty scan) is a
         # friendly "unreadable" notice, not an error. Everything else keeps its
         # own status: 400 bad/empty file, 413 too large, 500 missing engine.
+        _record_upload_failure(
+            user, "unreadable" if exc.unreadable else "extraction_failed"
+        )
         if exc.unreadable:
             return _notice_response(UNREADABLE, 0.6, "no readable text")
         raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
     if not text.strip():
+        _record_upload_failure(user, "unreadable")
         return _notice_response(UNREADABLE, 0.6, "no readable text")
 
     source_type = _source_type_for(file.content_type or "", file.filename or "")
-    return await run_in_threadpool(_run_pipeline, text, source_type, db, user)
+    return await run_in_threadpool(
+        _run_pipeline, text, source_type, db, user, "upload"
+    )
 
 
 def _source_type_for(content_type: str, filename: str) -> SourceType:
