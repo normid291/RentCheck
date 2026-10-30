@@ -97,9 +97,15 @@ self-contained, so moving to Alembic later is mechanical.)
 ## Deployment (Rumpty Cloud)
 
 1. Push this repo to GitHub.
-2. In the Rumpty console, create a new Deployment connected to this repo.
-   The `Procfile` / `Dockerfile` start command is
-   `uvicorn app.main:app --host 0.0.0.0 --port 8080`.
+2. In the Rumpty console, create a new Deployment connected to this repo and
+   choose the **Dockerfile** build method (a `Dockerfile` sits at the repo root).
+   The start command is `uvicorn app.main:app --host 0.0.0.0 --port $PORT`: the
+   app binds whatever port Rumpty routes to and health-checks, and falls back to
+   `8080` locally. Do **not** hardcode a port — a start command that listens on a
+   different port than the deployment's **Port** setting is the most common
+   reason a build succeeds but the deployment never becomes **Active**. Set the
+   **Readiness/health check path** to `/health` (a plain `200` that never touches
+   the database); the default `/` also works.
 3. Set environment variables in the deployment config:
    - `DATABASE_URL` — the connection string for the Postgres instance the app
      should use (use the internal one when the app and DB are both on Rumpty)

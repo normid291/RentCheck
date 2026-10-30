@@ -17,5 +17,8 @@ COPY . .
 
 EXPOSE 8080
 
-# Same start command as the Procfile.
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Bind the port the platform routes to and health-checks. RumptyCloud injects
+# the configured port as $PORT at runtime; fall back to 8080 so the image also
+# runs unchanged locally. Hardcoding 8080 instead is the classic cause of a
+# build that succeeds but a deployment that never becomes active.
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
