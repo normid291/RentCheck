@@ -204,7 +204,7 @@
       "Flagged clauses", flagged.length, "Terms that may work against you",
       flagged.length
         ? flagged.map(Tenura.renderFinding).join("")
-        : '<div class="empty">No flagged clauses found — the clauses we checked look broadly reasonable.</div>'
+        : '<div class="empty">No flagged clauses found. The clauses we checked look broadly reasonable.</div>'
     );
 
     html += section(

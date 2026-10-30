@@ -1,6 +1,6 @@
 # Tenura Privacy Policy
 
-**Version 1.6 — last updated 30 October 2026**
+**Version 1.6, last updated 30 October 2026**
 
 Tenura is a tenancy-agreement analysis tool. You paste or upload a tenancy
 agreement and it returns flagged clauses, missing protections and questions to
@@ -9,7 +9,7 @@ analyses you run. This policy explains what personal data each of those involves
 why we use it, who else sees it, and what you can ask us to do about it.
 
 We have tried to write this in plain language rather than legal padding. If
-anything is unclear, ask us — the contact details are at the end.
+anything is unclear, ask us. The contact details are at the end.
 
 ## 1. Who we are
 
@@ -23,26 +23,26 @@ The data controller for the Service is:
 | **Service** | Tenura, at www.tenura.online |
 
 "Controller" means we decide why and how personal data is processed. We are not
-a law firm and we do not give legal advice — see our [Terms of Service](/terms).
+a law firm and we do not give legal advice; see our [Terms of Service](/terms).
 
 ## 2. At a glance
 
 You can use Tenura without an account. If you do, your document is analysed
-and **nothing is kept** — no document text, no result. If you are signed in, the
+and **nothing is kept** (no document text, no result). If you are signed in, the
 analysis and the document text behind it are saved to your history until you
 delete them.
 
 | What we hold | Why | Who else sees it |
 | --- | --- | --- |
-| The text of the agreement you submit, **only when you are signed in** | To produce your analysis, and to reopen it later from your history | Rumpty AI Inference (selected parts only — see section 5), Rumpty Cloud (hosting), Neon (database) |
-| The analysis we generate — flagged clauses, missing protections, questions, risk score — **only when you are signed in** | To show you the result and keep it for you | Rumpty Cloud (hosting), Neon (database) |
+| The text of the agreement you submit, **only when you are signed in** | To produce your analysis, and to reopen it later from your history | Rumpty AI Inference (selected parts only; see section 5), Rumpty Cloud (hosting), Neon (database) |
+| The analysis we generate (flagged clauses, missing protections, questions, risk score), **only when you are signed in** | To show you the result and keep it for you | Rumpty Cloud (hosting), Neon (database) |
 | If you have an account: your **email address**, your **password hash**, and the **one-time codes** we send you | To sign you in, verify your email, and let you reset a forgotten password | Rumpty Cloud (hosting), Neon (database); and our email provider, Resend, to deliver the message |
-| If you sign in with Google: your email address and the **account identifier Google sends us** — no password, because there is none | To recognise you on later visits and keep your history with you | Google, which performs the sign-in; Rumpty Cloud (hosting), Neon (database) |
-| A **session cookie** holding your signed-in state | To keep you logged in between pages | Nobody — it is set by us and never shared |
+| If you sign in with Google: your email address and the **account identifier Google sends us** (no password, because there is none) | To recognise you on later visits and keep your history with you | Google, which performs the sign-in; Rumpty Cloud (hosting), Neon (database) |
+| A **session cookie** holding your signed-in state | To keep you logged in between pages | Nobody; it is set by us and never shared |
 | Server logs: IP address, timestamps, requested pages, error traces | To run the Service, debug failures and prevent abuse | Rumpty Cloud (hosting) |
 
 We run no analytics and no advertising, and no third-party scripts load on the
-page — including when you sign in with Google, which we do by sending you to
+page, including when you sign in with Google, which we do by sending you to
 Google's own page rather than by loading Google's script into ours. We do not
 sell your data. We do not use your document to train anyone's AI model.
 
@@ -56,7 +56,7 @@ of the tenancy agreement and analyse it.
 **As a guest, nothing about your document is kept.** The result is returned to
 your browser and then forgotten: no copy of the text and no copy of the analysis
 is stored on our side. (To let you keep a result if you sign up straight
-afterwards, your own browser may briefly hold the text you typed — see
+afterwards, your own browser may briefly hold the text you typed; see
 section 3.2.)
 
 **When you are signed in, we keep the analysis and the document text behind it**,
@@ -77,7 +77,7 @@ amounts, sometimes bank or account details, and signatures. All of that arrives
 simply because it is inside the document you sent us.
 
 **Please do not upload a document you are not entitled to share.** If it
-contains information about someone else — a landlord, an agent, a co-tenant —
+contains information about someone else (a landlord, an agent, a co-tenant),
 you need a lawful reason to give it to us, and to let us process it as described
 here.
 
@@ -88,8 +88,8 @@ ordinary server logs described below.
 
 ### 3.2 Accounts, and what we still do not collect
 
-An account needs an email address and a way to sign in — a password, or your
-Google account — and nothing else. We do not ask for your name, phone number,
+An account needs an email address and a way to sign in (a password, or your
+Google account), and nothing else. We do not ask for your name, phone number,
 date of birth, or address.
 
 - **Passwords** are hashed with Argon2id before they are stored. We never store
@@ -99,10 +99,10 @@ date of birth, or address.
   used once, and are replaced when you ask for a new one.
 - **A session cookie**, named `tenura_session`, holds your signed-in state. It is
   set `httpOnly` (JavaScript on the page cannot read it), `Secure`, and
-  `SameSite=Lax`, and it contains only a signed user reference and an expiry — no
+  `SameSite=Lax`, and it contains only a signed user reference and an expiry: no
   password, no document data. Signing out clears it.
 - **If you sign in with Google**, we receive your email address and a Google
-  account identifier, and nothing else — no password is ever created for you. The
+  account identifier, and nothing else: no password is ever created for you. The
   sign-in happens on Google's own page: our page does not load Google's script
   and Google sets no cookie on our site. For the few minutes the sign-in takes we
   set one further short-lived cookie, `tenura_oauth`, which carries the
@@ -138,16 +138,16 @@ never stored in a form anyone can read.
 The Nigeria Data Protection Act 2023 ("NDPA") sets out the lawful bases for
 processing. We rely on:
 
-- **Performing the service you asked for** — analysing the document you submit
+- **Performing the service you asked for**: analysing the document you submit
   and returning your results, and, where you have an account, signing you in and
   keeping your history. This is the main basis for the document text, the
   analysis, and your account details.
-- **Our legitimate interests** — keeping the Service working and secure,
+- **Our legitimate interests**: keeping the Service working and secure,
   diagnosing failures, and preventing abuse. We keep this as narrow as we can,
   and it never overrides your rights.
-- **Consent** — where you specifically give it, such as when you write to us
+- **Consent**: where you specifically give it, such as when you write to us
   asking us to keep information, or where the law requires consent.
-- **Legal obligation** — where we are required to keep or disclose something by
+- **Legal obligation**: where we are required to keep or disclose something by
   law.
 
 ## 5. AI processing: what actually leaves our server
@@ -169,21 +169,21 @@ equivalents), and only a genuinely ambiguous one sends **the first 1,500
 characters** to the model, which returns `NG`, `NON_NG` or `UNKNOWN` and nothing
 else.
 
-Much of the analysis involves no AI at all. Known high-confidence traps — such
+Much of the analysis involves no AI at all. Known high-confidence traps (such
 as a re-entry clause that operates "whether or not lawfully demanded", or a
-non-refundable caution fee — are caught by fixed rules in our own code, and when
+non-refundable caution fee) are caught by fixed rules in our own code, and when
 a rule fires we do not ask the model about that clause. Missing protections and
 the questions to ask are worked out entirely by fixed code.
 
 Two things follow from this that you should know:
 
-- **Clause text can contain personal data** — names, addresses, rent figures —
+- **Clause text can contain personal data**: names, addresses, rent figures,
   and text we send to the AI provider therefore may too. It is sent for the
   purpose of evaluating the clause, and nothing else.
 - **AI output is a suggestion, not a finding.** Every flag that comes from the
   model must quote exact words from the clause, and our code verifies that the
   quote really appears there before showing it. AI-derived flags are labelled
-  "[AI suggestion — worth a manual check]" in your results.
+  "[AI suggestion, worth a manual check]" in your results.
 
 ## 6. Who we share it with
 
@@ -199,8 +199,8 @@ We do not sell, rent or trade personal data. We do not share it with advertisers
 or data brokers. We do not allow a provider to use your document for their own
 purposes.
 
-We may disclose personal data where we are legally required to — for example a
-valid court order or a lawful request from a competent Nigerian authority — or
+We may disclose personal data where we are legally required to (for example a
+valid court order or a lawful request from a competent Nigerian authority), or
 where it is necessary to protect someone's safety or our legal rights. If that
 ever happens, we disclose only what is actually required.
 
@@ -221,9 +221,9 @@ For an account:
 - **Saved analyses and their agreement text** are kept until you delete them.
   You can delete any of them yourself from [your history](/history), and deletion
   removes the agreement text permanently and immediately.
-- **Your account** — the email address, the password hash (if you set a password;
+- **Your account**: the email address, the password hash (if you set a password;
   an account created with Google has none) and the Google account identifier (if
-  you signed in with Google) — is kept while the account exists. To close it,
+  you signed in with Google), is kept while the account exists. To close it,
   delete your saved analyses and email us to remove the account itself.
 - **One-time codes** expire after 10 minutes, and are marked spent as soon as they
   are used. They are never reused.
@@ -231,7 +231,7 @@ For an account:
   security.
 
 There is no automatic expiry on saved analyses. We would rather say that plainly
-than claim a retention period we do not enforce — and it is the reason the delete
+than claim a retention period we do not enforce, and it is the reason the delete
 button is in your hands rather than ours.
 
 To close your account, or to have anything else deleted, email
@@ -247,7 +247,7 @@ To close your account, or to have anything else deleted, email
   read, and no sign-in token is kept in browser storage where a script could reach
   it.
 - **One-time codes are hashed, single-use, short-lived and attempt-limited.**
-- **Every account can reach only its own records** — checked on the server for
+- **Every account can reach only its own records**: checked on the server for
   every query, not merely hidden in the interface.
 - **Sign-in, sign-up and code requests are rate-limited** to slow down guessing
   and abuse.
@@ -256,17 +256,17 @@ To close your account, or to have anything else deleted, email
 No system is perfectly secure and we do not pretend otherwise. Tenura is an
 early-stage project, not a bank. If you are uncomfortable sending a particular
 document, consider redacting the parts that are not relevant to the clauses you
-want checked — the names, phone numbers and account details — before you submit
+want checked (the names, phone numbers and account details) before you submit
 it. The analysis works fine without them.
 
 ## 10. Your rights
 
 Under the NDPA you have the right to:
 
-- **Be informed** about how your data is used — that is what this policy is for.
+- **Be informed** about how your data is used: that is what this policy is for.
 - **Access** the personal data we hold about you.
 - **Rectify** anything inaccurate.
-- **Erase** your data — see section 8.
+- **Erase** your data; see section 8.
 - **Restrict or object** to certain processing.
 - **Data portability**, where it applies.
 - **Withdraw consent** at any time, where consent is what we relied on.
@@ -276,7 +276,7 @@ To exercise any of these, email **privacy@tenura.online**. We aim to respond
 within 30 days and will not charge you for a reasonable request.
 
 One honest note on access and erasure: if you have an account, the fastest route
-is to manage your own data — [your history](/history) lists what we hold against
+is to manage your own data: [your history](/history) lists what we hold against
 you and lets you rename or delete any of it directly. If you used Tenura as a
 guest, nothing was stored, so there is nothing to retrieve or erase beyond
 ordinary server logs. For anything else, email us; if we need more from you to
@@ -288,14 +288,14 @@ Your results, including the risk band, are generated automatically. That band is
 a rough indicator built from how many clauses were flagged, how many expected
 protections were missing, **and how much of the agreement we were actually able
 to check**. When too little could be checked, we say so and label the result
-"Review needed" rather than guessing — we do not present a thin analysis as low
+"Review needed" rather than guessing. We do not present a thin analysis as low
 risk. It is not a legal assessment of your agreement and it is not a decision
 *about you*.
 
 The NDPA restricts decisions based solely on automated processing that produce
 legal effects or similarly significantly affect you. Tenura does not make
 that kind of decision. It gives you information about a document, and the choice
-of what to do with it — sign, renegotiate, walk away, take it to a lawyer —
+of what to do with it (sign, renegotiate, walk away, take it to a lawyer)
 remains yours. Please treat every flag as a prompt to look, not a verdict.
 
 ## 12. Children
@@ -315,7 +315,7 @@ policy.
 
 Questions, requests and complaints about privacy go to:
 
-**NORMID INC** — privacy@tenura.online — FJQG+XWH Oke Ogun, Ilorin, Kwara State, Nigeria
+**NORMID INC** · privacy@tenura.online · FJQG+XWH Oke Ogun, Ilorin, Kwara State, Nigeria
 
 If you are not satisfied with how we have handled something, you have the right
 to complain to the **Nigeria Data Protection Commission (NDPC)**. We would

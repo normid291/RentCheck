@@ -2,32 +2,32 @@
 
 AI-powered tenancy agreement analyzer for Nigerian renters. Paste or upload a
 tenancy agreement and get back flagged clauses, missing protections, and
-questions to ask before signing — grounded in common Nigerian rental norms.
+questions to ask before signing, grounded in common Nigerian rental norms.
 
 No account is needed to run an analysis. Sign up (email plus a one-time code)
 and your analyses are saved to a private history you can rename or delete at any
 time.
 
-Built for the Devcenter Hacktober sprint, deployed on Rumpty Cloud.
+Deployed on Rumpty Cloud.
 
 ## Why it's built this way
 
 Rumpty's AI Inference currently offers small open-source models (3B
 parameters), not large general-purpose LLMs. Rather than asking the model to
-reason freely about rental law — which small models do unreliably — Tenura
+reason freely about rental law, which small models do unreliably, Tenura
 does the heavy lifting with deterministic code first:
 
-1. **Clause splitting** (rule-based, no AI) — breaks the agreement into
+1. **Clause splitting** (rule-based, no AI), breaks the agreement into
    individual clauses.
-2. **Clause matching** (keyword-based, no AI) — matches each clause against a
+2. **Clause matching** (keyword-based, no AI), matches each clause against a
    curated `clause_reference` table of known Nigerian rental norms and
    red-flag patterns.
-3. **Deterministic red-flag rules** — a small set of high-confidence regex
+3. **Deterministic red-flag rules**, a small set of high-confidence regex
    rules (`app/services/red_flags.py`) catches well-known traps (e.g. re-entry
    "whether or not lawfully demanded", non-refundable caution fees). If a rule
    fires, its verdict is used directly and the AI call is skipped for that
-   clause — so the most serious issues are never left to model chance.
-4. **AI Inference** — called only for the clauses no rule caught, comparing one
+   clause, so the most serious issues are never left to model chance.
+4. **AI Inference**, called only for the clauses no rule caught, comparing one
    clause against its matched norm and returning a structured verdict, with
    few-shot examples to keep output format reliable. Every flag must quote
    exact words from the clause, which the code then verifies.
@@ -77,7 +77,7 @@ database is usable without extra steps.
 ### Schema changes
 
 New tables are created from the models by `create_all()`. Anything `create_all`
-cannot do to a table that already exists — adding a constraint or an index — is
+cannot do to a table that already exists, adding a constraint or an index, is
 written as an ordered, idempotent step in `app/migrations.py`, recorded in a
 `schema_migrations` table so it runs once and is never repeated:
 
@@ -101,38 +101,38 @@ self-contained, so moving to Alembic later is mechanical.)
    choose the **Dockerfile** build method (a `Dockerfile` sits at the repo root).
    The start command is `uvicorn app.main:app --host 0.0.0.0 --port $PORT`: the
    app binds whatever port Rumpty routes to and health-checks, and falls back to
-   `8080` locally. Do **not** hardcode a port — a start command that listens on a
+   `8080` locally. Do **not** hardcode a port, a start command that listens on a
    different port than the deployment's **Port** setting is the most common
    reason a build succeeds but the deployment never becomes **Active**. Set the
    **Readiness/health check path** to `/health` (a plain `200` that never touches
    the database); the default `/` also works.
 3. Set environment variables in the deployment config:
-   - `DATABASE_URL` — the connection string for the Postgres instance the app
+   - `DATABASE_URL`, the connection string for the Postgres instance the app
      should use. Production uses Neon; local development uses a local Postgres
      instance.
-   - `SESSION_SECRET` — a long random string; signs the session cookie. Without
+   - `SESSION_SECRET`, a long random string; signs the session cookie. Without
      it a random per-process key is generated, which signs everyone out on every
      restart (and a loud warning is printed). **Set this in production.**
-   - `EMAIL_PROVIDER=resend`, `RESEND_API_KEY`, `EMAIL_FROM` — transactional
+   - `EMAIL_PROVIDER=resend`, `RESEND_API_KEY`, `EMAIL_FROM`, transactional
      email for sign-in codes. `EMAIL_FROM` must be on a domain verified with
      Resend, in the form `Tenura <no-reply@yourdomain.com>`. Without a
      provider, sign-up and password reset fail cleanly with a message telling
-     the user the code could not be sent — no code is ever written to a log.
-   - `APP_ENV=production` — refuses the development console email provider
+     the user the code could not be sent, no code is ever written to a log.
+   - `APP_ENV=production`, refuses the development console email provider
      outright.
-   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` — optional; turn on
+   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, optional; turn on
      "Continue with Google" on the login and sign-up pages. See
      [Sign in with Google](#sign-in-with-google) below. If they are unset the
      button is not shown at all, so leaving them out is safe.
-   - `SESSION_COOKIE_SECURE` — leave unset in production (the default, `true`,
+   - `SESSION_COOKIE_SECURE`, leave unset in production (the default, `true`,
      is what you want once the app is served over HTTPS).
-   - `ALLOWED_ORIGINS` — optional, comma-separated. The API is same-origin only
+   - `ALLOWED_ORIGINS`, optional, comma-separated. The API is same-origin only
      by default; add origins only if you deliberately serve the frontend from
      somewhere else.
-   - `RUMPTY_AI_BASE_URL`, `RUMPTY_AI_KEY`, `RUMPTY_AI_MODEL` — from the AI Inference tab
+   - `RUMPTY_AI_BASE_URL`, `RUMPTY_AI_KEY`, `RUMPTY_AI_MODEL`, from the AI Inference tab
 4. The schema and seed data are created automatically on startup, so a manual
    `init_db` step is no longer required. To confirm the app can reach its
-   database, call `GET /health/db` — it returns `200 {"status":"ok"...}` when the
+   database, call `GET /health/db`, it returns `200 {"status":"ok"...}` when the
    DB is reachable and initialised, or `503` with the actual error otherwise.
 
 ### Sign in with Google
@@ -145,7 +145,7 @@ This uses the **server-side redirect** flow, not Google's JavaScript button. The
 browser is sent to `accounts.google.com`, and Google returns it to
 `/api/auth/google/callback` with a one-time code that *our server* exchanges for
 the user's identity. Done this way, no Google script ever runs in our page and
-no Google cookie is set on our domain — which is what keeps the privacy policy's
+no Google cookie is set on our domain, which is what keeps the privacy policy's
 "no external scripts load on the page at all" true.
 
 In the Google Cloud console, create an OAuth 2.0 client of type **Web
@@ -157,7 +157,7 @@ https://www.tenura.online/api/auth/google/callback
 
 (A *JavaScript origin* is not used by this flow.) The URI is derived from the
 hostname the visitor arrived on, so **each hostname the app is served from needs
-its own entry** — both `www.tenura.online` and the `*.rumptycloud.app` address.
+its own entry**, both `www.tenura.online` and the `*.rumptycloud.app` address.
 Alternatively pin one with `GOOGLE_REDIRECT_URI`, which is only safe if every
 hostname points at that same value.
 
@@ -168,7 +168,7 @@ What the code guarantees:
   user sets one through "Forgot password";
 - signing in with Google on an address that already has an email/password
   account **links** the two and marks it verified, because Google has already
-  proved the address — the existing password keeps working;
+  proved the address, the existing password keeps working;
 - an account is matched by Google's stable account id first and by verified
   email second; Google must report `email_verified`, so a token claiming an
   unverified address is refused;
@@ -197,10 +197,10 @@ Full stack traces are always logged server-side.
 Before anything is analysed, `app/services/document_classifier.py` decides what
 the input actually is, for every path (paste, PDF, image, `.txt`, `.docx`):
 
-- `tenancy_agreement` — proceed with the clause analysis.
-- `not_tenancy_agreement` — e.g. a receipt, ID card, chat, photo or another
+- `tenancy_agreement`, proceed with the clause analysis.
+- `not_tenancy_agreement`, e.g. a receipt, ID card, chat, photo or another
   contract type.
-- `unreadable` — too blurry/dark or too little text to judge.
+- `unreadable`, too blurry/dark or too little text to judge.
 
 Most inputs are decided deterministically (text volume + tenancy keywords), so a
 clear lease or a clear non-lease costs **no extra AI call**. Two rules keep that
@@ -248,11 +248,11 @@ the document-type gate it decides the jurisdiction
 (`app/services/jurisdiction.py`) and **never silently judges a foreign
 agreement with Nigerian rules**:
 
-- `NG-LA`, `NG-FC`, `NG-<CODE>`, `NG-UNKNOWN` — Nigerian; judged with the NG
+- `NG-LA`, `NG-FC`, `NG-<CODE>`, `NG-UNKNOWN`, Nigerian; judged with the NG
   norm pack.
-- `NON_NG` — clearly from another country. A **clean 200**
+- `NON_NG`, clearly from another country. A **clean 200**
   (`"status": "out_of_scope"`) with no analysis and **nothing stored**.
-- `UNKNOWN` — not enough signal. A **clean 200**
+- `UNKNOWN`, not enough signal. A **clean 200**
   (`"status": "needs_jurisdiction"`) asking the user to name the Nigerian state
   or show the rent in naira.
 
@@ -270,10 +270,10 @@ the agreement's clauses that actually got a verdict. The risk band is derived
 deterministically from the flagged/missing counts **and the coverage**
 (`app/services/scoring.py`): a run that checked too little, or whose model calls
 failed, is reported as **`unknown` / "Review needed"** with a plain-language
-coverage note — it is **never** shown as "low risk". Sufficiently covered runs
+coverage note, it is **never** shown as "low risk". Sufficiently covered runs
 band as low / moderate / high.
 
-### Where the norms come from — and what they are not
+### Where the norms come from, and what they are not
 
 The norms in `clause_reference` are seeded with `legal_basis = "market_norm"`:
 they state **common practice in the Nigerian rental market, not the law**. Their
@@ -357,7 +357,7 @@ around it:
   unverified or already registered;
 - a wrong code and an unknown address return byte-for-byte the same error;
 - the right code verifies the account and signs the user in;
-- a signed-in analysis is saved, listed, opened, renamed and deleted — and
+- a signed-in analysis is saved, listed, opened, renamed and deleted, and
   deleting it removes the agreement text from the database;
 - another account gets a `404` for all four operations on it;
 - passwords are stored as argon2id, never in plain text;
@@ -437,7 +437,7 @@ app/
   static/signup.html/.js      - Create account + enter code
   static/login.html/.js       - Log in, forgot password, verify, reset
   static/history.html/.js     - Saved analyses: list, detail, rename, delete
-  static/privacy.html         - Privacy Policy page (generated — see docs/legal)
+  static/privacy.html         - Privacy Policy page (generated, see docs/legal)
   static/terms.html           - Terms of Service page (generated)
 tests/
   conftest.py                  - shared fixtures (client, make_user, captured_email)
@@ -479,7 +479,7 @@ ruff check app tests/unit tests/integration tests/conftest.py
   afterwards.
 - **Accounts** (email + password + a 6-digit code) with a private **history**:
   analyses run while signed in are saved automatically, listed newest first, and
-  can be renamed or deleted — deleting removes the agreement text too. Only a
+  can be renamed or deleted, deleting removes the agreement text too. Only a
   signed-in owner can reach their own records.
 - A document-type gate runs first: non-tenancy inputs (receipts, photos, other
   contracts) and unreadable files are rejected with a friendly notice instead of
@@ -492,16 +492,16 @@ ruff check app tests/unit tests/integration tests/conftest.py
 - Outputs: flagged clauses, missing protections, and questions to ask before
   signing. Missing protections and questions are derived deterministically
   (`app/services/protections.py`) from which clause types were matched and
-  which were flagged — no extra AI calls.
+  which were flagged, no extra AI calls.
 - Flags come from two sources: deterministic **rules** (`red_flags.py`, shown as
   "[flagged by rule]") which are certain, and the **AI** for everything else
-  (shown as "[AI suggestion — worth a manual check]"). A rule match skips the
+  (shown as "[AI suggestion, worth a manual check]"). A rule match skips the
   AI call for that clause.
 - Uploads are turned into text by `app/services/extractor.py`: `pypdf` for the
   PDF text layer, `python-docx` for Word documents, and Tesseract OCR for
   images. Scanned PDFs with no text layer are rasterised with `pypdfium2` and
   OCR'd too (capped at the first 25 pages). Photos of agreements work via OCR.
-  Legacy `.doc` files are not supported — save them as `.docx` or PDF first.
+  Legacy `.doc` files are not supported, save them as `.docx` or PDF first.
 
 ### Supported upload formats
 
@@ -531,7 +531,7 @@ The privacy policy and terms of service are served by the app at `/privacy` and
 `/terms`, and linked from the footer of the main page.
 
 The Markdown in `docs/legal/` is the single source. The HTML the app serves is
-generated from it — edit the Markdown, never the HTML:
+generated from it, edit the Markdown, never the HTML:
 
 ```bash
 python scripts/build_legal_pages.py
@@ -540,12 +540,12 @@ python scripts/build_legal_pages.py
 Both documents describe what the code actually does (which clauses reach the AI,
 what is stored, that rejected uploads are dropped), so they need updating when
 that behaviour changes. `docs/legal/README.md` lists what is still to be filled
-in — the registered address, where the hosting and AI providers actually run —
+in, the registered address, where the hosting and AI providers actually run,
 and flags that neither document has been reviewed by a lawyer yet.
 
 ## Status
 
-🚧 In active development — Devcenter Hacktober sprint, Oct 1-31 2026.
+🚧 In active development.
 Weeks 1–3 complete: flagged clauses, missing protections + questions, and
 PDF/image/text upload. Accounts, one-time-code sign-in and per-user analysis
 history are now in place, with the guest flow unchanged: analyse without an

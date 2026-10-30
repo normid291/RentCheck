@@ -585,7 +585,7 @@
   function renderFlagged() {
     if (!lastFlagged.length) {
       els.flaggedList.innerHTML =
-        '<div class="empty">No flagged clauses found — the clauses we checked look broadly reasonable.</div>';
+        '<div class="empty">No flagged clauses found. The clauses we checked look broadly reasonable.</div>';
       return;
     }
     const shown =
@@ -618,7 +618,7 @@
 
   function extractChecked(summary) {
     const m = /of\s+(\d+)\s+checked/i.exec(summary || "");
-    return m ? m[1] : "—";
+    return m ? m[1] : "-";
   }
 
   /* ---------- run ---------- */

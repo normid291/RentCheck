@@ -48,7 +48,7 @@ SHELL = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>__TITLE__ — Tenura</title>
+  <title>__TITLE__ | Tenura</title>
   <meta name="description" content="__DESC__" />
   <meta name="theme-color" content="#0f4c6b" />
   <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
@@ -92,7 +92,7 @@ __BODY__
         for advice from a qualified lawyer.
       </div>
       <div class="footer-row">
-        <span>Tenura — built for the Devcenter Hacktober sprint.</span>
+        <span>Tenura.</span>
         <span class="footer-links">
           <a href="/privacy">Privacy Policy</a>
           <a href="/terms">Terms of Service</a>

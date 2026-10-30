@@ -253,12 +253,12 @@ def _legal_page(request: Request, filename: str, title: str, app_key: str):
 
 @app.get("/privacy", include_in_schema=False)
 def privacy_policy(request: Request):
-    return _legal_page(request, "privacy.html", "Privacy Policy — Tenura", "privacy")
+    return _legal_page(request, "privacy.html", "Privacy Policy | Tenura", "privacy")
 
 
 @app.get("/terms", include_in_schema=False)
 def terms_of_service(request: Request):
-    return _legal_page(request, "terms.html", "Terms of Service — Tenura", "terms")
+    return _legal_page(request, "terms.html", "Terms of Service | Tenura", "terms")
 
 
 # Page routing. Public pages are for signed-out visitors only; the app routes

@@ -230,7 +230,7 @@
 
   function coverageCell(a) {
     var c = a.coverage;
-    if (c === null || c === undefined || isNaN(Number(c))) return "—";
+    if (c === null || c === undefined || isNaN(Number(c))) return "-";
     return Math.round(Number(c) * 100) + "%";
   }
 
@@ -267,7 +267,7 @@
           '<td><span class="value-chip">' + (Number(a.risk_score) || 0) + "</span></td>" +
           "<td>" + (Number(a.flagged_count) || 0) + "</td>" +
           "<td>" + (Number(a.missing_count) || 0) + "</td>" +
-          '<td><span class="tag t-plain">' + esc(a.jurisdiction || "—") + "</span></td>" +
+          '<td><span class="tag t-plain">' + esc(a.jurisdiction || "-") + "</span></td>" +
           "<td>" + esc(Tenura.formatDate(a.created_at)) + "</td>" +
           "<td>" + coverageCell(a) + "</td>" +
           "</tr>"

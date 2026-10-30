@@ -1,24 +1,24 @@
 # Tenura Terms of Service
 
-**Version 1.4 — last updated 29 October 2026**
+**Version 1.4, last updated 29 October 2026**
 
 These Terms govern your use of Tenura. By using the Service you agree to
 them. If you do not agree, please do not use it.
 
 Our [Privacy Policy](/privacy) explains how we handle your document and is part
-of these Terms — please read it alongside them.
+of these Terms; please read it alongside them.
 
 ## 1. Who we are
 
 Tenura (the "Service") is operated by **NORMID INC** ("we", "us", "our").
 You can contact us at **privacy@tenura.online**.
 
-## 2. What Tenura is — and what it is not
+## 2. What Tenura is, and what it is not
 
 Tenura reads a tenancy agreement and gives you back:
 
 - **Flagged clauses**, each with the words in the agreement that caused the flag.
-- **Missing protections** — protections a Nigerian tenancy would usually have
+- **Missing protections**: protections a Nigerian tenancy would usually have
   and this one appears to lack.
 - **Questions to ask** before you sign.
 - A **risk band** (low, moderate, high, or "Review needed"), a coverage figure
@@ -26,7 +26,7 @@ Tenura reads a tenancy agreement and gives you back:
 
 Tenura reviews **Nigerian** tenancy agreements. If an agreement is clearly from
 another country, or we cannot tell which country it is from, we will say so and
-will not analyse it against Nigerian norms — judging a foreign agreement by
+will not analyse it against Nigerian norms; judging a foreign agreement by
 Nigerian rules would be misleading.
 
 ### It is not legal advice
@@ -44,9 +44,9 @@ Some specific consequences:
   does not mean an agreement is safe.
 - Flags come from two sources. Ones marked **"[flagged by rule]"** come from
   fixed rules in our code and are certain about what they detect. Ones marked
-  **"[AI suggestion — worth a manual check]"** come from an AI model, are
+  **"[AI suggestion, worth a manual check]"** come from an AI model, are
   verified only to the extent that the quoted words really appear in your
-  agreement, and **may be wrong** — either pointing at something that is
+  agreement, and **may be wrong**: either pointing at something that is
   actually fine, or missing something that is not.
 - Our reference points describe **common practice in the Nigerian rental
   market**. They are labelled as market practice, **not as statements of law**,
@@ -55,8 +55,8 @@ Some specific consequences:
   change in the law.
 - When we could only check part of an agreement, we will say so and label the
   result "Review needed". We do not present a thin analysis as low risk.
-- For anything that matters — a large deposit, an unusual term, a dispute with a
-  landlord — **speak to a qualified lawyer**.
+- For anything that matters (a large deposit, an unusual term, a dispute with a
+  landlord), **speak to a qualified lawyer**.
 
 You are responsible for the decision you make about your agreement. We give you
 a reading aid, not a verdict.
@@ -103,13 +103,13 @@ this section.
 claim no ownership of it.
 
 To provide the Service, you give us permission to process the document you
-submit — including extracting text from it, storing that text, analysing it, and
+submit (including extracting text from it, storing that text, analysing it, and
 sending selected parts of it to our AI provider as described in the
-[Privacy Policy](/privacy). That permission is limited to operating and
+[Privacy Policy](/privacy)). That permission is limited to operating and
 improving the Service for you, and it ends when the data is deleted.
 
 You confirm that you have the right to submit the document, and to let us
-process any personal data it contains — including other people's — in the way
+process any personal data it contains (including other people's) in the way
 the Privacy Policy describes.
 
 ## 7. Accuracy, and no warranty
@@ -153,8 +153,8 @@ liable to you for any change, suspension or discontinuation.
 
 ## 10. Intellectual property
 
-The Service itself — its name, brand, design, code, reference norms and
-documentation — belongs to NORMID INC or its licensors. You may not copy,
+The Service itself (its name, brand, design, code, reference norms and
+documentation) belongs to NORMID INC or its licensors. You may not copy,
 reuse or display our brand or content without our written permission. Nothing in
 these Terms transfers any of those rights to you.
 
@@ -186,7 +186,7 @@ the courts of Nigeria have exclusive jurisdiction over any dispute arising from
 them or from the Service.
 
 Before going to court, please contact us at
-**privacy@tenura.online** — most issues are easier to resolve directly.
+**privacy@tenura.online**; most issues are easier to resolve directly.
 
 ## 14. Changes to these Terms
 
@@ -207,6 +207,6 @@ to use the Service after a change means you accept the updated Terms.
 
 ## 16. Contact
 
-**NORMID INC** — privacy@tenura.online — FJQG+XWH Oke Ogun, Ilorin, Kwara State, Nigeria
+**NORMID INC** · privacy@tenura.online · FJQG+XWH Oke Ogun, Ilorin, Kwara State, Nigeria
 
 See also our [Privacy Policy](/privacy).
