@@ -5,65 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Your profile — Tenura</title>
   <meta name="robots" content="noindex" />
-  <meta name="theme-color" content="#2f5cf6" />
+  <meta name="theme-color" content="#f3f4f6" />
   <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/app.css" />
 </head>
-<body>
-  <header class="nav">
-    <div class="wrap nav-inner">
-      <a class="brand" href="/">
-        <img class="brand-logo" src="/tenura-logo.png" alt="Tenura" width="119" height="30" />
-      </a>
-      <span class="nav-spacer"></span>
-      <div class="auth-slot" id="authSlot"></div>
-    </div>
-  </header>
+<body data-app="profile">
+  <div class="app">
+    <aside class="sidebar" data-shell="sidebar"></aside>
 
-  <main class="wrap">
-    <section class="profile">
-      <div class="profile-head">
-        <h1>Your profile</h1>
-        <p class="auth-sub">Your account details, and how you sign in to Tenura.</p>
-      </div>
+    <div class="main-col">
+      <header class="topbar" data-shell="topbar"></header>
 
-      <div id="profileRoot" aria-live="polite">
-        <!-- Skeleton, replaced once the session is known. -->
-        <div class="panel profile-card skeleton-card" aria-hidden="true">
-          <span class="sk sk-avatar"></span>
-          <div class="sk-lines">
-            <span class="sk sk-line" style="width: 40%"></span>
-            <span class="sk sk-line" style="width: 62%"></span>
+      <main class="page">
+        <section class="profile">
+          <div class="page-head">
+            <div>
+              <h1>Profile</h1>
+              <p class="page-sub">Your account details, and how you sign in to Tenura.</p>
+            </div>
           </div>
-        </div>
-        <div class="panel profile-card skeleton-card" aria-hidden="true" style="margin-top: 16px">
-          <div class="sk-lines">
-            <span class="sk sk-line" style="width: 30%"></span>
-            <span class="sk sk-line" style="width: 78%"></span>
-            <span class="sk sk-line" style="width: 55%"></span>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
 
-  <footer class="footer">
-    <div class="wrap">
-      <div class="disclaimer">
-        <strong>Not legal advice.</strong> Tenura provides general information about
-        common rental practices to help you read an agreement. It is not a substitute
-        for advice from a qualified lawyer.
-      </div>
-      <div class="footer-row">
-        <span>Tenura — built for the Devcenter Hacktober sprint.</span>
-        <span class="footer-links">
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/terms">Terms of Service</a>
-        </span>
-      </div>
+          <div id="profileRoot" aria-live="polite">
+            <!-- Skeleton, replaced once the session is known. -->
+            <div class="panel profile-card skeleton-card" aria-hidden="true">
+              <span class="sk sk-avatar"></span>
+              <div class="sk-lines">
+                <span class="sk sk-line" style="width: 40%"></span>
+                <span class="sk sk-line" style="width: 62%"></span>
+              </div>
+            </div>
+            <div class="panel profile-card skeleton-card" aria-hidden="true" style="margin-top: 16px">
+              <div class="sk-lines">
+                <span class="sk sk-line" style="width: 30%"></span>
+                <span class="sk sk-line" style="width: 78%"></span>
+                <span class="sk sk-line" style="width: 55%"></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <footer class="app-foot">
+          <p><strong>Not legal advice.</strong> Tenura provides general information about
+          common rental practices to help you read an agreement. It is not a substitute
+          for advice from a qualified lawyer.</p>
+          <p>Tenura — built for the Devcenter Hacktober sprint ·
+            <a href="/privacy">Privacy Policy</a> ·
+            <a href="/terms">Terms of Service</a></p>
+        </footer>
+      </main>
     </div>
-  </footer>
+  </div>
 
   <script src="/common.js"></script>
   <script src="/profile.js"></script>

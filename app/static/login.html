@@ -5,167 +5,179 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Log in — Tenura</title>
   <meta name="description" content="Log in to Tenura to see the tenancy agreements you have analysed." />
-  <meta name="theme-color" content="#2f5cf6" />
+  <meta name="theme-color" content="#f3f4f6" />
   <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/app.css" />
 </head>
 <body>
-  <header class="nav">
-    <div class="wrap nav-inner">
-      <a class="brand" href="/">
-        <img class="brand-logo" src="/tenura-logo.png" alt="Tenura" width="119" height="30" />
-      </a>
-      <span class="nav-spacer"></span>
-      <div class="auth-slot" id="authSlot"></div>
-    </div>
-  </header>
+  <div class="auth-shell">
+    <div class="auth-pane">
+      <div class="auth-inner">
+        <a class="auth-brand" href="/">
+          <img src="/tenura-logo.png" alt="Tenura" width="119" height="30" />
+        </a>
 
-  <main class="wrap">
-    <section class="auth">
-      <div class="panel auth-card">
-        <!-- Log in -->
-        <div id="view-login">
-          <h1>Log in</h1>
-          <p class="auth-sub">See the tenancy agreements you have analysed.</p>
+        <section class="auth">
+          <div class="auth-card">
+            <!-- Log in -->
+            <div id="view-login">
+              <h1>Log in</h1>
+              <p class="auth-sub">See the tenancy agreements you have analysed.</p>
 
-          <!-- Shown only when the server reports Google sign-in is configured. -->
-          <div class="auth-google" id="googleWrap" hidden>
-            <button class="btn btn-google auth-submit" id="googleBtn" type="button">
-              <span class="google-mark" aria-hidden="true">
-                <svg viewBox="0 0 18 18" width="18" height="18">
-                  <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
-                  <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
-                  <path fill="#FBBC05" d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/>
-                  <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
-                </svg>
-              </span>
-              <span id="googleLabel">Continue with Google</span>
-            </button>
-            <div class="auth-divider"><span>or</span></div>
-          </div>
+              <!-- Shown only when the server reports Google sign-in is configured. -->
+              <div class="auth-google" id="googleWrap" hidden>
+                <button class="btn btn-google auth-submit" id="googleBtn" type="button">
+                  <span class="google-mark" aria-hidden="true">
+                    <svg viewBox="0 0 18 18" width="18" height="18">
+                      <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
+                      <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
+                      <path fill="#FBBC05" d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/>
+                      <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
+                    </svg>
+                  </span>
+                  <span id="googleLabel">Continue with Google</span>
+                </button>
+                <div class="auth-divider"><span>or</span></div>
+              </div>
 
-          <form id="loginForm" novalidate>
-            <label class="field" for="email">
-              <span class="field-label">Email</span>
-              <input type="email" id="email" name="email" autocomplete="email"
-                     inputmode="email" required aria-describedby="loginError" />
-            </label>
+              <form id="loginForm" novalidate>
+                <label class="field" for="email">
+                  <span class="field-label">Email</span>
+                  <input type="email" id="email" name="email" autocomplete="email"
+                         inputmode="email" required aria-describedby="loginError" />
+                </label>
 
-            <label class="field" for="password">
-              <span class="field-label">Password</span>
-              <input type="password" id="password" name="password"
-                     autocomplete="current-password" required aria-describedby="loginError" />
-            </label>
+                <label class="field" for="password">
+                  <span class="field-label">Password</span>
+                  <input type="password" id="password" name="password"
+                         autocomplete="current-password" required aria-describedby="loginError" />
+                </label>
 
-            <p class="form-error" id="loginError" role="alert" hidden></p>
+                <p class="form-error" id="loginError" role="alert" hidden></p>
 
-            <button class="btn btn-primary auth-submit" id="loginBtn" type="submit">
-              <span class="btn-spinner" id="loginSpinner" aria-hidden="true" hidden></span>
-              <span id="loginLabel">Log in</span>
-            </button>
-          </form>
+                <button class="btn btn-primary auth-submit" id="loginBtn" type="submit">
+                  <span class="btn-spinner" id="loginSpinner" aria-hidden="true" hidden></span>
+                  <span id="loginLabel">Log in</span>
+                </button>
+              </form>
 
-          <!-- Shown only when the server says the account is not verified yet. -->
-          <p class="verify-prompt" id="verifyPrompt" hidden>
-            <button class="link-btn" id="sendVerifyBtn" type="button">Send me a verification code</button>
-          </p>
+              <!-- Shown only when the server says the account is not verified yet. -->
+              <p class="verify-prompt" id="verifyPrompt" hidden>
+                <button class="link-btn" id="sendVerifyBtn" type="button">Send me a verification code</button>
+              </p>
 
-          <p class="auth-alt">
-            <button class="link-btn" id="forgotBtn" type="button">Forgot password?</button>
-          </p>
-          <p class="auth-alt">New to Tenura? <a href="/signup">Create an account</a></p>
-        </div>
-
-        <!-- Forgot: ask for the email -->
-        <div id="view-forgot" hidden>
-          <h1>Reset your password</h1>
-          <p class="auth-sub">
-            Enter your email and we'll send you a 6-digit code to set a new password.
-          </p>
-
-          <form id="forgotForm" novalidate>
-            <label class="field" for="forgotEmail">
-              <span class="field-label">Email</span>
-              <input type="email" id="forgotEmail" name="forgotEmail" autocomplete="email"
-                     inputmode="email" required aria-describedby="forgotError" />
-            </label>
-
-            <p class="form-error" id="forgotError" role="alert" hidden></p>
-
-            <button class="btn btn-primary auth-submit" id="forgotBtn2" type="submit">
-              <span class="btn-spinner" id="forgotSpinner" aria-hidden="true" hidden></span>
-              <span id="forgotLabel">Send reset code</span>
-            </button>
-          </form>
-
-          <p class="auth-alt"><button class="link-btn" id="backToLogin" type="button">Back to log in</button></p>
-        </div>
-
-        <!-- Code entry. Used for two things: finishing an unverified login, and
-             completing a password reset (which also asks for the new password). -->
-        <div id="view-code" hidden>
-          <h1 id="codeTitle">Enter your code</h1>
-          <p class="auth-sub">We sent a 6-digit code to <strong id="codeEmail"></strong>.</p>
-
-          <form id="codeForm" novalidate>
-            <label class="field" for="code">
-              <span class="field-label">6-digit code</span>
-              <input type="text" id="code" name="code" class="otp-input"
-                     inputmode="numeric" autocomplete="one-time-code"
-                     maxlength="6" pattern="[0-9]*" required aria-describedby="codeError" />
-            </label>
-
-            <div id="newPasswordWrap" hidden>
-              <label class="field" for="newPassword">
-                <span class="field-label">New password</span>
-                <input type="password" id="newPassword" name="newPassword"
-                       autocomplete="new-password" minlength="8"
-                       aria-describedby="passwordHint codeError" />
-                <span class="field-hint" id="passwordHint">At least 8 characters.</span>
-              </label>
-              <label class="field" for="newConfirm">
-                <span class="field-label">Confirm new password</span>
-                <input type="password" id="newConfirm" name="newConfirm"
-                       autocomplete="new-password" aria-describedby="codeError" />
-              </label>
+              <p class="auth-alt">
+                <button class="link-btn" id="forgotBtn" type="button">Forgot password?</button>
+              </p>
+              <p class="auth-alt">New to Tenura? <a href="/signup">Create an account</a></p>
             </div>
 
-            <p class="form-error" id="codeError" role="alert" hidden></p>
+            <!-- Forgot: ask for the email -->
+            <div id="view-forgot" hidden>
+              <h1>Reset your password</h1>
+              <p class="auth-sub">
+                Enter your email and we'll send you a 6-digit code to set a new password.
+              </p>
 
-            <button class="btn btn-primary auth-submit" id="codeBtn" type="submit">
-              <span class="btn-spinner" id="codeSpinner" aria-hidden="true" hidden></span>
-              <span id="codeLabel">Continue</span>
-            </button>
-          </form>
+              <form id="forgotForm" novalidate>
+                <label class="field" for="forgotEmail">
+                  <span class="field-label">Email</span>
+                  <input type="email" id="forgotEmail" name="forgotEmail" autocomplete="email"
+                         inputmode="email" required aria-describedby="forgotError" />
+                </label>
 
-          <p class="auth-alt">
-            Didn't get it?
-            <button class="link-btn" id="resendBtn" type="button">Resend code</button>
-            <span class="resend-hint" id="resendHint" hidden></span>
-          </p>
-          <p class="auth-alt"><button class="link-btn" id="codeBack" type="button">Start over</button></p>
-        </div>
-      </div>
-    </section>
-  </main>
+                <p class="form-error" id="forgotError" role="alert" hidden></p>
 
-  <footer class="footer">
-    <div class="wrap">
-      <div class="disclaimer">
-        <strong>Not legal advice.</strong> Tenura provides general information about
-        common rental practices to help you read an agreement. It is not a substitute
-        for advice from a qualified lawyer.
-      </div>
-      <div class="footer-row">
-        <span>Tenura — built for the Devcenter Hacktober sprint.</span>
-        <span class="footer-links">
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/terms">Terms of Service</a>
-        </span>
+                <button class="btn btn-primary auth-submit" id="forgotBtn2" type="submit">
+                  <span class="btn-spinner" id="forgotSpinner" aria-hidden="true" hidden></span>
+                  <span id="forgotLabel">Send reset code</span>
+                </button>
+              </form>
+
+              <p class="auth-alt"><button class="link-btn" id="backToLogin" type="button">Back to log in</button></p>
+            </div>
+
+            <!-- Code entry. Used for two things: finishing an unverified login, and
+                 completing a password reset (which also asks for the new password). -->
+            <div id="view-code" hidden>
+              <h1 id="codeTitle">Enter your code</h1>
+              <p class="auth-sub">We sent a 6-digit code to <strong id="codeEmail"></strong>.</p>
+
+              <form id="codeForm" novalidate>
+                <label class="field" for="code">
+                  <span class="field-label">6-digit code</span>
+                  <input type="text" id="code" name="code" class="otp-input"
+                         inputmode="numeric" autocomplete="one-time-code"
+                         maxlength="6" pattern="[0-9]*" required aria-describedby="codeError" />
+                </label>
+
+                <div id="newPasswordWrap" hidden>
+                  <label class="field" for="newPassword">
+                    <span class="field-label">New password</span>
+                    <input type="password" id="newPassword" name="newPassword"
+                           autocomplete="new-password" minlength="8"
+                           aria-describedby="passwordHint codeError" />
+                    <span class="field-hint" id="passwordHint">At least 8 characters.</span>
+                  </label>
+                  <label class="field" for="newConfirm">
+                    <span class="field-label">Confirm new password</span>
+                    <input type="password" id="newConfirm" name="newConfirm"
+                           autocomplete="new-password" aria-describedby="codeError" />
+                  </label>
+                </div>
+
+                <p class="form-error" id="codeError" role="alert" hidden></p>
+
+                <button class="btn btn-primary auth-submit" id="codeBtn" type="submit">
+                  <span class="btn-spinner" id="codeSpinner" aria-hidden="true" hidden></span>
+                  <span id="codeLabel">Continue</span>
+                </button>
+              </form>
+
+              <p class="auth-alt">
+                Didn't get it?
+                <button class="link-btn" id="resendBtn" type="button">Resend code</button>
+                <span class="resend-hint" id="resendHint" hidden></span>
+              </p>
+              <p class="auth-alt"><button class="link-btn" id="codeBack" type="button">Start over</button></p>
+            </div>
+          </div>
+        </section>
+
+        <p class="auth-footnote">
+          <strong>Not legal advice.</strong> Tenura gives general information about common
+          rental practices. · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
+        </p>
       </div>
     </div>
-  </footer>
+
+    <aside class="auth-aside">
+      <span class="aa-glow g1"></span>
+      <span class="aa-glow g2"></span>
+      <p class="aa-eyebrow">Tenura</p>
+      <h2>Understand the agreement before you sign it.</h2>
+      <p>
+        Paste a tenancy agreement and Tenura reads it for you — the risky clauses, the
+        missing protections, and the questions worth asking your landlord.
+      </p>
+      <ul class="aa-points">
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4 10-10"/></svg>
+          <span>Plain-language explanations, tied to your document — no jargon.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4 10-10"/></svg>
+          <span>Built around the Nigerian Tenancy Law, not generic templates.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4 10-10"/></svg>
+          <span>Your agreement stays private to you, and you can delete it anytime.</span>
+        </li>
+      </ul>
+    </aside>
+  </div>
 
   <script src="/common.js"></script>
   <script src="/login.js"></script>

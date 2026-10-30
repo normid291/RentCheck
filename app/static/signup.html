@@ -5,140 +5,152 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Create your account — Tenura</title>
   <meta name="description" content="Create a free Tenura account to save your tenancy agreement analyses and come back to them later." />
-  <meta name="theme-color" content="#2f5cf6" />
+  <meta name="theme-color" content="#f3f4f6" />
   <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/app.css" />
 </head>
 <body>
-  <header class="nav">
-    <div class="wrap nav-inner">
-      <a class="brand" href="/">
-        <img class="brand-logo" src="/tenura-logo.png" alt="Tenura" width="119" height="30" />
-      </a>
-      <span class="nav-spacer"></span>
-      <div class="auth-slot" id="authSlot"></div>
-    </div>
-  </header>
+  <div class="auth-shell">
+    <div class="auth-pane">
+      <div class="auth-inner">
+        <a class="auth-brand" href="/">
+          <img src="/tenura-logo.png" alt="Tenura" width="119" height="30" />
+        </a>
 
-  <main class="wrap">
-    <section class="auth">
-      <div class="panel auth-card">
-        <!-- Step 1: the form -->
-        <div id="view-signup">
-          <h1>Create your account</h1>
-          <p class="auth-sub">
-            Free. Analyses you save are private to you, and you can delete any of
-            them at any time.
-          </p>
+        <section class="auth">
+          <div class="auth-card">
+            <!-- Step 1: the form -->
+            <div id="view-signup">
+              <h1>Create your account</h1>
+              <p class="auth-sub">
+                Free. Analyses you save are private to you, and you can delete any of
+                them at any time.
+              </p>
 
-          <!-- Shown only when the server reports Google sign-in is configured. -->
-          <div class="auth-google" id="googleWrap" hidden>
-            <button class="btn btn-google auth-submit" id="googleBtn" type="button">
-              <span class="google-mark" aria-hidden="true">
-                <svg viewBox="0 0 18 18" width="18" height="18">
-                  <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
-                  <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
-                  <path fill="#FBBC05" d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/>
-                  <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
-                </svg>
-              </span>
-              <span id="googleLabel">Continue with Google</span>
-            </button>
-            <div class="auth-divider"><span>or</span></div>
+              <!-- Shown only when the server reports Google sign-in is configured. -->
+              <div class="auth-google" id="googleWrap" hidden>
+                <button class="btn btn-google auth-submit" id="googleBtn" type="button">
+                  <span class="google-mark" aria-hidden="true">
+                    <svg viewBox="0 0 18 18" width="18" height="18">
+                      <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
+                      <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
+                      <path fill="#FBBC05" d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/>
+                      <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
+                    </svg>
+                  </span>
+                  <span id="googleLabel">Continue with Google</span>
+                </button>
+                <div class="auth-divider"><span>or</span></div>
+              </div>
+
+              <form id="signupForm" novalidate>
+                <label class="field" for="email">
+                  <span class="field-label">Email</span>
+                  <input type="email" id="email" name="email" autocomplete="email"
+                         inputmode="email" required aria-describedby="signupError" />
+                </label>
+
+                <label class="field" for="password">
+                  <span class="field-label">Password</span>
+                  <input type="password" id="password" name="password"
+                         autocomplete="new-password" required minlength="8"
+                         aria-describedby="passwordHint signupError" />
+                  <span class="field-hint" id="passwordHint">At least 8 characters.</span>
+                </label>
+
+                <label class="field" for="confirm">
+                  <span class="field-label">Confirm password</span>
+                  <input type="password" id="confirm" name="confirm"
+                         autocomplete="new-password" required aria-describedby="signupError" />
+                </label>
+
+                <p class="form-error" id="signupError" role="alert" hidden></p>
+
+                <button class="btn btn-primary auth-submit" id="signupBtn" type="submit">
+                  <span class="btn-spinner" id="signupSpinner" aria-hidden="true" hidden></span>
+                  <span id="signupLabel">Create account</span>
+                </button>
+              </form>
+
+              <p class="auth-alt">Already have an account? <a href="/login">Log in</a></p>
+              <p class="auth-legal">
+                By creating an account you agree to our
+                <a href="/terms">Terms of Service</a> and
+                <a href="/privacy">Privacy Policy</a>.
+              </p>
+            </div>
+
+            <!-- Step 2: the code -->
+            <div id="view-otp" hidden>
+              <h1>Check your email</h1>
+              <p class="auth-sub">
+                We sent a 6-digit code to <strong id="otpEmail"></strong>. It expires in
+                10 minutes.
+              </p>
+
+              <form id="otpForm" novalidate>
+                <label class="field" for="code">
+                  <span class="field-label">6-digit code</span>
+                  <input type="text" id="code" name="code" class="otp-input"
+                         inputmode="numeric" autocomplete="one-time-code"
+                         maxlength="6" pattern="[0-9]*" required
+                         aria-describedby="otpError" />
+                </label>
+
+                <p class="form-error" id="otpError" role="alert" hidden></p>
+
+                <button class="btn btn-primary auth-submit" id="verifyBtn" type="submit">
+                  <span class="btn-spinner" id="verifySpinner" aria-hidden="true" hidden></span>
+                  <span id="verifyLabel">Verify and continue</span>
+                </button>
+              </form>
+
+              <p class="auth-alt">
+                Didn't get it?
+                <button class="link-btn" id="resendBtn" type="button">Resend code</button>
+                <span class="resend-hint" id="resendHint" hidden></span>
+              </p>
+              <p class="auth-alt">
+                <button class="link-btn" id="changeEmail" type="button">Use a different email</button>
+              </p>
+            </div>
           </div>
+        </section>
 
-          <form id="signupForm" novalidate>
-            <label class="field" for="email">
-              <span class="field-label">Email</span>
-              <input type="email" id="email" name="email" autocomplete="email"
-                     inputmode="email" required aria-describedby="signupError" />
-            </label>
-
-            <label class="field" for="password">
-              <span class="field-label">Password</span>
-              <input type="password" id="password" name="password"
-                     autocomplete="new-password" required minlength="8"
-                     aria-describedby="passwordHint signupError" />
-              <span class="field-hint" id="passwordHint">At least 8 characters.</span>
-            </label>
-
-            <label class="field" for="confirm">
-              <span class="field-label">Confirm password</span>
-              <input type="password" id="confirm" name="confirm"
-                     autocomplete="new-password" required aria-describedby="signupError" />
-            </label>
-
-            <p class="form-error" id="signupError" role="alert" hidden></p>
-
-            <button class="btn btn-primary auth-submit" id="signupBtn" type="submit">
-              <span class="btn-spinner" id="signupSpinner" aria-hidden="true" hidden></span>
-              <span id="signupLabel">Create account</span>
-            </button>
-          </form>
-
-          <p class="auth-alt">Already have an account? <a href="/login">Log in</a></p>
-          <p class="auth-legal">
-            By creating an account you agree to our
-            <a href="/terms">Terms of Service</a> and
-            <a href="/privacy">Privacy Policy</a>.
-          </p>
-        </div>
-
-        <!-- Step 2: the code -->
-        <div id="view-otp" hidden>
-          <h1>Check your email</h1>
-          <p class="auth-sub">
-            We sent a 6-digit code to <strong id="otpEmail"></strong>. It expires in
-            10 minutes.
-          </p>
-
-          <form id="otpForm" novalidate>
-            <label class="field" for="code">
-              <span class="field-label">6-digit code</span>
-              <input type="text" id="code" name="code" class="otp-input"
-                     inputmode="numeric" autocomplete="one-time-code"
-                     maxlength="6" pattern="[0-9]*" required
-                     aria-describedby="otpError" />
-            </label>
-
-            <p class="form-error" id="otpError" role="alert" hidden></p>
-
-            <button class="btn btn-primary auth-submit" id="verifyBtn" type="submit">
-              <span class="btn-spinner" id="verifySpinner" aria-hidden="true" hidden></span>
-              <span id="verifyLabel">Verify and continue</span>
-            </button>
-          </form>
-
-          <p class="auth-alt">
-            Didn't get it?
-            <button class="link-btn" id="resendBtn" type="button">Resend code</button>
-            <span class="resend-hint" id="resendHint" hidden></span>
-          </p>
-          <p class="auth-alt">
-            <button class="link-btn" id="changeEmail" type="button">Use a different email</button>
-          </p>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="wrap">
-      <div class="disclaimer">
-        <strong>Not legal advice.</strong> Tenura provides general information about
-        common rental practices to help you read an agreement. It is not a substitute
-        for advice from a qualified lawyer.
-      </div>
-      <div class="footer-row">
-        <span>Tenura — built for the Devcenter Hacktober sprint.</span>
-        <span class="footer-links">
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/terms">Terms of Service</a>
-        </span>
+        <p class="auth-footnote">
+          <strong>Not legal advice.</strong> Tenura gives general information about common
+          rental practices. · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
+        </p>
       </div>
     </div>
-  </footer>
+
+    <aside class="auth-aside">
+      <span class="aa-glow g1"></span>
+      <span class="aa-glow g2"></span>
+      <p class="aa-eyebrow">Why Tenura</p>
+      <h2>Sign in and keep every agreement you analyse.</h2>
+      <p>
+        A free account saves your analyses so you can come back to them — compare two
+        agreements, or revisit the questions you planned to ask.
+      </p>
+      <ul class="aa-points">
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4 10-10"/></svg>
+          <span>Every analysis saved to your private history.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4 10-10"/></svg>
+          <span>One click to delete an analysis — agreement text and all.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4 10-10"/></svg>
+          <span>No ads, no selling your data, no external trackers.</span>
+        </li>
+      </ul>
+    </aside>
+  </div>
 
   <script src="/common.js"></script>
   <script src="/signup.js"></script>

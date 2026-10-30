@@ -217,6 +217,11 @@ def history_page():
     return FileResponse(BASE_DIR / "static" / "history.html")
 
 
+@app.get("/dashboard", include_in_schema=False)
+def dashboard_page():
+    return FileResponse(BASE_DIR / "static" / "dashboard.html")
+
+
 @app.get("/profile", include_in_schema=False)
 def profile_page():
     return FileResponse(BASE_DIR / "static" / "profile.html")

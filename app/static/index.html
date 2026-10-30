@@ -9,20 +9,25 @@
   <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/app.css" />
 </head>
 <body>
-  <header class="nav">
-    <div class="wrap nav-inner">
+  <header class="m-nav">
+    <div class="m-nav-inner">
       <a class="brand" href="/">
         <img class="brand-logo" src="/tenura-logo.png" alt="Tenura" width="119" height="30" />
       </a>
+      <nav class="m-links" aria-label="Sections">
+        <a href="#how">How it works</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </nav>
       <span class="nav-spacer"></span>
-      <span class="nav-tag">Built for Nigerian renters</span>
       <div class="auth-slot" id="authSlot"></div>
     </div>
   </header>
 
-  <main class="wrap">
+  <main class="m-wrap">
     <section class="hero">
       <span class="eyebrow"><span class="dot"></span> Read the fine print, in seconds</span>
       <h1>Know what you're signing before you sign it.</h1>
@@ -214,7 +219,7 @@
       </div>
     </section>
 
-    <section class="how">
+    <section class="how" id="how">
       <h2>How Tenura reads your agreement</h2>
       <div class="how-grid">
         <div class="how-card">
@@ -237,7 +242,7 @@
   </main>
 
   <footer class="footer">
-    <div class="wrap">
+    <div class="m-wrap">
       <div class="disclaimer">
         <strong>Not legal advice.</strong> Tenura provides general information about
         common rental practices to help you read an agreement. It is not a substitute

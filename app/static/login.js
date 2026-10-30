@@ -141,7 +141,7 @@
       body: JSON.stringify({ email: address, password: els.password.value }),
     })
       .then(function () {
-        window.location.href = Tenura.safeNext("/history");
+        window.location.href = Tenura.safeNext("/dashboard");
       })
       .catch(function (err) {
         showError(els.loginError, err.message);
@@ -260,7 +260,7 @@
 
     request
       .then(function () {
-        window.location.href = Tenura.safeNext("/history");
+        window.location.href = Tenura.safeNext("/dashboard");
       })
       .catch(function (err) {
         showError(els.codeError, err.message);
