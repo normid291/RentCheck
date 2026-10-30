@@ -1578,9 +1578,14 @@ body.drawer-open { overflow: hidden; }
   .stat-card .sc-label { font-size: 0.72rem; line-height: 1.25; }
   .stat-card .sc-value { font-size: 1.28rem; }
 
-  .table-toolbar { padding: 12px; gap: 8px; }
+  .table-toolbar { padding: 12px; gap: 8px; position: relative; }
   .tt-search { flex: 1 1 130px; }
   .tt-search input { width: 100%; min-height: 44px; }
+  /* Anchor the menu to the toolbar, not the narrow filter button. Otherwise
+   * the menu's right edge follows a button on the left of a wrapped row and
+   * most of it opens off-screen. */
+  .filter-wrap { position: static; }
+  .filter-menu { top: calc(100% - 1px); right: 12px; }
 
   .page-head .btn-new { flex: 1 1 auto; justify-content: center; }
 }
