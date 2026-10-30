@@ -682,8 +682,6 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.2-3 7.4-7 9-4-1.6-7-4.8-7-9V6z"/><path d="M9.5 12l1.8 1.8 3.4-3.6"/></svg>',
     doc:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l4 4v14H9z"/><path d="M15 3v5h4"/><path d="M12 13h4M12 17h4"/></svg>',
-    plus:
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
     menu:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
     close:
@@ -750,7 +748,6 @@
         '<div class="side-card">' +
         "<strong>Your analyses are private</strong>" +
         "<p>Saved agreements are visible only to you. Delete any of them at any time.</p>" +
-        '<a class="side-cta" href="/dashboard/new">' + ICON.plus + " Analyse an agreement</a>" +
         "</div>" +
         "</div>" +
         '<div class="side-user" id="sideUser" hidden></div>';
