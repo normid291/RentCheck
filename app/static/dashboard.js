@@ -463,11 +463,17 @@
       });
   }
 
-  Tenura.ready.then(function (user) {
-    if (!user) {
-      window.location.href = "/login?next=" + encodeURIComponent("/dashboard");
-      return;
-    }
-    load();
-  });
+  Tenura.requireSession("/dashboard")
+    .then(function (user) {
+      if (!user) return; // already redirecting to log in
+      load();
+    })
+    .catch(function (err) {
+      $("tableBody").innerHTML =
+        '<tr><td colspan="9"><div class="empty-block"><h2>We couldn\'t confirm your session</h2>' +
+        "<p>" + esc(err.message) + "</p>" +
+        '<button class="btn-new" id="retrySession" type="button">Try again</button></div></td></tr>';
+      var r = $("retrySession");
+      if (r) r.addEventListener("click", function () { window.location.reload(); });
+    });
 })();

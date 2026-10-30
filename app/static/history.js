@@ -363,12 +363,22 @@
 
   /* ---------- start ---------- */
 
-  Tenura.ready.then(function (user) {
-    if (!user) {
-      window.location.href = "/login?next=" + encodeURIComponent("/history");
-      return;
-    }
-    window.addEventListener("hashchange", route);
-    route();
-  });
+  Tenura.requireSession("/history")
+    .then(function (user) {
+      if (!user) return; // already redirecting to log in
+      window.addEventListener("hashchange", route);
+      route();
+    })
+    .catch(function (err) {
+      els.viewList.hidden = false;
+      els.loading.hidden = true;
+      els.listContainer.innerHTML =
+        '<div class="panel empty-state">' +
+        "<h2>We couldn't load your analyses</h2>" +
+        "<p>" + esc(err.message) + "</p>" +
+        '<button class="btn btn-primary" id="retrySession" type="button">Try again</button>' +
+        "</div>";
+      var retry = document.getElementById("retrySession");
+      if (retry) retry.addEventListener("click", function () { window.location.reload(); });
+    });
 })();

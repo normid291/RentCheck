@@ -255,6 +255,9 @@
 
   var currentUser = null;
   var googleReady = false;
+  // Whether the last /api/auth/me answer was actually received. false means the
+  // server could not be reached, which is NOT the same as being signed out.
+  var sessionKnown = false;
 
   /* ---------- identity helpers ---------- */
 
@@ -476,22 +479,57 @@
     };
   }
 
-  function mountHeader() {
-    if (!document.getElementById("authSlot")) return Promise.resolve(null);
+  function loadSession() {
     return apiFetch("/api/auth/me")
       .then(function (data) {
         currentUser = data && data.user ? data.user : null;
         googleReady = !!(data && data.google);
+        sessionKnown = true;
         renderAuthSlot();
         return currentUser;
       })
       .catch(function () {
-        // A header that cannot load must not break the page; show signed-out.
-        currentUser = null;
-        googleReady = false;
+        // A header that cannot load must not break the page. But it must also
+        // not claim the visitor is signed out: that would bounce a logged-in
+        // user to /login during a cold start. sessionKnown records the doubt.
+        sessionKnown = false;
         renderAuthSlot();
         return null;
       });
+  }
+
+  /* Kept as the name boot() calls; the two are the same job. */
+  function mountHeader() {
+    return loadSession();
+  }
+
+  /* For pages that must have a session: resolves with the user, or sends them
+   * to /login?next=... and resolves null. A transient failure is retried rather
+   * than mistaken for a signed-out visitor, and if the server stays unreachable
+   * it rejects so the page can show "try again" instead of logging them out. */
+  function requireSession(nextPath) {
+    function attempt(n, user) {
+      if (user) return user;
+      if (sessionKnown) {
+        window.location.href = "/login?next=" + encodeURIComponent(nextPath);
+        return null;
+      }
+      if (n >= 4) {
+        throw new ApiError(
+          "We couldn't confirm your session. Please check your connection and try again.",
+          0,
+          null
+        );
+      }
+      return sleep(1000 * n).then(function () {
+        return loadSession().then(function (u) {
+          return attempt(n + 1, u);
+        });
+      });
+    }
+    return ready.then(function (user) {
+      return attempt(1, user);
+    });
   }
 
   /* Whether the server has Google sign-in configured. Read from /api/auth/me, so
@@ -765,6 +803,10 @@
     pending: pending,
     logout: logout,
     ready: ready,
+    requireSession: requireSession,
+    sessionKnown: function () {
+      return sessionKnown;
+    },
     user: function () {
       return currentUser;
     },

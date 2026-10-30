@@ -183,11 +183,21 @@
     }
   }
 
-  Tenura.ready.then(function (user) {
-    if (!user) {
-      window.location.href = "/login?next=" + encodeURIComponent("/profile");
-      return;
-    }
-    render(user);
-  });
+  Tenura.requireSession("/profile")
+    .then(function (user) {
+      if (!user) return; // already redirecting to log in
+      render(user);
+    })
+    .catch(function (err) {
+      var root = document.getElementById("profileRoot");
+      if (!root) return;
+      root.innerHTML =
+        '<div class="panel empty-state">' +
+        "<h2>We couldn't load your profile</h2>" +
+        "<p>" + Tenura.escapeHtml(err.message) + "</p>" +
+        '<button class="btn btn-primary" id="retrySession" type="button">Try again</button>' +
+        "</div>";
+      var retry = document.getElementById("retrySession");
+      if (retry) retry.addEventListener("click", function () { window.location.reload(); });
+    });
 })();
